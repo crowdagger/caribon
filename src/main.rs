@@ -1,8 +1,4 @@
-extern crate stemmer;
-use stemmer::Stemmer;
-
 extern crate caribon;
-use caribon::Word;
 use caribon::Parser;
 
 use std::io;

@@ -1,9 +1,7 @@
 extern crate stemmer;
 use self::stemmer::Stemmer;
-use word;
 use word::Word;
 use std::collections::HashMap;
-use std::f32;
 
 static IGNORED_FR:[&'static str; 21] = ["la", "le", "les", "pas", "ne",
                                        "nos", "des", "ils", "elles", "il",

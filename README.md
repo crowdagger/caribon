@@ -74,17 +74,17 @@ Current features
 * Basic support for french. Less than basic support for other
   languages supported by the snowall (http://snowball.tartarus.org/)
   project.
-* Count repetitions either locally (using some leak-based algorithm)
-  or globally.
+* Count repetitions either locally (either by ignoring repetitions
+  after a given distance, or using some leak-based algorithm) or globally.
 * Detects HTML tags in input. It doesn't work with a full HTML file
   (containing `<html>`, `<body>` and so on) but it works fine if you
   use e.g `pandoc -o file.html file.md`.
 * Outputs a basic HTML files which higlights the detected repetitions.
 
+
 TODO 
 ====
 
-* Add another local detector, based on distance;
 * Render prettier output files;
 * Add arguments to `caribon` instead of having to modify `main.rs` and
 recompile;

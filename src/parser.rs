@@ -21,8 +21,10 @@ pub struct Parser<'a> {
     html: bool,
     /// Ignores proper nouns
     ignore_proper: bool,
-    /// Leak, only used for some algorithms
-    leak: f32        
+    /// Leak, only used for detect_leak
+    leak: f32,
+    /// Max distance to consider a repetition, only used for detect_local
+    max_distance: u32
 }
 
 impl<'a> Parser<'a> {
@@ -41,9 +43,16 @@ impl<'a> Parser<'a> {
                     ignored: ignored,
                     html: true,
                     ignore_proper: false,
-                    leak: 0.98})
+                    leak: 0.98,
+                    max_distance: 50})
     }
 
+    /// Sets max distance for repetition (default 50)
+    pub fn with_max_distance(mut self, max_dist: u32) -> Parser<'a> {
+        self.max_distance = max_dist;
+        self
+    }
+    
     /// Sets HTML detection in input (default true)
     pub fn with_html(mut self, html: bool) -> Parser<'a> {
         self.html = html;
@@ -235,20 +244,60 @@ impl<'a> Parser<'a> {
         }
         vec
     }
-    
 
+    /// Detect the local number of repetitions.
+    ///
+    /// For each word, value is set to the total number of occurences of this word
+    /// but it is reset to zero if there is more than `self.max_distance` between
+    /// two occurences.
+    pub fn detect_local(&self, mut vec:Vec<Word>) -> Vec<Word> {
+        let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
+        let mut pos = 1;
+
+        for i in 0 .. vec.len() {
+            let e:Word = vec[i].clone();
+            match e {
+                Word::Untracked(_) => {}
+                Word::Ignored(_) => {pos += 1},
+                Word::Tracked(_, ref stemmed, _) => {
+                    let (mut p_pos, mut subvec) = match h.remove(stemmed) {
+                        None => (0, vec!()),
+                        Some(y) => y
+                    };
+                    if p_pos != 0 && pos - p_pos < self.max_distance {
+                        subvec.push(i);
+                        let v = subvec.len() as f32;
+                        subvec.iter().map(|e| vec[*e].set_count(v)).count();
+                        h.insert(stemmed.clone(), (pos, subvec));
+                    } else {
+                        subvec = vec!(i);
+                        h.insert(stemmed.clone(), (pos, subvec));
+                    }
+                }
+            };
+        }
+        vec
+    }
+    
     /// Detect the global number of repetitions.
     ///
     /// For each word, value is set to the total number of occurences of this word.
-    pub fn detect_global(&self, mut vec:Vec<Word>) -> Vec<Word> {
+    ///
+    /// # Arguments
+    ///
+    /// * `vec` – A vector of `Word`
+    /// * `is_relative` – If true, divide the number of occurences by total number of words
+    pub fn detect_global(&self, mut vec:Vec<Word>, is_relative: bool) -> Vec<Word> {
         let mut h:HashMap<String, f32> = HashMap::new();
+        let mut count = 0;
 
         // first loop: we fill the map to count the occurences
         for i in 0 .. vec.len() {
             match &vec[i] {
                 &Word::Untracked(_) => {}
-                &Word::Ignored(_) => {},
+                &Word::Ignored(_) => {count += 1;},
                 &Word::Tracked(_, ref stemmed, _) => {
+                    count += 1;
                     let x = match h.get(stemmed) {
                         None => 0.0,
                         Some(y) => *y
@@ -267,7 +316,11 @@ impl<'a> Parser<'a> {
                 None
             };
             if let Some(x) = tmp {
-                vec[i].set_count(x);
+                if is_relative {
+                    vec[i].set_count(x / (count as f32));
+                } else {
+                    vec[i].set_count(x);
+                }
             }
         }
         vec

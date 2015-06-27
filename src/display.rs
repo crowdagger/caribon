@@ -31,7 +31,6 @@ pub fn words_to_html(words: &Vec<Word>, threshold: f32) -> String {
                 res = res + &this;
             }
         }
-        res = res + " ";
     }
     res = res + END;
     res

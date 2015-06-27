@@ -1,11 +1,14 @@
 extern crate stemmer;
 use self::stemmer::Stemmer;
+use word;
 use word::Word;
+use std::collections::HashMap;
 
-static IGNORED_FR:[&'static str; 17] = ["la", "le", "les", "pas", "ne",
+static IGNORED_FR:[&'static str; 21] = ["la", "le", "les", "pas", "ne",
                                        "nos", "des", "ils", "elles", "il",
                                        "elle", "se", "on", "nous", "vous",
-                                       "leur", "leurs"];
+                                        "leur", "leurs", "de", "et", "un",
+                                        "une"];
 static IGNORED_DEFAULT:[&'static str; 0] = [];
 
 /// Parser type
@@ -37,17 +40,52 @@ impl<'a> Parser<'a> {
     }
 
     /// Tokenize a string into a list of words
-    pub fn tokenize(&self, s: &str) -> Vec<Word> {
+    fn tokenize(&self, s: &str) -> Vec<Word> {
         let vec:Vec<&str> = s.split_whitespace().collect();
         let mut res = vec!();
         for s in vec {
             if self.ignored.contains(&s) {
-                res.push(Word::Untracked(s.to_string()));
+                res.push(Word::Ignored(s.to_string()));
             } else {
-                res.push(Word::Tracked(s.to_string(), self.stemmer.stem(s), 0.0));
+                res.push(Word::Tracked(word::Tracking{content:s.to_string(),
+                                                      stemmed: self.stemmer.stem(s),
+                                                      value: 0.0}));
             }
         }
         res
+    }
+
+    /// Parse a string
+    pub fn parse(&self, s:&str) -> Vec<Word> {
+        let mut vec = self.tokenize(s);
+        let mut h:HashMap<String, f32> = HashMap::new();
+        let mut pos = 0;
+
+        for i in 0 .. vec.len() {
+            let v = match &vec[i] {
+                &Word::Untracked(_) => None,
+                &Word::Ignored(_) => {
+                    pos += 1;
+                    None
+                },
+                &Word::Tracked(ref tracking) => {
+                    let x = match h.get(&tracking.stemmed) {
+                        None => 0.0,
+                        Some(y) => *y
+                    } + 1.0;
+                    h.insert(tracking.stemmed.clone(), x);
+                    pos += 1;
+                    Some(x)
+                }
+            };
+            match v {
+                None => {},
+                Some(x) => {
+                    vec[i] = vec[i].clone().set_count(x);
+                }
+            }
+        }
+        vec
     }
 }
 

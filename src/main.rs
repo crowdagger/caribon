@@ -8,8 +8,8 @@ use caribon::Parser;
 fn main() {
     let parser = Parser::new("french").unwrap();
     let ignored = ["la", "le", "et"];
-    let parser = parser.with_ignored(&ignored);
+//    let parser = parser.with_ignored(&ignored);
     println!("{:?}", parser.ignored);
-    let s = "le vent se lève";
-    println!("{:?}", parser.tokenize(s));
+    let s = "voici un petit texte afin de détecter si ce détecteur de répétitions fonctionne et détecte bien les répétitions";
+    println!("{:?}", parser.parse(s));
 }

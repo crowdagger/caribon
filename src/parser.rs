@@ -3,11 +3,12 @@ use self::stemmer::Stemmer;
 use word::Word;
 use std::collections::HashMap;
 
-static IGNORED_FR:[&'static str; 21] = ["la", "le", "les", "pas", "ne",
+static IGNORED_FR:[&'static str; 26] = ["la", "le", "les", "pas", "ne",
                                        "nos", "des", "ils", "elles", "il",
                                        "elle", "se", "on", "nous", "vous",
                                         "leur", "leurs", "de", "et", "un",
-                                        "une"];
+                                        "une", "t", "s", "à", "d",
+                                        "l"];
 static IGNORED_DEFAULT:[&'static str; 0] = [];
 
 /// Parser type

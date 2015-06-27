@@ -7,6 +7,7 @@ ChangeLog
 * Added some ignored words for french
 * Added option to ignore proper nouns
 * Added `detect_local` algorithm
+* Added `Parser::list_languages()` function
 
 0.1.0 (2015-06-27)
 ------------------

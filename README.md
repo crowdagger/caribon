@@ -68,6 +68,46 @@ It is possible to use Caribon as a library. There is currently no
 documentation online, but you should be able to generate it with
 `cargo doc`.
 
+Basically, it's pretty easy:
+
+You create a new parser with `Parser::new("language")` (the only
+trick is that it returns an `Option`, as all languages are not
+implemented, see `Parser::list_languages()` to get a vector of those
+that are implemented by the stemming library.
+
+You can then set some parameters for the parser, e.g:
+
+```rust
+let parser = Parser::new("french")
+    .unwrap()
+    .with_html(true) // enable html in input (default value, so it's useless)
+    .with_ignore_proper(true); // don't count repetitions for proper nouns 
+```
+
+The first step is to "tokenize" the string you want to parse:
+
+```rust
+let words = parser.tokenize("Some string which may or may not contain repetitions");
+```
+
+The second step is to detect the repetitions, using one of the three
+algorithms:
+
+```rust
+let detected_words = parser.detect_local(words);
+let detected_words = parser.detect_global(words);
+let detected_words = parser.detect_leak(words);
+```
+
+The final step is to display this vector of words. `Caribon` provides
+a function that generates an HTML file:
+
+```rust
+println!("{}", caribon::words_to_html(detected_words));
+```
+
+
+
 Current features
 ================
 

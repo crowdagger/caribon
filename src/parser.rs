@@ -56,11 +56,15 @@ impl<'a> Parser<'a> {
         let vec:Vec<&str> = s.split_whitespace().collect();
         let mut res = vec!();
         for s in vec {
-            if self.ignored.contains(&s) {
+            let lower_s:Vec<String> = s.chars()
+                .map(|c| c.to_lowercase().collect::<String>())
+                .collect();
+            let lower_s = lower_s.connect("");
+            if self.ignored.contains(&&*lower_s) {
                 res.push(Word::Ignored(s.to_string()));
             } else {
                 res.push(Word::Tracked(s.to_string(),
-                                       self.stemmer.stem(s),
+                                       self.stemmer.stem(&lower_s),
                                        0.0));
             }
         }

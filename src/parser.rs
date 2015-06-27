@@ -2,7 +2,10 @@ extern crate stemmer;
 use self::stemmer::Stemmer;
 use word::Word;
 
-static IGNORED_FR:[&'static str; 2] = ["la", "le"];
+static IGNORED_FR:[&'static str; 17] = ["la", "le", "les", "pas", "ne",
+                                       "nos", "des", "ils", "elles", "il",
+                                       "elle", "se", "on", "nous", "vous",
+                                       "leur", "leurs"];
 static IGNORED_DEFAULT:[&'static str; 0] = [];
 
 /// Parser type
@@ -38,7 +41,11 @@ impl<'a> Parser<'a> {
         let vec:Vec<&str> = s.split_whitespace().collect();
         let mut res = vec!();
         for s in vec {
-            res.push(Word::Tracked(s.to_string(), self.stemmer.stem(s), 0.0));
+            if self.ignored.contains(&s) {
+                res.push(Word::Untracked(s.to_string()));
+            } else {
+                res.push(Word::Tracked(s.to_string(), self.stemmer.stem(s), 0.0));
+            }
         }
         res
     }

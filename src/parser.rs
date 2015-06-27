@@ -28,6 +28,11 @@ pub struct Parser<'a> {
 }
 
 impl<'a> Parser<'a> {
+    ///  Returns a vector containing all languages implemented
+    pub fn list_languages() -> Vec<&'static str> {
+        Stemmer::list()
+    }
+    
     /// Returns Some(Parser) if language is ok, None else
     pub fn new(lang: &str) -> Option<Parser> {
         let stemmer = Stemmer::new(lang);
@@ -260,7 +265,7 @@ impl<'a> Parser<'a> {
                 Word::Untracked(_) => {}
                 Word::Ignored(_) => {pos += 1},
                 Word::Tracked(_, ref stemmed, _) => {
-                    let (mut p_pos, mut subvec) = match h.remove(stemmed) {
+                    let (p_pos, mut subvec) = match h.remove(stemmed) {
                         None => (0, vec!()),
                         Some(y) => y
                     };

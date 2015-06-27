@@ -36,7 +36,7 @@ impl<'a> Parser<'a> {
         };
         Some(Parser{stemmer: stemmer,
                     ignored: ignored,
-                    leak: 0.9})
+                    leak: 0.98})
     }
 
     /// Sets the leak    
@@ -74,7 +74,7 @@ impl<'a> Parser<'a> {
     /// Detect the local repetitions, using a leak value
     ///
     /// Basically, each time a word occurs, increase value by 1.0
-    /// and each time it does not, multiply by leak (default: 0.9)
+    /// and each time it does not, multiply by leak (default: 0.98)
     pub fn detect_leak(&self, mut vec:Vec<Word>) -> Vec<Word> {
         let mut h:HashMap<String, (u32, f32)> = HashMap::new();
         let mut pos = 0;

@@ -43,9 +43,9 @@ fn value_to_style(x: f32, threshold: f32) -> &'static str {
     if x < threshold {
         ""
     } else if x < 2.0 * threshold {
-        "style = \"text-decoration: underline; color: #FFFF00;\""
+        "style = \"text-decoration: underline; color: orange;\""
     } else {
-        "style = \"text-decoration: underline; color: #FF0000;\""
+        "style = \"text-decoration: underline; color: red;\""
     }
 }
     

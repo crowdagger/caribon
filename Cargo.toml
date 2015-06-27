@@ -2,6 +2,10 @@
 name = "caribon"
 version = "0.1.0"
 authors = ["Elisabeth Henry <liz.henry@ouvaton.org>"]
+readme = "README.md"
+homepage = "https://github.com/lady-segfault/caribon"
+repository = "https://github.com/lady-segfault/caribon"
+description = "A repetition detector"
 
 [dependencies]
 stemmer = "*"

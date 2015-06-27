@@ -1,7 +1,10 @@
 extern crate stemmer;
 use stemmer::Stemmer;
 
+extern crate caribon;
+use caribon::Word;
+use caribon::Parser;
+
 fn main() {
-    let stemmer = Stemmer::new("french").unwrap();
-    println!("{}", stemmer.stem("mangerai"));
+    let parser = Parser::new("french");
 }

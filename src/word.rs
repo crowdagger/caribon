@@ -1,10 +1,3 @@
-#[derive(Debug,Clone)]
-pub struct Tracking {
-    pub content: String,
-    pub stemmed: String,
-    pub value: f32
-}
-
 /// `Word` type.
 #[derive(Debug,Clone)]
 pub enum Word {

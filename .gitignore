@@ -4,6 +4,8 @@
 *.rlib
 *.dll
 *~
+.*
+\#*
 
 # Executables
 *.exe

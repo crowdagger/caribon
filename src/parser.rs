@@ -59,7 +59,7 @@ impl<'a> Parser<'a> {
             let lower_s:Vec<String> = s.chars()
                 .map(|c| c.to_lowercase().collect::<String>())
                 .collect();
-            let lower_s = lower_s.connect("");
+            let lower_s = lower_s.concat();
             if self.ignored.contains(&&*lower_s) {
                 res.push(Word::Ignored(s.to_string()));
             } else {

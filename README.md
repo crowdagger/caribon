@@ -62,6 +62,12 @@ browser and see your repetitions. Note that the default binary is
 configured for french, if you want to use another language, you'll
 have (at this point) to modify `main.rs` by hand. Sorry.
 
+Library
+=======
+It is possible to use Caribon as a library. There is currently no
+documentation online, but you should be able to generate it with
+`cargo doc`.
+
 Current features
 ================
 
@@ -70,14 +76,16 @@ Current features
   project.
 * Count repetitions either locally (using some leak-based algorithm)
   or globally.
+* Detects HTML tags in input. It doesn't work with a full HTML file
+  (containing `<html>`, `<body>` and so on) but it works fine if you
+  use e.g `pandoc -o file.html file.md`.
 * Outputs a basic HTML files which higlights the detected repetitions.
 
 TODO 
 ====
 
 * Add another local detector, based on distance;
-* Add support for HTML in input files;
 * Render prettier output files;
 * Add arguments to `caribon` instead of having to modify `main.rs` and
 recompile;
-* Make a tiny webserver version so it can be used online.
+* Make a tiny webserver version so it can be used online?

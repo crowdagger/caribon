@@ -41,6 +41,8 @@ pub fn words_to_html(words: &Vec<Word>, threshold: f32) -> String {
 fn value_to_style(x: f32, threshold: f32) -> &'static str {
     if x < threshold {
         ""
+    } else if x < 1.5 * threshold {
+        "style = \"text-decoration: underline; color: green;\""
     } else if x < 2.0 * threshold {
         "style = \"text-decoration: underline; color: orange;\""
     } else {

@@ -16,9 +16,13 @@ pub struct Parser<'a> {
     /// The stemmer object
     stemmer: Stemmer,
     /// List of ignored words
-    pub ignored: &'a[&'a str],
+    ignored: &'a[&'a str],
+    /// Detect HTML in input
+    html: bool,
+    /// Ignores proper nouns
+    ignore_proper: bool,
     /// Leak, only used for some algorithms
-    leak: f32
+    leak: f32        
 }
 
 impl<'a> Parser<'a> {
@@ -35,10 +39,24 @@ impl<'a> Parser<'a> {
         };
         Some(Parser{stemmer: stemmer,
                     ignored: ignored,
+                    html: true,
+                    ignore_proper: false,
                     leak: 0.98})
     }
 
-    /// Sets the leak    
+    /// Sets HTML detection in input (default true)
+    pub fn with_html(mut self, html: bool) -> Parser<'a> {
+        self.html = html;
+        self
+    }
+
+    /// Sets ignore_proper flag (default false)
+    pub fn with_ignore_proper(mut self, proper: bool) -> Parser<'a> {
+        self.ignore_proper = proper;
+        self
+    }
+    
+    /// Sets the leak (default 0.98)
     pub fn with_leak(mut self, leak: f32) -> Parser<'a> {
         self.leak = leak;
         self
@@ -79,7 +97,7 @@ impl<'a> Parser<'a> {
         (chars, Word::Untracked(res))
     }
     
-    fn tokenize_whitespace<'b>(&self, c:&'b [char]) -> (&'b [char], Word) {
+    fn tokenize_whitespace<'b>(&self, c:&'b [char], is_begin: &mut bool) -> (&'b [char], Word) {
         let mut res = String::new();
         let mut chars:&[char] = c;
 
@@ -93,16 +111,37 @@ impl<'a> Parser<'a> {
             }
             chars = &chars[1..];
             res.push(c);
+            if c == '.' {
+                *is_begin = true;
+            }
         }
 
         (chars, Word::Untracked(res))
     }
-    
 
-    fn tokenize_word<'b>(&self, c: &'b [char]) -> (&'b [char], Word) {
+    /// Return true if `s` is a proper noun, false else
+    fn is_proper_noun(&self, s:&str, is_begin: bool) -> bool {
+        if self.ignore_proper {
+            if !is_begin {
+                let o = s.chars().next();
+                match o {
+                    None => false,
+                    Some(c) => c.is_uppercase()
+                }
+            }
+            else {
+                // Technically a proper noun could be at the beginning of a sentence :s
+                false
+            }
+        } else {
+            false
+        }
+    }
+
+    fn tokenize_word<'b>(&self, c: &'b [char], is_begin:&mut bool) -> (&'b [char], Word) {
         let mut res = String::new();
         let mut chars:&[char] = c;
-
+        
         loop {
             if chars.is_empty() {
                 break;
@@ -119,14 +158,16 @@ impl<'a> Parser<'a> {
             .map(|c| c.to_lowercase().collect::<String>())
             .collect();
         let lower_s = lower_s.concat();
-        let word = if self.ignored.contains(&&*lower_s) {
-            Word::Ignored(res.to_string())
+        let word = if self.ignored.contains(&&*lower_s)
+            || self.is_proper_noun(&res, *is_begin) {
+            Word::Ignored(res)
         } else {
-            Word::Tracked(res.to_string(),
+            Word::Tracked(res,
                           self.stemmer.stem(&lower_s),
                           0.0)
         };
 
+        *is_begin = false;
         (chars, word)
     }
 
@@ -136,24 +177,26 @@ impl<'a> Parser<'a> {
     /// # Arguments
     ///
     /// * `s` – The string to tokenize
-    /// * `html` – If true, escapes html content
-    pub fn tokenize(&self, s: &str, html: bool) -> Vec<Word> {
+    pub fn tokenize(&self, s: &str) -> Vec<Word> {
         let v_chars:Vec<char> = s.chars().collect();
         let mut chars:&[char] = &v_chars;
         let mut res:Vec<Word> = vec!();
+        let mut is_sentence_beginning = true;
+        
 
         while !chars.is_empty() {
             let c = chars[0];
             if c.is_alphabetic() {
-                let (c, word) = self.tokenize_word(chars);
+                let (c, word) = self.tokenize_word(chars, &mut is_sentence_beginning);
                 chars = c;
                 res.push(word);
-            } else if html && c == '<' {
+            } else if self.html && c == '<' {
                 let (c, word) = self.tokenize_html(chars);
                 chars = c;
                 res.push(word);
+                is_sentence_beginning = false;
             } else {
-                let (c, word) = self.tokenize_whitespace(chars);
+                let (c, word) = self.tokenize_whitespace(chars, &mut is_sentence_beginning);
                 chars = c;
                 res.push(word);
             }

@@ -47,9 +47,9 @@ impl<'a> Parser<'a> {
             if self.ignored.contains(&s) {
                 res.push(Word::Ignored(s.to_string()));
             } else {
-                res.push(Word::Tracked(word::Tracking{content:s.to_string(),
-                                                      stemmed: self.stemmer.stem(s),
-                                                      value: 0.0}));
+                res.push(Word::Tracked(s.to_string(),
+                                       self.stemmer.stem(s),
+                                       0.0));
             }
         }
         res
@@ -68,12 +68,12 @@ impl<'a> Parser<'a> {
                     pos += 1;
                     None
                 },
-                &Word::Tracked(ref tracking) => {
-                    let x = match h.get(&tracking.stemmed) {
+                &Word::Tracked(_, ref stemmed, _) => {
+                    let x = match h.get(stemmed) {
                         None => 0.0,
                         Some(y) => *y
                     } + 1.0;
-                    h.insert(tracking.stemmed.clone(), x);
+                    h.insert(stemmed.clone(), x);
                     pos += 1;
                     Some(x)
                 }
@@ -81,7 +81,7 @@ impl<'a> Parser<'a> {
             match v {
                 None => {},
                 Some(x) => {
-                    vec[i] = vec[i].clone().set_count(x);
+                    vec[i].set_count(x);
                 }
             }
         }

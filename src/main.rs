@@ -12,6 +12,6 @@ fn main() {
 //    println!("{:?}", parser.ignored);
     let s = "Voici un petit texte afin de Détecter si ce détecteur de répétitions fonctionne et détecte bien les répétitions car les répétitions \
 c'est pas bien on veut pouvoir les détecter !";
-    println!("{}", caribon::words_to_html(&parser.detect_leak(parser.tokenize(s)),
-                                            1.3));
+    println!("{}", caribon::words_to_html(&parser.detect_global(parser.tokenize(s)),
+                                            1.4));
 }

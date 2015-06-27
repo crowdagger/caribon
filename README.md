@@ -94,17 +94,24 @@ The second step is to detect the repetitions, using one of the three
 algorithms:
 
 ```rust
-let detected_words = parser.detect_local(words);
-let detected_words = parser.detect_global(words);
+let detected_words = parser.detect_local(words); 
+let detected_words = parser.detect_global(words, false); 
 let detected_words = parser.detect_leak(words);
 ```
 
 The final step is to display this vector of words. `Caribon` provides
-a function that generates an HTML file:
+a function that generates an HTML file, which also takes as argument a
+threshold above which words are underlined:
 
 ```rust
-println!("{}", caribon::words_to_html(detected_words));
+println!("{}", caribon::words_to_html(&detected_words, 1.5));
 ```
+
+(A note on this threshold: its choices depends on the detection
+algorithm you use (and possibly your taste and the language you write
+in, of course). Generally, it should be a bit above 1.0, except for
+`detect_global` (in which case, it depends whether you set
+`is_relative` to true or false).
 
 
 

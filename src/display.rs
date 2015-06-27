@@ -4,11 +4,13 @@ static START:&'static str = include_str!("html/start.html");
 static END:&'static str = include_str!("html/end.html");
 
 /// Display the words to HTML
-/// It is then possible to use CSS/Js for highliht/whatever
+///
+/// Use some basic CSS/Js for underlining repetitions and highlighting the
+/// over occurrences of the word under the mouse.
 ///
 /// # Arguments
 ///
-/// *  `words` – A vector containing all words
+/// * `words` – A vector containing all words
 /// * `threshold` – The threshold above which words must be highlighted
 pub fn words_to_html(words: &Vec<Word>, threshold: f32) -> String {
     let mut res = String::new();

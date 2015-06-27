@@ -7,5 +7,14 @@ homepage = "https://github.com/lady-segfault/caribon"
 repository = "https://github.com/lady-segfault/caribon"
 description = "A repetition detector"
 
+[lib]
+name = "caribon"
+path = "src/lib.rs"
+
+[[bin]]
+name = "caribon"
+doc = false
+
+
 [dependencies]
 stemmer = "*"

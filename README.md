@@ -85,6 +85,20 @@ Options:
 --debug=[true|false]: if true, print the internal data instead of HTML (default: false)
 ```
 
+Examples
+========
+
+Here is an [example](examples/example_readme.html) of Caribon used on a (previous) version of this
+README, using the following command:
+
+`target/debug/caribon --language=english --algo=local
+--max_distance=25 --threshold=2.0 --ignore_proper=true < README.html  > example.html`
+
+As you can see, it is currently not very suited for english. Here is
+an [example in french](examples/example_readme.fr.html), using a translation of (the beginning of) this
+same file, using nearly the same command:
+
+
 
 Library
 =======

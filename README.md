@@ -85,22 +85,14 @@ Options:
 --debug=[true|false]: if true, print the internal data instead of HTML (default: false)
 ```
 
-Examples
-========
+Example
+=======
 
 Here is an [example](https://lady-segfault.github.io/caribon-examples/example_readme.html) of Caribon used on a (previous) version of this
 README, using the following command:
 
 `target/debug/caribon --language=english --algo=local
 --max_distance=25 --threshold=2.0 --ignore_proper=true < README.html  > example.html`
-
-As you can see, it is currently not very suited for english (neither
-is it for technical documentation, but is not the objective). Here is
-an [example in french](https://lady-segfault.github.io/caribon-examples/example_readme.fr.html), using a translation of (the beginning of) this
-same file, using nearly the same command:
-
-`target/debug/caribon --language=french --algo=local
---max_distance=25 --threshold=2.0 --ignore_proper=true < README.fr.html  > example.html`
 
 Library
 =======

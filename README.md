@@ -202,6 +202,7 @@ Library
 * Render prettier output files;
 * Allow tokenizer to have in input "full" (with <html>,<head>,<body>
   tags) HTML documents;
+* Correctly escapes &nbsp; and such in HTML input;
 * Enhance the way language-dependent list of ignored words are
   treated, and provide them for other languages (currently, only
   french, and it should be completed);

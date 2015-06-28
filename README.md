@@ -43,14 +43,21 @@ should do the job (it works with Rust 1.1). You can then run caribon either with
 `$ cargo run`
 
 or by directly executing the binary (in `target/debug` or
-`target/release`). Since, at this moment, all `caribon` does is read
-a text on standard input and prints HTML on standard output, the
+`target/release`). Since, at this moment either write on standard
+output or takes arguments, the
 latter method is preferred:
 
 `$ target/debug/caribon < some_text.txt > output.html`
 
-(If you use `cargo run` instead, the standard output will start with
-some message from Cargo, which will ruin the HTML formatting.)
+or
+
+`$ targe/debug/caribon --input=some_text.txt --output=output.html`
+
+If you want to use `cargo run`, you can obtain the same results by giving `caribon` some
+command-line arguments, which must be prefixed by `--` so cargo gives
+it to the binary: 
+
+`$ cargo run -- --input=some_text.txt --output=output.html`
 
 You can also install the `caribon` binary somewhere in your path
 (e.g. `/usr/local/bin`) but currently there is no install/uninstall
@@ -66,7 +73,10 @@ ignore.
 
 Usage
 =====
+
 ```
+Caribon, version 0.3.0 by Élisabeth Henry <liz.henry@ouvaton.org>
+
 Reads a file on stdint and outputs an HTML file showing the repetitions
 
 Options:
@@ -74,6 +84,8 @@ Options:
 --version: displays program version
 --list_languages: lists the implemented languages
 --language=[language]: sets the language of the text (default: french)
+--input=[filename]: sets input file (default: stdin)
+--output=[filename]: sets output file (default: stdout)
 --algo=[global|local|leak]: sets the detection algoritm (default: local)
 --leak=[value]: sets leak value (only used by leak algorithm) (default: 0.95)
 --max_distance=[value]: sets max distance (only used by local algorithm) (default: 50)
@@ -82,7 +94,6 @@ Options:
 --threshold=[value]: sets threshold value for underlining repetitions (default: 1.9)
 --html=[true|false]: enables/disable HTML input (default: true)
 --ignore_proper=[true|false]: if true, try to detect proper nouns and don't count them (default: false)
---debug=[true|false]: if true, print the internal data instead of HTML (default: false)
 ```
 
 Example
@@ -183,7 +194,7 @@ This software uses (rust bindings to) the
 [C Stemming library](http://snowball.tartarus.org/dist/libstemmer_c.tgz)
 written by Dr Martin Porter, licensed under the BSD License. 
 
-TODO 
+ToDo 
 ====
 
 Library
@@ -199,8 +210,9 @@ Library
 * Find better default values;
 * Enhance documentation and add tests.
 
-Program
--------
-* Add possibility to read and print to a file instead of stdin/stdout;
-* Make a tiny webserver version so it can be used online? (Maybe more
-  appropriate in another project)
+See also 
+---------
+
+[caribon-server](https://github.com/lady-segfault/caribon-server), a
+work-in-progress project that runs Caribon as a web service. Hopefully
+we can soon have a demo server on the Internet!

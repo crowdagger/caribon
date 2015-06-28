@@ -3,12 +3,15 @@ use self::stemmer::Stemmer;
 use word::Word;
 use std::collections::HashMap;
 
-static IGNORED_FR:[&'static str; 26] = ["la", "le", "les", "pas", "ne",
+static IGNORED_FR:[&'static str; 28] = ["la", "le", "les", "pas", "ne",
                                        "nos", "des", "ils", "elles", "il",
                                        "elle", "se", "on", "nous", "vous",
                                         "leur", "leurs", "de", "et", "un",
                                         "une", "t", "s", "à", "d",
-                                        "l"];
+                                        "l", "je", "tu"];
+static IGNORED_EN:[&'static str; 14] = ["it", "s", "i", "of", "the",
+                                       "a", "you", "we", "she", "he",
+                                       "they", "them", "its", "their"];
 static IGNORED_DEFAULT:[&'static str; 0] = [];
 
 /// Parser type
@@ -42,6 +45,7 @@ impl<'a> Parser<'a> {
         let stemmer = stemmer.unwrap();
         let ignored:&'static[&'static str] = match lang {
             "french" => &IGNORED_FR,
+            "english" => &IGNORED_EN,
             _ => &IGNORED_DEFAULT
         };
         Some(Parser{stemmer: stemmer,

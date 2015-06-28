@@ -4,6 +4,7 @@ ChangeLog
 0.2.2 (???)
 -----------
 * Fixed a bug (and unnecessary clone) in detect_local algorithm
+* Added a list of ignored words for english
 
 0.2.1 (2015-06-28)
 ------------------

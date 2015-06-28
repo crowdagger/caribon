@@ -151,7 +151,9 @@ in, of course). Generally, it should be a bit above 1.0, except for
 Current features
 ================
 
-* Basic support for french. Less than basic support for other
+* Built-in list of ignored words (common words whose repetitions don't
+  matter) for french and englih, though they are not complete.
+* Basic support for other
   languages supported by the Snowball (http://snowball.tartarus.org/)
   project.
 * Count repetitions either locally (either by ignoring repetitions

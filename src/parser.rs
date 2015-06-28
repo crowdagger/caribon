@@ -272,7 +272,9 @@ impl<'a> Parser<'a> {
                     if p_pos != 0 && pos - p_pos < self.max_distance {
                         subvec.push(i);
                         let v = subvec.len() as f32;
-                        subvec.iter().map(|e| vec[*e].set_count(v)).count();
+                        for e in &subvec {
+                            vec[*e].set_count(v);
+                        }
                         h.insert(stemmed.clone(), (pos, subvec));
                     } else {
                         subvec = vec!(i);

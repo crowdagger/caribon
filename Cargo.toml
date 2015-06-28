@@ -1,6 +1,6 @@
 [package]
 name = "caribon"
-version = "0.2.0"
+version = "0.2.1"
 authors = ["Elisabeth Henry <liz.henry@ouvaton.org>"]
 readme = "README.md"
 homepage = "https://github.com/lady-segfault/caribon"

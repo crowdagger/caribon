@@ -94,7 +94,8 @@ README, using the following command:
 `target/debug/caribon --language=english --algo=local
 --max_distance=25 --threshold=2.0 --ignore_proper=true < README.html  > example.html`
 
-As you can see, it is currently not very suited for english. Here is
+As you can see, it is currently not very suited for english (neither
+is it for technical documentation, but is not the objective). Here is
 an [example in french](https://lady-segfault.github.io/caribon-examples/example_readme.fr.html), using a translation of (the beginning of) this
 same file, using nearly the same command:
 

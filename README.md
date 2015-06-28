@@ -163,7 +163,7 @@ Current features
 ================
 
 * Built-in list of ignored words (common words whose repetitions don't
-  matter) for french and englih, though they are not complete.
+  matter) for french and english, though they are not complete.
 * Basic support for other
   languages supported by the Snowball (http://snowball.tartarus.org/)
   project.

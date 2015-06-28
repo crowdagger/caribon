@@ -144,7 +144,7 @@ Current features
 ================
 
 * Basic support for french. Less than basic support for other
-  languages supported by the snowall (http://snowball.tartarus.org/)
+  languages supported by the Snowball (http://snowball.tartarus.org/)
   project.
 * Count repetitions either locally (either by ignoring repetitions
   after a given distance, or using some leak-based algorithm) or globally.
@@ -168,6 +168,10 @@ Author
 ======
 
 Élisabeth Henry <liz.henry@ouvaton.org>.
+
+This software uses (rust bindings to) the
+[C Stemming library](http://snowball.tartarus.org/dist/libstemmer_c.tgz)
+written by Dr Martin Porter, licensed under the BSD License. 
 
 TODO 
 ====

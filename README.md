@@ -167,7 +167,7 @@ or (at your convenience) any ulterior version.
 Author
 ======
 
-Élisabeth Henry <liz.henry@ouvaton.org>.
+Élisabeth Henry <liz.henry at ouvaton.org>.
 
 This software uses (rust bindings to) the
 [C Stemming library](http://snowball.tartarus.org/dist/libstemmer_c.tgz)
@@ -181,7 +181,7 @@ Library
 * Render prettier output files;
 * Enhance the way language-dependent list of ignored words are
   treated, and provide them for other languages (currently, only
-  french);
+  french, and it should be completed);
 * Provide algorithm to detect repetitions of expressions, not just
   single words;
 * Enhance documentation and add tests.

@@ -1,8 +1,10 @@
 ChangeLog
 =========
 
-0.2.1 (???)
------------
+0.2.1 (2015-06-28)
+------------------
+* Added documentation for the library and examples on Github.io
+* Minor bugfixes
 
 0.2.0 (2015-06-28)
 ------------------

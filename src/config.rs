@@ -27,7 +27,8 @@ fn version() {
 }
 
 fn usage() {
-    println!("Caribon, version {} by Élisabeth Henry <liz.henry@ouvaton.org>
+    println!("
+Caribon, version {} by Élisabeth Henry <liz.henry@ouvaton.org>
 
 Reads a file on stdint and outputs an HTML file showing the repetitions
 

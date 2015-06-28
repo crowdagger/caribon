@@ -62,6 +62,28 @@ browser and see your repetitions. Note that the default binary is
 configured for french, if you want to use another language, you'll
 have (at this point) to modify `main.rs` by hand. Sorry.
 
+Usage
+=====
+```
+Reads a file on stdint and outputs an HTML file showing the repetitions
+
+Options:
+--help: displays this message
+--version: displays program version
+--list_languages: lists the implemented languages
+--language=[language]: sets the language of the text (default: french)
+--algo=[global|local|leak]: sets the detection algoritm (default: local)
+--leak=[value]: sets leak value (only used by leak algorithm) (default: 0.95)
+--max_distance=[value]: sets max distance (only used by local algorithm) (default: 50)
+--global_count=[relative|absolute]: sets repetitions count as absolute or relative ratio of words
+                       (only used by global algorithm) (default: absolute)
+--threshold=[value]: sets threshold value for underlining repetitions (default: 1.9)
+--html=[true|false]: enables/disable HTML input (default: true)
+--ignore_proper=[true|false]: if true, try to detect proper nouns and don't count them (default: false)
+--debug=[true|false]: if true, print the internal data instead of HTML (default: false)
+```
+
+
 Library
 =======
 It is possible to use Caribon as a library. There is currently no
@@ -133,6 +155,5 @@ TODO
 ====
 
 * Render prettier output files;
-* Add arguments to `caribon` instead of having to modify `main.rs` and
-recompile;
+* Add possibility to read and print to a file instead of stdin/stdout;
 * Make a tiny webserver version so it can be used online?

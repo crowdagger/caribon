@@ -1,6 +1,10 @@
 ChangeLog
 =========
 
+0.3.0 (???)
+-----------
+* `words_to_html` takes another argument, `standalone`
+
 0.2.2 (2015-06-28)
 ------------------
 * Fixed a bug (and unnecessary clone) in detect_local algorithm

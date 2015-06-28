@@ -12,9 +12,12 @@ static END:&'static str = include_str!("html/end.html");
 ///
 /// * `words` – A vector containing all words
 /// * `threshold` – The threshold above which words must be highlighted
-pub fn words_to_html(words: &Vec<Word>, threshold: f32) -> String {
+/// * `standalone` –  If true, generate a standalone HTML file.
+pub fn words_to_html(words: &Vec<Word>, threshold: f32, standalone: bool) -> String {
     let mut res = String::new();
-    res = res + START;
+    if standalone {
+        res = res + START;
+    }
 
     for word in words {
         match word {
@@ -34,7 +37,10 @@ pub fn words_to_html(words: &Vec<Word>, threshold: f32) -> String {
             }
         }
     }
-    res = res + END;
+
+    if standalone {
+        res = res + END;
+    }
     res
 }
 

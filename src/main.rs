@@ -39,7 +39,7 @@ fn main() {
     if config.debug {
         println!("{:?}", repetitions);
     } else {
-        let html = caribon::words_to_html(&repetitions, config.threshold);
+        let html = caribon::words_to_html(&repetitions, config.threshold, true);
         println!("{}", html);
     }
 }

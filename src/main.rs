@@ -4,11 +4,11 @@ use config::Config;
 use config::Algorithm;
 use caribon::Parser;
 
-use std::io;
+use std::error::Error;
 use std::io::Read;
 
 fn main() {
-    let config = Config::new_from_args();
+    let mut config = Config::new_from_args();
     let result = Parser::new(&config.lang);
 
     let parser = match result {
@@ -25,7 +25,7 @@ fn main() {
         .with_leak(config.leak);
         
     let mut s = String::new();
-    io::stdin().read_to_string(&mut s).unwrap();
+    config.input.read_to_string(&mut s).unwrap();
     
     let words = parser.tokenize(&s);
     let repetitions = match config.algo {
@@ -34,5 +34,9 @@ fn main() {
         Algorithm::Leak => parser.detect_leak(words)
     };
     let html = caribon::words_to_html(&repetitions, config.threshold, true);
-    println!("{}", html);
+    match config.output.write(&html.bytes().collect::<Vec<u8>>())
+    {
+        Ok(_) => {},
+        Err(e) => println!("Error writing HTML: {}", e.description())
+    }
 }

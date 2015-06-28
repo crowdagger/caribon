@@ -1,5 +1,7 @@
 use std::env;
 use std::process::exit;
+use std::fs::File;
+use std::error::Error;
 use std::io;
 use std::io::Read;
 use std::io::Write;
@@ -41,6 +43,8 @@ Options:
 {}: displays program version
 {}: lists the implemented languages
 {}[language]: sets the language of the text (default: french)
+{}[filename]: sets input file (default: stdin)
+{}[filename]: sets output file (default: stdout)
 {}[global|local|leak]: sets the detection algoritm (default: local)
 {}[value]: sets leak value (only used by leak algorithm) (default: 0.95)
 {}[value]: sets max distance (only used by local algorithm) (default: 50)
@@ -54,6 +58,8 @@ Options:
              ARG_VERSION,
              ARG_LIST_LANGUAGES,
              ARG_LANG,
+             ARG_INPUT,
+             ARG_OUTPUT,
              ARG_ALGO,
              ARG_LEAK,
              ARG_MAX_DISTANCE,
@@ -112,13 +118,36 @@ impl Config {
     
     /// Parse a single argument
     pub fn parse_arg(&mut self, arg:&str) {
-        if arg.starts_with(ARG_ALGO) {
+        if arg.starts_with(ARG_OUTPUT) {
+            let option = &arg[ARG_OUTPUT.len()..];
+            let result = File::create(option);
+            match result {
+                Ok(f) => self.output = Box::new(f),
+                Err(e) => {
+                    println!("Error opening file {}: {}", option, e.description());
+                    exit(0);
+                }
+            }
+        } else if arg.starts_with(ARG_INPUT) {
+            let option = &arg[ARG_INPUT.len()..];
+            let result = File::open(option);
+            match result {
+                Ok(f) => self.input = Box::new(f),
+                Err(e) => {
+                    println!("Error opening file {}: {}", option, e.description());
+                    exit(0);
+                }
+            }
+        } else if arg.starts_with(ARG_ALGO) {
             let option = &arg[ARG_ALGO.len()..];
             match option {
                 "leak" => self.algo = Algorithm::Leak,
                 "local" => self.algo = Algorithm::Local,
                 "global" => self.algo = Algorithm::Global,
-                _ => panic!("Unrecognized algorithm: {}", option)
+                _ => {
+                    println!("Unrecognized algorithm: {}", option);
+                    exit(0);
+                }
             }
         } else if arg.starts_with(ARG_LANG) {
             let option = &arg[ARG_LANG.len()..];

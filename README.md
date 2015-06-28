@@ -29,13 +29,12 @@ Internally, Caribon use a stemming library
 Snowball C implementation: http://snowball.tartarus.org/) to reduce
 words to their stems, which allows e.g. to see a singular and a plural
 as the "same" word. Then it's just counting the repetitions, and
-ouputting HTML.
+outputting HTML.
 
 Build
 =====
 
-You'll need Rust and Cargo: http://www.rust-lang.org/install.html,
-then
+You'll need Rust and Cargo, see [install instructions](http://www.rust-lang.org/install.html). Then
 
 `$ cargo build`
 
@@ -55,12 +54,15 @@ some message from Cargo, which will ruin the HTML formatting.)
 
 You can also install the `caribon` binary somewhere in your path
 (e.g. `/usr/local/bin`) but currently there is no install/uninstall
-option.
+option, so you'll have to do it manually.
 
 Once you have generated an HTML file, just open it with your favorite
 browser and see your repetitions. Note that the default binary is
 configured for french, if you want to use another language, you'll
-have (at this point) to modify `main.rs` by hand. Sorry.
+have to pass an option (see below). Note that though a variety of input
+languages are supported thanks to the Snowball stemming library, at
+this time only french has a (incomplete) list of common words to
+ignore. 
 
 Usage
 =====
@@ -86,8 +88,9 @@ Options:
 
 Library
 =======
-It is possible to use Caribon as a library. There is currently no
-documentation online, but you should be able to generate it with
+It is possible to use Caribon as a library. The documentation is
+available [here](http://lady-segfault.github.io/caribon/); in order to
+get the latest version, you can also generate it with
 `cargo doc`.
 
 Basically, it's pretty easy:
@@ -150,10 +153,37 @@ Current features
   use e.g `pandoc -o file.html file.md`.
 * Outputs a basic HTML files which higlights the detected repetitions.
 
+ChangeLog
+=========
+
+[See here](ChangeLog.md).
+
+License
+=======
+
+Caribon is licensed under the [GNU General Public License](LICENSE), version 2.0
+or (at your convenience) any ulterior version.
+
+Author
+======
+
+Élisabeth Henry <liz.henry@ouvaton.org>.
 
 TODO 
 ====
 
+Library
+-------
 * Render prettier output files;
+* Enhance the way language-dependent list of ignored words are
+  treated, and provide them for other languages (currently, only
+  french);
+* Provide algorithm to detect repetitions of expressions, not just
+  single words;
+* Enhance documentation and add tests.
+
+Program
+-------
 * Add possibility to read and print to a file instead of stdin/stdout;
-* Make a tiny webserver version so it can be used online?
+* Make a tiny webserver version so it can be used online? (Maybe more
+  appropriate in another project)

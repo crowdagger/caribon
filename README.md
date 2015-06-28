@@ -195,11 +195,14 @@ TODO
 Library
 -------
 * Render prettier output files;
+* Allow tokenizer to have in input "full" (with <html>,<head>,<body>
+  tags) HTML documents;
 * Enhance the way language-dependent list of ignored words are
   treated, and provide them for other languages (currently, only
   french, and it should be completed);
 * Provide algorithm to detect repetitions of expressions, not just
   single words;
+* Find better default values;
 * Enhance documentation and add tests.
 
 Program

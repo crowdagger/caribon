@@ -260,28 +260,34 @@ impl<'a> Parser<'a> {
         let mut pos = 1;
 
         for i in 0 .. vec.len() {
-            let e:Word = vec[i].clone();
-            match e {
-                Word::Untracked(_) => {}
-                Word::Ignored(_) => {pos += 1},
+            let elem = match vec[i] {
+                Word::Untracked(_) => None,
+                Word::Ignored(_) => {
+                    pos += 1;
+                    None
+                },
                 Word::Tracked(_, ref stemmed, _) => {
-                    let (p_pos, mut subvec) = match h.remove(stemmed) {
-                        None => (0, vec!()),
-                        Some(y) => y
-                    };
-                    if p_pos != 0 && pos - p_pos < self.max_distance {
-                        subvec.push(i);
-                        let v = subvec.len() as f32;
-                        for e in &subvec {
-                            vec[*e].set_count(v);
-                        }
-                        h.insert(stemmed.clone(), (pos, subvec));
-                    } else {
-                        subvec = vec!(i);
-                        h.insert(stemmed.clone(), (pos, subvec));
-                    }
+                    pos += 1;
+                    Some((h.remove(stemmed), stemmed.clone()))
                 }
             };
+            if let Some((e, stemmed)) = elem {
+                let (p_pos, mut subvec) = match e {
+                    None => (0, vec!()),
+                    Some(y) => y
+                };
+                if p_pos != 0 && pos - p_pos < self.max_distance {
+                    subvec.push(i);
+                    let v = subvec.len() as f32;
+                    for x in &subvec {
+                        vec[*x].set_count(v);
+                    }
+                    h.insert(stemmed, (pos, subvec));
+                } else {
+                    subvec = vec!(i);
+                    h.insert(stemmed, (pos, subvec));
+                }
+            }
         }
         vec
     }

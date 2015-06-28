@@ -4,6 +4,7 @@ ChangeLog
 0.3.0 (???)
 -----------
 * `words_to_html` takes another argument, `standalone`
+* removed "--debug" option
 
 0.2.2 (2015-06-28)
 ------------------

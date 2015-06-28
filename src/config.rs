@@ -1,5 +1,8 @@
 use std::env;
 use std::process::exit;
+use std::io;
+use std::io::Read;
+use std::io::Write;
 use caribon::Parser;
 
 static ARG_LANG:&'static str = "--language=";
@@ -10,8 +13,9 @@ static ARG_MAX_DISTANCE:&'static str = "--max_distance=";
 static ARG_HTML:&'static str = "--html=";
 static ARG_IGNORE_PROPER:&'static str = "--ignore_proper=";
 static ARG_GLOBAL_COUNT:&'static str = "--global_count=";
-static ARG_DEBUG:&'static str = "--debug=";
 static ARG_USAGE:&'static str = "--help";
+static ARG_INPUT:&'static str = "--input=";
+static ARG_OUTPUT:&'static str = "--output=";
 static ARG_VERSION:&'static str = "--version";
 static ARG_LIST_LANGUAGES:&'static str = "--list_languages";
 
@@ -44,8 +48,7 @@ Options:
                        (only used by global algorithm) (default: absolute)
 {}[value]: sets threshold value for underlining repetitions (default: 1.9)
 {}[true|false]: enables/disable HTML input (default: true)
-{}[true|false]: if true, try to detect proper nouns and don't count them (default: false)
-{}[true|false]: if true, print the internal data instead of HTML (default: false)",
+{}[true|false]: if true, try to detect proper nouns and don't count them (default: false)",
              env!("CARGO_PKG_VERSION"),
              ARG_USAGE,
              ARG_VERSION,
@@ -57,19 +60,15 @@ Options:
              ARG_GLOBAL_COUNT,
              ARG_THRESHOLD,
              ARG_HTML,
-             ARG_IGNORE_PROPER,
-             ARG_DEBUG);
+             ARG_IGNORE_PROPER);
 }
 
-
-#[derive(Debug)]
 pub enum Algorithm {
     Local,
     Global,
     Leak
 }
 
-#[derive(Debug)]
 pub struct Config {
     pub lang: String,
     pub algo: Algorithm,
@@ -79,7 +78,8 @@ pub struct Config {
     pub html: bool,
     pub ignore_proper: bool,
     pub is_relative: bool,
-    pub debug: bool,
+    pub input: Box<Read>,
+    pub output: Box<Write>
 }
 
 impl Config {
@@ -94,7 +94,8 @@ impl Config {
             html:true,
             ignore_proper:false,
             is_relative:false,
-            debug: false,
+            input: Box::new(io::stdin()),
+            output: Box::new(io::stdout())
         }
     }
 
@@ -146,13 +147,6 @@ impl Config {
                 "true" => self.html = true,
                 "false" => self.html = false,
                 _ => panic!("Wrong argument to html: expected 'true' or 'false', received: {}", option)
-            }
-        } else if arg.starts_with(ARG_DEBUG) {
-            let option = &arg[ARG_DEBUG.len()..];
-            match option {
-                "true" => self.debug = true,
-                "false" => self.debug = false,
-                _ => panic!("Wrong argument to debug: expected 'true' or 'false', received: {}", option)
             }
         } else if arg.starts_with(ARG_IGNORE_PROPER) {
             let option = &arg[ARG_IGNORE_PROPER.len()..];

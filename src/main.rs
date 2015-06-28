@@ -9,9 +9,6 @@ use std::io::Read;
 
 fn main() {
     let config = Config::new_from_args();
-    if config.debug {
-        println!("config:{:?}", config);
-    }
     let result = Parser::new(&config.lang);
 
     let parser = match result {
@@ -36,10 +33,6 @@ fn main() {
         Algorithm::Global => parser.detect_global(words, config.is_relative),
         Algorithm::Leak => parser.detect_leak(words)
     };
-    if config.debug {
-        println!("{:?}", repetitions);
-    } else {
-        let html = caribon::words_to_html(&repetitions, config.threshold, true);
-        println!("{}", html);
-    }
+    let html = caribon::words_to_html(&repetitions, config.threshold, true);
+    println!("{}", html);
 }

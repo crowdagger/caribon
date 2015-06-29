@@ -104,6 +104,24 @@ impl<'a> Parser<'a> {
         self
     }
 
+    /// When we know it is the beginning of an escape character (e.g. &nbsp;)
+    fn tokenize_escape<'b>(&self, c:&'b [char]) -> (&'b [char], Word) {
+        let mut res = String::new();
+        let mut chars:&[char] = c;
+
+        loop {
+            if chars.is_empty() {
+                panic!("Error reading HTML: ill-formed escape code. Maybe this is not an HTML file?");
+            }
+            let c = chars[0];
+            res.push(c);
+            chars = &chars[1..];
+            if c == ';' {
+                return (chars, Word::Untracked(res));
+            }
+        }
+    }
+    
     fn tokenize_html<'b>(&self, c:&'b [char]) -> (&'b [char], Word) {
         let mut res = String::new();
         let mut chars:&[char] = c;
@@ -231,6 +249,10 @@ impl<'a> Parser<'a> {
                 chars = c;
                 res.push(word);
                 is_sentence_beginning = false;
+            } else if self.html && c == '&' {
+                let (c, word) = self.tokenize_escape(chars);
+                chars = c;
+                res.push(word);
             } else {
                 let (c, word) = self.tokenize_whitespace(chars, &mut is_sentence_beginning);
                 chars = c;

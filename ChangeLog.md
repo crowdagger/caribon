@@ -1,6 +1,15 @@
 ChangeLog
 =========
 
+0.4.0 (???)
+-----------
+* `words_to_html` is now part of Parser implementation
+* If `parser.html` is false (input type is not html),
+  `parser.words_to_html` convert line breaks to `<br/>`
+* Escape characters such as `&nbsp;` are leaved as such if
+  `parser.html` is true
+
+
 0.3.0 (2015-06-29)
 ------------------
 * `words_to_html` takes another argument, `standalone`

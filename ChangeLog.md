@@ -9,7 +9,6 @@ ChangeLog
 * Escape characters such as `&nbsp;` are leaved as such if
   `parser.html` is true
 
-
 0.3.0 (2015-06-29)
 ------------------
 * `words_to_html` takes another argument, `standalone`

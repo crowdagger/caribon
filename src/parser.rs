@@ -160,7 +160,7 @@ impl<'a> Parser<'a> {
                 break;
             }
             let c = chars[0];
-            if c == '<' || c.is_alphabetic() {
+            if c == '<' || c == '&' || c.is_alphabetic() {
                 break;
             }
             chars = &chars[1..];

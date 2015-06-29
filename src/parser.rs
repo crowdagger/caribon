@@ -1,7 +1,25 @@
+// This file is part of Caribon.
+//
+// Caribon is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+//
+// Caribon is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
+
 extern crate stemmer;
 use self::stemmer::Stemmer;
 use word::Word;
 use std::collections::HashMap;
+
+static START:&'static str = include_str!("html/start.html");
+static END:&'static str = include_str!("html/end.html");
 
 static IGNORED_FR:[&'static str; 28] = ["la", "le", "les", "pas", "ne",
                                        "nos", "des", "ils", "elles", "il",
@@ -342,5 +360,66 @@ impl<'a> Parser<'a> {
         }
         vec
     }
+
+        /// Display the words to HTML
+    ///
+    /// Use some basic CSS/Js for underlining repetitions and highlighting the
+    /// over occurrences of the word under the mouse.
+    ///
+    /// # Arguments
+    ///
+    /// * `words` – A vector containing all words
+    /// * `threshold` – The threshold above which words must be highlighted
+    /// * `standalone` –  If true, generate a standalone HTML file.
+    pub fn words_to_html(&self, words: &Vec<Word>, threshold: f32, standalone: bool) -> String {
+        let mut res = String::new();
+        if standalone {
+            res = res + START;
+        }
+        
+        for word in words {
+            match word {
+                &Word::Untracked(ref s) => res = res + s,
+                &Word::Ignored(ref s) => res = res + s,
+                &Word::Tracked(ref s, ref stemmed, x) => {
+                    let this = format!("<span class = \"{}\" \
+                                        onmouseover = 'on(\"{}\")' \
+                                        onmouseout = 'off(\"{}\")' \
+                                        {}>{}</span>",
+                                       stemmed,
+                                       stemmed,
+                                       stemmed,
+                                       value_to_style(x, threshold),
+                                       s);
+                    res = res + &this;
+                }
+            }
+        }
+        
+        if standalone {
+            res = res + END;
+        }
+        
+        if !self.html {
+            // If input is in HTML, don't add <br /> for newlines
+            res.replace("\n", "<br/>\n")
+        } else {
+            res
+        }
+    }
 }
+
+/// Generate the style attribute according to x and threshold
+fn value_to_style(x: f32, threshold: f32) -> &'static str {
+    if x < threshold {
+        ""
+    } else if x < 1.5 * threshold {
+        "style = \"text-decoration: underline; color: green;\""
+    } else if x < 2.0 * threshold {
+        "style = \"text-decoration: underline; color: orange;\""
+    } else {
+        "style = \"text-decoration: underline; color: red;\""
+    }
+}
+
 

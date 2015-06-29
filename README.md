@@ -43,19 +43,10 @@ should do the job (it works with Rust 1.1). You can then run caribon either with
 `$ cargo run`
 
 or by directly executing the binary (in `target/debug` or
-`target/release`). Since, at this moment either write on standard
-output or takes arguments, the
-latter method is preferred:
+`target/release`).
 
-`$ target/debug/caribon < some_text.txt > output.html`
-
-or
-
-`$ targe/debug/caribon --input=some_text.txt --output=output.html`
-
-If you want to use `cargo run`, you can obtain the same results by giving `caribon` some
-command-line arguments, which must be prefixed by `--` so cargo gives
-it to the binary: 
+If you plan to use `cargo run`, note that command-line arguments must
+be prefixed by `--` so cargo gives them to the binary: 
 
 `$ cargo run -- --input=some_text.txt --output=output.html`
 
@@ -64,20 +55,28 @@ You can also install the `caribon` binary somewhere in your path
 option, so you'll have to do it manually.
 
 Once you have generated an HTML file, just open it with your favorite
-browser and see your repetitions. Note that the default binary is
+browser and see your repetitions. Note that at this time the default binary is
 configured for french, if you want to use another language, you'll
 have to pass an option (see below). Note that though a variety of input
 languages are supported thanks to the Snowball stemming library, at
 this time only french has a (incomplete) list of common words to
-ignore. 
+ignore.
+
+Example
+=======
+
+Here is an [example](https://lady-segfault.github.io/caribon-examples/example_readme.html) of Caribon used on a (previous) version of this
+README, using the following command:
+
+`cargo run -- --language=english --input=README.html --output=example.html`
 
 Usage
 =====
 
 ```
-Caribon, version 0.3.0 by Élisabeth Henry <liz.henry@ouvaton.org>
+Caribon, version 0.4.0 by Élisabeth Henry <liz.henry@ouvaton.org>
 
-Reads a file on stdint and outputs an HTML file showing the repetitions
+Detects the repetitions in a text and renders a HTML document highlighting them
 
 Options:
 --help: displays this message
@@ -86,27 +85,22 @@ Options:
 --language=[language]: sets the language of the text (default: french)
 --input=[filename]: sets input file (default: stdin)
 --output=[filename]: sets output file (default: stdout)
+--ignore=[string]: a string containing custom ignored words, separated by spaces or comma
+    (default: use a builtin list that depends on the language)
 --algo=[global|local|leak]: sets the detection algoritm (default: local)
 --leak=[value]: sets leak value (only used by leak algorithm) (default: 0.95)
 --max_distance=[value]: sets max distance (only used by local algorithm) (default: 50)
 --global_count=[relative|absolute]: sets repetitions count as absolute or relative ratio of words
-                       (only used by global algorithm) (default: absolute)
+    (only used by global algorithm) (default: absolute)
 --threshold=[value]: sets threshold value for underlining repetitions (default: 1.9)
 --html=[true|false]: enables/disable HTML input (default: true)
---ignore_proper=[true|false]: if true, try to detect proper nouns and don't count them (default: false)
+--ignore_proper=[true|false]: if true, try to detect proper nouns and
+don't count them (default: false)
 ```
-
-Example
-=======
-
-Here is an [example](https://lady-segfault.github.io/caribon-examples/example_readme.html) of Caribon used on a (previous) version of this
-README, using the following command:
-
-`target/debug/caribon --language=english --algo=local
---max_distance=25 --threshold=2.0 --ignore_proper=true < README.html  > example.html`
 
 Library
 =======
+
 It is possible to use Caribon as a library. The documentation is
 available [here](http://lady-segfault.github.io/caribon/); in order to
 get the latest version, you can also generate it with
@@ -143,12 +137,13 @@ let detected_words = parser.detect_global(words, false);
 let detected_words = parser.detect_leak(words);
 ```
 
-The final step is to display this vector of words. `Caribon` provides
-a function that generates an HTML file, which also takes as argument a
-threshold above which words are underlined:
+The final step is to display this vector of words. The parser provides
+a method that generates an HTML file, which also takes as argument a
+threshold above which words are underlined, and a boolean to tell
+whether it must be a standalone file or not:
 
 ```rust
-println!("{}", caribon::words_to_html(&detected_words, 1.5));
+println!("{}", self::words_to_html(&detected_words, 1.5, true));
 ```
 
 (A note on this threshold: its choices depends on the detection
@@ -156,8 +151,6 @@ algorithm you use (and possibly your taste and the language you write
 in, of course). Generally, it should be a bit above 1.0, except for
 `detect_global` (in which case, it depends whether you set
 `is_relative` to true or false).
-
-
 
 Current features
 ================
@@ -202,10 +195,8 @@ Library
 * Render prettier output files;
 * Allow tokenizer to have in input "full" (with <html>,<head>,<body>
   tags) HTML documents;
-* Correctly escapes &nbsp; and such in HTML input;
-* Enhance the way language-dependent list of ignored words are
-  treated, and provide them for other languages (currently, only
-  french, and it should be completed);
+* Complete builtin lists of ignored words and provide them for other
+  languages (currently, only french, and english);
 * Provide algorithm to detect repetitions of expressions, not just
   single words;
 * Find better default values;
@@ -215,5 +206,4 @@ See also
 ---------
 
 [caribon-server](https://github.com/lady-segfault/caribon-server), a
-work-in-progress project that runs Caribon as a web service. Hopefully
-we can soon have a demo server on the Internet!
+work-in-progress project that runs Caribon as a web server.

@@ -52,7 +52,7 @@ fn usage() {
     println!("
 Caribon, version {} by Élisabeth Henry <liz.henry@ouvaton.org>
 
-Reads a file on stdint and outputs an HTML file showing the repetitions
+Detects the repetitions in a text and renders a HTML document highlighting them
 
 Options:
 {}: displays this message
@@ -61,11 +61,13 @@ Options:
 {}[language]: sets the language of the text (default: french)
 {}[filename]: sets input file (default: stdin)
 {}[filename]: sets output file (default: stdout)
+{}[string]: a string containing custom ignored words, separated by spaces or comma
+    (default: use a builtin list that depends on the language)
 {}[global|local|leak]: sets the detection algoritm (default: local)
 {}[value]: sets leak value (only used by leak algorithm) (default: 0.95)
 {}[value]: sets max distance (only used by local algorithm) (default: 50)
 {}[relative|absolute]: sets repetitions count as absolute or relative ratio of words
-                       (only used by global algorithm) (default: absolute)
+    (only used by global algorithm) (default: absolute)
 {}[value]: sets threshold value for underlining repetitions (default: 1.9)
 {}[true|false]: enables/disable HTML input (default: true)
 {}[true|false]: if true, try to detect proper nouns and don't count them (default: false)",
@@ -76,6 +78,7 @@ Options:
              ARG_LANG,
              ARG_INPUT,
              ARG_OUTPUT,
+             ARG_IGNORE,
              ARG_ALGO,
              ARG_LEAK,
              ARG_MAX_DISTANCE,

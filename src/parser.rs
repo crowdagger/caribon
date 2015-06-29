@@ -21,23 +21,16 @@ use std::collections::HashMap;
 static START:&'static str = include_str!("html/start.html");
 static END:&'static str = include_str!("html/end.html");
 
-static IGNORED_FR:[&'static str; 28] = ["la", "le", "les", "pas", "ne",
-                                       "nos", "des", "ils", "elles", "il",
-                                       "elle", "se", "on", "nous", "vous",
-                                        "leur", "leurs", "de", "et", "un",
-                                        "une", "t", "s", "à", "d",
-                                        "l", "je", "tu"];
-static IGNORED_EN:[&'static str; 14] = ["it", "s", "i", "of", "the",
-                                       "a", "you", "we", "she", "he",
-                                       "they", "them", "its", "their"];
-static IGNORED_DEFAULT:[&'static str; 0] = [];
+static IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur leurs \
+de et un une t s à d l je tu";
+static IGNORED_EN:&'static str = "it s i of the a you we she he they them its their";
 
 /// Parser type
-pub struct Parser<'a> {
+pub struct Parser {
     /// The stemmer object
     stemmer: Stemmer,
     /// List of ignored words
-    ignored: &'a[&'a str],
+    ignored: Vec<String>,
     /// Detect HTML in input
     html: bool,
     /// Ignores proper nouns
@@ -48,10 +41,30 @@ pub struct Parser<'a> {
     max_distance: u32
 }
 
-impl<'a> Parser<'a> {
+impl Parser {
     ///  Returns a vector containing all languages implemented
     pub fn list_languages() -> Vec<&'static str> {
         Stemmer::list()
+    }
+
+    /// Returns a vector of ignored words from a string
+    ///
+    /// # Arguments
+    ///
+    /// * `list` – A space or comma separated string
+    pub fn get_ignored_from_string(list: &str) -> Vec<String> {
+        list.split(|c: char| !c.is_alphabetic())
+            .map(|s| s.to_string())
+            .collect()
+    }    
+    
+    /// Returns a vector containing ignored words for this language
+    pub fn get_ignored_from_lang(lang: &str) -> Vec<String> {
+        match lang {
+            "french" => Parser::get_ignored_from_string(IGNORED_FR),
+            "english" => Parser::get_ignored_from_string(IGNORED_EN),
+            _ => vec!()
+        }
     }
     
     /// Returns Some(Parser) if language is ok, None else
@@ -61,11 +74,7 @@ impl<'a> Parser<'a> {
             return None;
         }
         let stemmer = stemmer.unwrap();
-        let ignored:&'static[&'static str] = match lang {
-            "french" => &IGNORED_FR,
-            "english" => &IGNORED_EN,
-            _ => &IGNORED_DEFAULT
-        };
+        let ignored = Parser::get_ignored_from_lang(lang);
         Some(Parser{stemmer: stemmer,
                     ignored: ignored,
                     html: true,
@@ -75,32 +84,36 @@ impl<'a> Parser<'a> {
     }
 
     /// Sets max distance for repetition (default 50)
-    pub fn with_max_distance(mut self, max_dist: u32) -> Parser<'a> {
+    pub fn with_max_distance(mut self, max_dist: u32) -> Parser {
         self.max_distance = max_dist;
         self
     }
     
     /// Sets HTML detection in input (default true)
-    pub fn with_html(mut self, html: bool) -> Parser<'a> {
+    pub fn with_html(mut self, html: bool) -> Parser {
         self.html = html;
         self
     }
 
     /// Sets ignore_proper flag (default false)
-    pub fn with_ignore_proper(mut self, proper: bool) -> Parser<'a> {
+    pub fn with_ignore_proper(mut self, proper: bool) -> Parser {
         self.ignore_proper = proper;
         self
     }
     
     /// Sets the leak (default 0.98)
-    pub fn with_leak(mut self, leak: f32) -> Parser<'a> {
+    pub fn with_leak(mut self, leak: f32) -> Parser {
         self.leak = leak;
         self
     }
         
-    /// Sets the ignored keyword
-    pub fn with_ignored(mut self, ignored: &'a [&'a str]) -> Parser<'a> {
-        self.ignored = ignored;
+    /// Sets the ignored list to a list contained in the string
+    ///
+    /// # Arguments
+    ///
+    /// * `list` – A comma or whitespace separated list of words
+    pub fn with_ignored(mut self, list: &str) -> Parser {
+        self.ignored = Parser::get_ignored_from_string(list);
         self
     }
 
@@ -212,7 +225,7 @@ impl<'a> Parser<'a> {
             .map(|c| c.to_lowercase().collect::<String>())
             .collect();
         let lower_s = lower_s.concat();
-        let word = if self.ignored.contains(&&*lower_s)
+        let word = if self.ignored.contains(&lower_s)
             || self.is_proper_noun(&res, *is_begin) {
             Word::Ignored(res)
         } else {

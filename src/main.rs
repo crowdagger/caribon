@@ -26,7 +26,7 @@ fn main() {
     let mut config = Config::new_from_args();
     let result = Parser::new(&config.lang);
 
-    let parser = match result {
+    let mut parser = match result {
         None => {
             println!("Language '{}' is not supported.", &config.lang);
             config::list_languages();
@@ -34,10 +34,14 @@ fn main() {
         },
         Some(x) => x
     };
-    let parser = parser.with_html(config.html)
+    parser = parser.with_html(config.html)
         .with_ignore_proper(config.ignore_proper)
         .with_max_distance(config.max_distance)
         .with_leak(config.leak);
+
+    if !config.ignored.is_empty() {
+        parser = parser.with_ignored(&config.ignored);
+    }
         
     let mut s = String::new();
     config.input.read_to_string(&mut s).unwrap();

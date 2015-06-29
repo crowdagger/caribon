@@ -35,6 +35,7 @@ static ARG_INPUT:&'static str = "--input=";
 static ARG_OUTPUT:&'static str = "--output=";
 static ARG_VERSION:&'static str = "--version";
 static ARG_LIST_LANGUAGES:&'static str = "--list_languages";
+static ARG_IGNORE:&'static str = "--ignore=";
 
 pub fn list_languages() {
     println!("Supported languages:");
@@ -100,7 +101,8 @@ pub struct Config {
     pub ignore_proper: bool,
     pub is_relative: bool,
     pub input: Box<Read>,
-    pub output: Box<Write>
+    pub output: Box<Write>,
+    pub ignored: String,
 }
 
 impl Config {
@@ -116,7 +118,8 @@ impl Config {
             ignore_proper:false,
             is_relative:false,
             input: Box::new(io::stdin()),
-            output: Box::new(io::stdout())
+            output: Box::new(io::stdout()),
+            ignored: String::new()
         }
     }
 
@@ -199,6 +202,9 @@ impl Config {
                 "false" => self.ignore_proper = false,
                 _ => panic!("Wrong argument to ignore_proper: expected 'true' or 'false', received: {}", option)
             }
+        } else if arg.starts_with(ARG_IGNORE) {
+            let option = &arg[ARG_IGNORE.len()..];
+            self.ignored = option.to_string();
         } else if arg.starts_with(ARG_GLOBAL_COUNT) {
             let option = &arg[ARG_GLOBAL_COUNT.len()..];
             match option {

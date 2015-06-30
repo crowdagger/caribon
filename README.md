@@ -6,8 +6,7 @@ A repetition detector written in Rust.
 Why?
 ====
 
-I don't think it's really the case in english, but in french (and
-possibly other languages), it is considered poor style to repeat a
+In some languages it is considered poor style to repeat a
 word too often in a text (particularly a literary text). The purpose
 of this tool is to assist a writer in detecting those repetitions.
 
@@ -55,17 +54,16 @@ You can also install the `caribon` binary somewhere in your path
 option, so you'll have to do it manually.
 
 Once you have generated an HTML file, just open it with your favorite
-browser and see your repetitions. Note that at this time the default binary is
-configured for french, if you want to use another language, you'll
-have to pass an option (see below). Note that though a variety of input
-languages are supported thanks to the Snowball stemming library, at
-this time only french has a (incomplete) list of common words to
-ignore.
+browser and see your repetitions. Words that are repeated too closely
+are underlined in green, orange and red (depending on the number of
+repetitions); words that appear globally too often are underlined in blue.
 
 Example
 =======
 
-Here is an [example](https://lady-segfault.github.io/caribon-examples/example_readme.html) of Caribon used on a (previous) version of this
+Here is an
+[example](https://lady-segfault.github.io/caribon-examples/example_readme.html)
+of Caribon used on a (previous) version of this 
 README, using the following command:
 
 `cargo run -- --language=english --input=README.html --output=example.html`

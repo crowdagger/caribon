@@ -16,12 +16,13 @@
 /*! Repetition detector library
 
 Detects the repetitions in an input file, using a stemming library in order to detect
-words that are not technically identical but are quite the same, such as `cat` and `cats`.
+words that are not technically identical but are quite the same, such as singular and plural (e.g. "cat" and "cats").
 
 Here's a short example (more details below):
+
 ```
 use Caribon::Parser;
-let parser = Parser::new("English").unwrap();
+let parser = Parser::new("english").unwrap();
 let words = parser.tokenize("Some text where you want to detect repetitions");
 let mut repetitions = parser.detect_local(words, 1.5);
 repetitions = parser.detect_global(words, 0.01);

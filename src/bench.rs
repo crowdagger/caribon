@@ -4,7 +4,7 @@ use self::test::Bencher;
 
 static TEST:&'static str = "This is some text string. We want to detect repetitions in it.
 Why? Because repetitions are bad, very bad, so we want to highlight them. ";
-static N_REPET:u32 = 100;
+static N_REPET:u32 = 1000;
 
 fn get_input() -> String {
     let mut s = TEST.to_string();
@@ -12,6 +12,16 @@ fn get_input() -> String {
         s = s + TEST;
     }
     s
+}
+
+#[bench]
+fn bench_clone(b:&mut Bencher) {
+    let s = get_input();
+    let parser = Parser::new("english").unwrap();
+    let words = parser.tokenize(&s).unwrap();
+    b.iter(|| {
+        words.clone();
+    });
 }
 
 
@@ -22,7 +32,18 @@ fn bench_html(b:&mut Bencher) {
     let words = parser.tokenize(&s).unwrap();
     let repetitions = parser.detect_local(words.clone());
     b.iter(|| {
-        let html = parser.words_to_html(&repetitions, 2.0, false);
+        parser.words_to_html(&repetitions.clone(), 2.0, false);
+    });
+}
+
+#[bench]
+fn bench_highlight(b:&mut Bencher) {
+    let s = get_input();
+    let parser = Parser::new("english").unwrap();
+    let words = parser.tokenize(&s).unwrap();
+    let repetitions = parser.detect_local(words.clone());
+    b.iter(|| {
+        parser.highlight_to_html(&parser.highlight(repetitions.clone(), 2.0, "red"), false);
     });
 }
 

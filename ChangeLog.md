@@ -3,12 +3,13 @@ ChangeLog
 
 0.5.0 (???)
 -----------
-* Completed documentation
-* `Parser.tokenize` now returns a Result, giving an Error instead of
+* More documentation
+* `Parser.tokenize` now returns a `Result`, giving an `Error` instead of
 panicking
-* `Parser::new` also returns a Result instead of an Option
+* `Parser::new` also returns a `Result` instead of an `Option`
 * `detect_leak` now uses `max_distance` to compute a leak, so `leak`
-  parameter is removed.
+parameter is removed.
+* therefore, `--leak=x` argument is removed from the binary
 
 0.4.0 (2015-06-30)
 ------------------

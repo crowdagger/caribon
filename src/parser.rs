@@ -295,7 +295,8 @@ impl Parser {
         } else {
             Word::Tracked(res,
                           self.stemmer.stem(&lower_s),
-                          0.0)
+                          0.0,
+                          None)
         };
 
         *is_begin = false;
@@ -379,7 +380,7 @@ impl Parser {
                 &mut Word::Ignored(_) => {
                     pos += 1;
                 },
-                &mut Word::Tracked(_, ref stemmed, ref mut v) => {
+                &mut Word::Tracked(_, ref stemmed, ref mut v, _) => {
                     pos += 1;
                     let x = match h.get(stemmed) {
                         None => 0.0,
@@ -413,7 +414,7 @@ impl Parser {
                     pos += 1;
                     None
                 },
-                Word::Tracked(_, ref stemmed, _) => {
+                Word::Tracked(_, ref stemmed, _, _) => {
                     pos += 1;
                     Some((h.remove(stemmed), stemmed.clone()))
                 }
@@ -456,7 +457,7 @@ impl Parser {
             match &vec[i] {
                 &Word::Untracked(_) => {}
                 &Word::Ignored(_) => {count += 1;},
-                &Word::Tracked(_, ref stemmed, _) => {
+                &Word::Tracked(_, ref stemmed, _, _) => {
                     count += 1;
                     let x = match h.get(stemmed) {
                         None => 0.0,
@@ -469,7 +470,7 @@ impl Parser {
         // second loop: we set each word value to the number of
         // occurences
         for i in 0..vec.len() {
-            let tmp = if let Word::Tracked(_, ref stemmed, _) = vec[i] {
+            let tmp = if let Word::Tracked(_, ref stemmed, _, _) = vec[i] {
                 let x = h.get(stemmed).expect("HashMap was not filled correctly");
                 Some(*x)
             } else {
@@ -486,7 +487,39 @@ impl Parser {
         vec
     }
 
-    /// Display the words to HTML.
+    /// Highlight words those value is superior te thresholds
+    ///
+    /// # Arguments
+    ///
+    /// * `words` – A vector containing repetitions.
+    /// * `threshold` – The threshold above which words must be highlighted.
+    /// * `colour` — The colour to highlight the words (HTML style)
+    ///
+    /// # Returns
+    ///
+    /// A vector of highlight
+    pub fn highlight(&self, words: Vec<Word>, threshold: f32, colour: &'static str) -> Vec<Word> {
+        let mut res = words;
+        for i in 0..res.len() {
+            let word: &mut Word = &mut res[i];
+            match word {
+                &mut Word::Tracked(_, _, ref mut v, ref mut option) => {
+                    if option.is_none() {
+                        // No colour is attributed, so see if we attribute one
+                        if *v >= threshold {
+                            *option = Some(colour);
+                        }
+                    }
+                    *v = 0.0;
+                },
+                _ => {}
+            }
+        }
+
+        res
+    }
+
+    /// Display the words to HTML, higlighting the repetitions.
     ///
     /// Use some basic CSS/Js for underlining repetitions and highlighting the
     /// over occurrences of the word under the mouse.
@@ -494,7 +527,6 @@ impl Parser {
     /// # Arguments
     ///
     /// * `words` – A vector containing repetitions.
-    /// * `threshold` – The threshold above which words must be highlighted.
     /// * `standalone` –  If true, generate a standalone HTML file.
     pub fn words_to_html(&self, words: &Vec<Word>, threshold: f32, standalone: bool) -> String {
         let mut res = String::new();
@@ -506,7 +538,7 @@ impl Parser {
             match word {
                 &Word::Untracked(ref s) => res = res + s,
                 &Word::Ignored(ref s) => res = res + s,
-                &Word::Tracked(ref s, ref stemmed, x) => {
+                &Word::Tracked(ref s, ref stemmed, x, _) => {
                     let this = format!("<span class = \"{}\" \
                                         onmouseover = 'on(\"{}\")' \
                                         onmouseout = 'off(\"{}\")' \
@@ -515,6 +547,58 @@ impl Parser {
                                        stemmed,
                                        stemmed,
                                        value_to_style(x, threshold),
+                                       s);
+                    res = res + &this;
+                }
+            }
+        }
+        
+        if standalone {
+            res = res + END;
+        }
+        
+        if !self.html {
+            // If input is in HTML, don't add <br /> for newlines
+            res.replace("\n", "<br/>\n")
+        } else {
+            res
+        }
+    }
+
+    
+    
+    /// Display the words to HTML, higlighting the repetitions.
+    ///
+    /// Use some basic CSS/Js for underlining repetitions and highlighting the
+    /// over occurrences of the word under the mouse.
+    ///
+    /// # Arguments
+    ///
+    /// * `words` – A vector containing repetitions.
+    /// * `standalone` –  If true, generate a standalone HTML file.
+    pub fn highlight_to_html(&self, words: &Vec<Word>, standalone: bool) -> String {
+        let mut res = String::new();
+        if standalone {
+            res = res + START;
+        }
+        
+        for word in words {
+            match word {
+                &Word::Untracked(ref s) => res = res + s,
+                &Word::Ignored(ref s) => res = res + s,
+                &Word::Tracked(ref s, ref stemmed, _, option) => {
+                    let this = format!("<span class = \"{}\" \
+                                        onmouseover = 'on(\"{}\")' \
+                                        onmouseout = 'off(\"{}\")' \
+                                        {}>{}</span>",
+                                       stemmed,
+                                       stemmed,
+                                       stemmed,
+                                       if let Some(colour) = option {
+                                           format!("style = \"text-decoration: underline; color: {};\"", colour)
+                                       } else {
+                                           String::new()
+                                       },
                                        s);
                     res = res + &this;
                 }

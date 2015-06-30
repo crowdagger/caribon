@@ -18,14 +18,15 @@
 /// You probably should not use this type directly.
 #[derive(Debug,Clone)]
 pub enum Word {
-    /// A String which is not part of the text (typically whitepsace, HTML formatting, ...)
+    /// A String which is not part of the text (typically whitespace, HTML formatting, ...)
     Untracked(String),
     /// A word that is ignored, either because it is in `parser.ignored` or because it is
     /// a proper noun and `ignore_proper` has been set to `true`.
     Ignored(String),
     /// Tracked string, containing the string, the stemmed variant of the
-    /// string, and some value corresponding to the degree of repetitions
-    Tracked(String, String, f32)
+    /// string, some value corresponding to the degree of repetitions and
+    /// an option to a highlighting colour
+    Tracked(String, String, f32, Option<&'static str>),
 }
 
 impl Word {
@@ -33,10 +34,11 @@ impl Word {
     pub fn set_count(&mut self, x: f32) 
     {
         match self {
-            &mut Word::Tracked(_, _, ref mut v) => {
+            &mut Word::Tracked(_, _, ref mut v, _) => {
                 *v = x;
             },
             _ => {}
         }
     }
 }
+

@@ -610,17 +610,5 @@ fn value_to_colour(x: f32, threshold: f32) -> &'static str {
     }
 }
 
-/// Generate the style attribute according to x and threshold
-fn value_to_style(x: f32, threshold: f32) -> &'static str {
-    if x < threshold {
-        ""
-    } else if x < 1.5 * threshold {
-        "style = \"text-decoration: underline; color: green;\""
-    } else if x < 2.0 * threshold {
-        "style = \"text-decoration: underline; color: orange;\""
-    } else {
-        "style = \"text-decoration: underline; color: red;\""
-    }
-}
 
 

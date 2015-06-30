@@ -45,10 +45,10 @@ fn try_parse () -> Result<(), Box<Error>> {
     // };
 //    let repetitions = parser.detect_leak(words);
     //    let repetitions = parser.highlight(repetitions, 1.5, "red");
-    let repetitions = parser.detect_local(words);
-    let repetitions = parser.highlight(repetitions, config.threshold, "red");
-    let repetitions = parser.detect_global(repetitions, true);
-    let repetitions = parser.highlight(repetitions, 0.01, "green");
+    let repetitions = parser.detect_local(words, config.threshold);
+//    let repetitions = parser.highlight(repetitions, config.threshold, |_,_| "red");
+    let repetitions = parser.detect_global(repetitions, 0.01);
+//    let repetitions = parser.highlight(repetitions, 0.01, "green");
 
 
     let html = parser.highlight_to_html(&repetitions, true);

@@ -9,7 +9,10 @@ panicking
 * `Parser::new` also returns a `Result` instead of an `Option`
 * `detect_leak` now uses `max_distance` to compute a leak, so `leak`
 parameter is removed.
-* therefore, `--leak=x` argument is removed from the binary
+* Therefore, `--leak=x` argument is removed from the binary
+* It is now possible to chain detection methods, highlighting
+with different colours
+
 
 0.4.0 (2015-06-30)
 ------------------

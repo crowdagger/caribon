@@ -165,7 +165,7 @@ impl Parser {
     ///
     /// Basically, if set to `true`, words that start with a capital and are not at the beginning of
     /// a sentence won't be counted for repetitions. Currently, there are still counted if they are in the beginning of
-    /// a sentence, but with most texts it won't be enough to highlight them as repetitions.
+    /// a sentence, but with most texts it won't be enough to highligth them as repetitions.
     pub fn with_ignore_proper(mut self, proper: bool) -> Parser {
         self.ignore_proper = proper;
         self
@@ -369,7 +369,12 @@ impl Parser {
     ///
     /// On the other hand, this method is faster and should use less memory, so
     /// it might be useful for very long texts.
-    pub fn detect_leak(&self, mut vec:Vec<Word>) -> Vec<Word> {
+    ///
+    /// # Arguments
+    ///
+    /// `vec` – A list of words
+    /// `threshold` – The threshold to consider a repetition (e.g. 1.5)
+    pub fn detect_leak(&self, mut vec:Vec<Word>, threshold: f32) -> Vec<Word> {
         let mut h:HashMap<String, (u32, f32)> = HashMap::new();
         let mut pos = 0;
         let leak = self.get_leak();
@@ -394,7 +399,7 @@ impl Parser {
                 }
             };
         }
-        vec
+        self.highlight(vec, threshold, value_to_colour)
     }
 
     /// Detect the local number of repetitions.
@@ -403,7 +408,12 @@ impl Parser {
     /// since there has been hat least `self.max_distance` between two occurences.
     ///
     /// It is the default algorithm, and probably the one you want to use.
-    pub fn detect_local(&self, mut vec:Vec<Word>) -> Vec<Word> {
+    ///
+    /// # Arguments
+    ///
+    /// `vec` – A list of words
+    /// `threshold` – The threshold to consider a repetition (e.g. 1.9)
+    pub fn detect_local(&self, mut vec:Vec<Word>, threshold: f32) -> Vec<Word> {
         let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
         let mut pos = 1;
 
@@ -437,24 +447,28 @@ impl Parser {
                 }
             }
         }
-        vec
+        self.highlight(vec, threshold, value_to_colour)
     }
-    
-    /// Detect the global number of repetitions.
-    ///
-    /// For each word, repetition value is set to the total number of occurences of this word in whole text.
+
+
+    /// Returns stats about the words
     ///
     /// # Arguments
     ///
-    /// * `vec` – A vector of `Word`.
-    /// * `is_relative` – If true, divide the number of occurences by the number of words in the text.
-    pub fn detect_global(&self, mut vec:Vec<Word>, is_relative: bool) -> Vec<Word> {
+    /// `words` – A reference to a list of words
+    ///
+    /// # Returns
+    ///
+    /// This method retuns a tuple:
+    /// * the first element is a hashmap between stemmed strings and the number of occurences of this word
+    /// * the second element is the total number of (valid) words in the list (non counting whitespace, HTML tags...)
+    pub fn words_stats(&self, words: &Vec<Word>) -> (HashMap<String, f32>, u32) {
         let mut h:HashMap<String, f32> = HashMap::new();
-        let mut count = 0;
+        let mut count:u32 = 0;
 
-        // first loop: we fill the map to count the occurences
-        for i in 0 .. vec.len() {
-            match &vec[i] {
+        // we fill the map and count 
+        for word in words {
+            match word {
                 &Word::Untracked(_) => {}
                 &Word::Ignored(_) => {count += 1;},
                 &Word::Tracked(_, ref stemmed, _, _) => {
@@ -467,8 +481,23 @@ impl Parser {
                 }
             };
         }
-        // second loop: we set each word value to the number of
-        // occurences
+
+        (h, count)
+    }
+    
+    /// Detect the global number of repetitions.
+    ///
+    /// For each word, repetition value is set to the total number of occurences of this word in whole text,
+    /// divided by total number of words in the text
+    ///
+    /// # Arguments
+    ///
+    /// * `vec` – A vector of `Word`.
+    /// * `threshold` – A threshold to highlight repetitions (e.g. 0.01)
+    pub fn detect_global(&self, mut vec:Vec<Word>, threshold: f32) -> Vec<Word> {
+        let (h, count) = self.words_stats(&vec);
+
+        // We set each word value to the relative number of occurences
         for i in 0..vec.len() {
             let tmp = if let Word::Tracked(_, ref stemmed, _, _) = vec[i] {
                 let x = h.get(stemmed).expect("HashMap was not filled correctly");
@@ -477,14 +506,11 @@ impl Parser {
                 None
             };
             if let Some(x) = tmp {
-                if is_relative {
-                    vec[i].set_count(x / (count as f32));
-                } else {
-                    vec[i].set_count(x);
-                }
+                vec[i].set_count(x / (count as f32));
+
             }
         }
-        vec
+        self.highlight(vec, threshold, |_, _| "blue")
     }
 
     /// Highlight words those value is superior te thresholds
@@ -493,12 +519,13 @@ impl Parser {
     ///
     /// * `words` – A vector containing repetitions.
     /// * `threshold` – The threshold above which words must be highlighted.
-    /// * `colour` — The colour to highlight the words (HTML style)
+    /// * `f` – A closure that returns the colour given the value and threshold
     ///
     /// # Returns
     ///
     /// A vector of highlight
-    pub fn highlight(&self, words: Vec<Word>, threshold: f32, colour: &'static str) -> Vec<Word> {
+    pub fn highlight<F>(&self, words: Vec<Word>, threshold: f32, f:F) -> Vec<Word>
+    where F: Fn(f32, f32) -> &'static str {
         let mut res = words;
         for i in 0..res.len() {
             let word: &mut Word = &mut res[i];
@@ -507,7 +534,7 @@ impl Parser {
                     if option.is_none() {
                         // No colour is attributed, so see if we attribute one
                         if *v >= threshold {
-                            *option = Some(colour);
+                            *option = Some(f(*v, threshold));
                         }
                     }
                     *v = 0.0;
@@ -615,6 +642,19 @@ impl Parser {
         } else {
             res
         }
+    }
+}
+
+/// Generate the style attribute according to x and threshold
+fn value_to_colour(x: f32, threshold: f32) -> &'static str {
+    if x < threshold {
+        panic!("WTF");
+    } else if x < 1.5 * threshold {
+        "green"
+    } else if x < 2.0 * threshold {
+        "orange"
+    } else {
+        "red"
     }
 }
 

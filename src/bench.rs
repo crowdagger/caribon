@@ -26,24 +26,13 @@ fn bench_clone(b:&mut Bencher) {
 
 
 #[bench]
-fn bench_html(b:&mut Bencher) {
-    let s = get_input();
-    let parser = Parser::new("english").unwrap();
-    let words = parser.tokenize(&s).unwrap();
-    let repetitions = parser.detect_local(words.clone());
-    b.iter(|| {
-        parser.words_to_html(&repetitions.clone(), 2.0, false);
-    });
-}
-
-#[bench]
 fn bench_highlight(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap();
     let words = parser.tokenize(&s).unwrap();
-    let repetitions = parser.detect_local(words.clone());
+    let repetitions = parser.detect_local(words.clone(), 2.0);
     b.iter(|| {
-        parser.highlight_to_html(&parser.highlight(repetitions.clone(), 2.0, "red"), false);
+        parser.highlight_to_html(&repetitions, false);
     });
 }
 
@@ -63,7 +52,7 @@ fn bench_local(b:&mut Bencher) {
     let parser = Parser::new("english").unwrap();
     let words = parser.tokenize(&s).unwrap();    
     b.iter(|| {
-        parser.detect_local(words.clone());
+        parser.detect_local(words.clone(), 1.9);
     });
 }
 
@@ -74,7 +63,7 @@ fn bench_local10(b:&mut Bencher) {
     let parser = Parser::new("english").unwrap().with_max_distance(10);
     let words = parser.tokenize(&s).unwrap();
     b.iter(|| {
-        parser.detect_local(words.clone());
+        parser.detect_local(words.clone(), 1.9);
     });
 }
 
@@ -84,7 +73,7 @@ fn bench_local100(b:&mut Bencher) {
     let parser = Parser::new("english").unwrap().with_max_distance(100);
     let words = parser.tokenize(&s).unwrap();
     b.iter(|| {
-        parser.detect_local(words.clone());
+        parser.detect_local(words.clone(), 1.9);
     });
 }
 
@@ -94,7 +83,7 @@ fn bench_global(b:&mut Bencher) {
     let parser = Parser::new("english").unwrap();
     let words = parser.tokenize(&s).unwrap();
     b.iter(|| {
-        parser.detect_global(words.clone(), true);
+        parser.detect_global(words.clone(), 0.01);
     });
 }
 
@@ -104,7 +93,7 @@ fn bench_leak(b:&mut Bencher) {
     let parser = Parser::new("english").unwrap();
     let words = parser.tokenize(&s).unwrap();
     b.iter(|| {
-        parser.detect_leak(words.clone());
+        parser.detect_leak(words.clone(), 1.5);
     });
 }
 

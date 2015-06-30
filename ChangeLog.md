@@ -12,6 +12,7 @@ parameter is removed.
 * Therefore, `--leak=x` argument is removed from the binary
 * It is now possible to chain detection methods, highlighting
 with different colours
+* Added `words_stats` method
 
 
 0.4.0 (2015-06-30)

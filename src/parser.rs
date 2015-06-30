@@ -524,7 +524,7 @@ impl Parser {
     /// # Returns
     ///
     /// A vector of highlight
-    pub fn highlight<F>(&self, words: Vec<Word>, threshold: f32, f:F) -> Vec<Word>
+    fn highlight<F>(&self, words: Vec<Word>, threshold: f32, f:F) -> Vec<Word>
     where F: Fn(f32, f32) -> &'static str {
         let mut res = words;
         for i in 0..res.len() {
@@ -555,55 +555,7 @@ impl Parser {
     ///
     /// * `words` – A vector containing repetitions.
     /// * `standalone` –  If true, generate a standalone HTML file.
-    pub fn words_to_html(&self, words: &Vec<Word>, threshold: f32, standalone: bool) -> String {
-        let mut res = String::new();
-        if standalone {
-            res = res + START;
-        }
-        
-        for word in words {
-            match word {
-                &Word::Untracked(ref s) => res = res + s,
-                &Word::Ignored(ref s) => res = res + s,
-                &Word::Tracked(ref s, ref stemmed, x, _) => {
-                    let this = format!("<span class = \"{}\" \
-                                        onmouseover = 'on(\"{}\")' \
-                                        onmouseout = 'off(\"{}\")' \
-                                        {}>{}</span>",
-                                       stemmed,
-                                       stemmed,
-                                       stemmed,
-                                       value_to_style(x, threshold),
-                                       s);
-                    res = res + &this;
-                }
-            }
-        }
-        
-        if standalone {
-            res = res + END;
-        }
-        
-        if !self.html {
-            // If input is in HTML, don't add <br /> for newlines
-            res.replace("\n", "<br/>\n")
-        } else {
-            res
-        }
-    }
-
-    
-    
-    /// Display the words to HTML, higlighting the repetitions.
-    ///
-    /// Use some basic CSS/Js for underlining repetitions and highlighting the
-    /// over occurrences of the word under the mouse.
-    ///
-    /// # Arguments
-    ///
-    /// * `words` – A vector containing repetitions.
-    /// * `standalone` –  If true, generate a standalone HTML file.
-    pub fn highlight_to_html(&self, words: &Vec<Word>, standalone: bool) -> String {
+    pub fn words_to_html(&self, words: &Vec<Word>, standalone: bool) -> String {
         let mut res = String::new();
         if standalone {
             res = res + START;

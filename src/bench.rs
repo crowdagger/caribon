@@ -26,13 +26,13 @@ fn bench_clone(b:&mut Bencher) {
 
 
 #[bench]
-fn bench_highlight(b:&mut Bencher) {
+fn bench_html(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap();
     let words = parser.tokenize(&s).unwrap();
     let repetitions = parser.detect_local(words.clone(), 2.0);
     b.iter(|| {
-        parser.highlight_to_html(&repetitions, false);
+        parser.words_to_html(&repetitions, false);
     });
 }
 

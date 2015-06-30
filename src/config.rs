@@ -23,17 +23,16 @@ use std::io::Write;
 use caribon::Parser;
 
 static ARG_LANG:&'static str = "--language=";
-static ARG_ALGO:&'static str = "--algo=";
 static ARG_THRESHOLD:&'static str = "--threshold=";
-static ARG_MAX_DISTANCE:&'static str = "--max_distance=";
+static ARG_MAX_DISTANCE:&'static str = "--max-distance=";
+static ARG_GLOBAL_THRESHOLD:&'static str = "--global-threshold=";
 static ARG_HTML:&'static str = "--html=";
-static ARG_IGNORE_PROPER:&'static str = "--ignore_proper=";
-static ARG_GLOBAL_COUNT:&'static str = "--global_count=";
+static ARG_IGNORE_PROPER:&'static str = "--ignore-proper=";
 static ARG_USAGE:&'static str = "--help";
 static ARG_INPUT:&'static str = "--input=";
 static ARG_OUTPUT:&'static str = "--output=";
 static ARG_VERSION:&'static str = "--version";
-static ARG_LIST_LANGUAGES:&'static str = "--list_languages";
+static ARG_LIST_LANGUAGES:&'static str = "--list-languages";
 static ARG_IGNORE:&'static str = "--ignore=";
 
 pub fn list_languages() {
@@ -62,11 +61,9 @@ Options:
 {}[filename]: sets output file (default: stdout)
 {}[string]: a string containing custom ignored words, separated by spaces or comma
     (default: use a builtin list that depends on the language)
-{}[global|local|leak]: sets the detection algoritm (default: local)
 {}[value]: sets max distance (used by local and leak algorithm) (default: 50)
-{}[relative|absolute]: sets repetitions count as absolute or relative ratio of words
-    (only used by global algorithm) (default: absolute)
-{}[value]: sets threshold value for underlining repetitions (default: 1.9)
+{}[value]: sets threshold value for underlining local repetitions (default: 1.9)
+{}[value]: sets threshold value for underlining global repetitions (default: 0.01)
 {}[true|false]: enables/disable HTML input (default: true)
 {}[true|false]: if true, try to detect proper nouns and don't count them (default: false)",
              env!("CARGO_PKG_VERSION"),
@@ -77,28 +74,20 @@ Options:
              ARG_INPUT,
              ARG_OUTPUT,
              ARG_IGNORE,
-             ARG_ALGO,
              ARG_MAX_DISTANCE,
-             ARG_GLOBAL_COUNT,
              ARG_THRESHOLD,
+             ARG_GLOBAL_THRESHOLD,
              ARG_HTML,
              ARG_IGNORE_PROPER);
 }
 
-pub enum Algorithm {
-    Local,
-    Global,
-    Leak
-}
-
 pub struct Config {
     pub lang: String,
-    pub algo: Algorithm,
     pub threshold: f32,
+    pub global_threshold: f32,
     pub max_distance: u32,
     pub html: bool,
     pub ignore_proper: bool,
-    pub is_relative: bool,
     pub input: Box<Read>,
     pub output: Box<Write>,
     pub ignored: String,
@@ -109,12 +98,11 @@ impl Config {
     pub fn new() -> Config {
         Config {
             lang: "french".to_string(),
-            algo: Algorithm::Local,
             threshold:1.9,
+            global_threshold: 0.01,
             max_distance:50,
             html:true,
             ignore_proper:false,
-            is_relative:false,
             input: Box::new(io::stdin()),
             output: Box::new(io::stdout()),
             ignored: String::new()
@@ -154,23 +142,18 @@ impl Config {
                     exit(0);
                 }
             }
-        } else if arg.starts_with(ARG_ALGO) {
-            let option = &arg[ARG_ALGO.len()..];
-            match option {
-                "leak" => self.algo = Algorithm::Leak,
-                "local" => self.algo = Algorithm::Local,
-                "global" => self.algo = Algorithm::Global,
-                _ => {
-                    println!("Unrecognized algorithm: {}", option);
-                    exit(0);
-                }
-            }
         } else if arg.starts_with(ARG_LANG) {
             let option = &arg[ARG_LANG.len()..];
             self.lang = option.to_string();
         } else if arg.starts_with(ARG_THRESHOLD) {
             let option = &arg[ARG_THRESHOLD.len()..];
             self.threshold = match option.parse() {
+                Ok(x) => x,
+                Err(_) => panic!("Error passing argument to threshold: {}", option),
+            }
+        } else if arg.starts_with(ARG_GLOBAL_THRESHOLD) {
+            let option = &arg[ARG_GLOBAL_THRESHOLD.len()..];
+            self.global_threshold = match option.parse() {
                 Ok(x) => x,
                 Err(_) => panic!("Error passing argument to threshold: {}", option),
             }
@@ -197,13 +180,6 @@ impl Config {
         } else if arg.starts_with(ARG_IGNORE) {
             let option = &arg[ARG_IGNORE.len()..];
             self.ignored = option.to_string();
-        } else if arg.starts_with(ARG_GLOBAL_COUNT) {
-            let option = &arg[ARG_GLOBAL_COUNT.len()..];
-            match option {
-                "relative" => self.is_relative = true,
-                "absolute" => self.is_relative = false,
-                _ => panic!("Wrong argument to global_count: expected 'relative' or 'absolute', received: {}", option)
-            }
         } else if arg == ARG_USAGE {
             usage();
             exit(0);

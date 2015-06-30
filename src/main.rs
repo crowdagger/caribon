@@ -16,7 +16,6 @@
 extern crate caribon;
 mod config;
 use config::Config;
-use config::Algorithm;
 use caribon::Parser;
 
 use std::error::Error;
@@ -38,24 +37,9 @@ fn try_parse () -> Result<(), Box<Error>> {
     try!(config.input.read_to_string(&mut s));
     
     let words = try!(parser.tokenize(&s));
-    // let repetitions = match config.algo {
-    //     Algorithm::Local => parser.detect_local(words),
-    //     Algorithm::Global => parser.detect_global(words, config.is_relative),
-    //     Algorithm::Leak => parser.detect_leak(words)
-    // };
-//    let repetitions = parser.detect_leak(words);
-    //    let repetitions = parser.highlight(repetitions, 1.5, "red");
-    let repetitions = parser.detect_local(words, config.threshold);
-//    let repetitions = parser.highlight(repetitions, config.threshold, |_,_| "red");
-    let repetitions = parser.detect_global(repetitions, 0.01);
-//    let repetitions = parser.highlight(repetitions, 0.01, "green");
-
-
-    let html = parser.highlight_to_html(&repetitions, true);
-
-
-    
-//    let html = parser.words_to_html(&repetitions, config.threshold, true);
+    let mut repetitions = parser.detect_local(words, config.threshold);
+    repetitions = parser.detect_global(repetitions, config.global_threshold);
+    let html = parser.words_to_html(&repetitions, true);
     try!(config.output.write(&html.bytes().collect::<Vec<u8>>()));
     Ok(())
 }

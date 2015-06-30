@@ -23,7 +23,8 @@ Here's a short example (more details below):
 use Caribon::Parser;
 let parser = Parser::new("English").unwrap();
 let words = parser.tokenize("Some text where you want to detect repetitions");
-let repetitions = parser.detect_local(words);
+let mut repetitions = parser.detect_local(words, 1.5);
+repetitions = parser.detect_global(words, 0.01);
 let html = parser.words_to_html(&repetitions);
 println!("{}", html);
 ```
@@ -62,20 +63,20 @@ You then have a choice between multiple repetition detection algorithms. `detect
 the one you want to use:
 
 ```ignore
-let repetitions = parser.detect_local(words);
+let repetitions = parser.detect_local(words, 1.5);
 ```
 
 There is also `detect_leak`, which is a particular algorithm which probably will be removed at some 
 point:
 
 ```ignore
-let repetitions = parser.detect_leak(words);
+let repetitions = parser.detect_leak(words, 1.5);
 ```
 
 The last one is `detect_global`, which detects repetiion in the whole file:
 
 ```ignore
-let repetitions = parser.detect_global(words, false);
+let repetitions = parser.detect_global(words, 0.01);
 ```
 
 Once you have detected those repetitions, the final step is to print them. 
@@ -85,7 +86,7 @@ boolean that tests whether the HTML code must be a standalone file or not (you w
 want to set it to true).
 
 ```ignore
-let html = parser.words_to_html(&repetitions, 2.0, true):
+let html = parser.words_to_html(&repetitions, true):
 ```
 */
 

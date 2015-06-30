@@ -91,8 +91,8 @@ let html = parser.words_to_html(&repetitions, true):
 */
 
 // Uncomment this if you use nightly and want to run benchmarks
-#![feature(test)]
-mod bench;
+//#![feature(test)]
+//mod bench;
 mod word;
 mod parser;
 

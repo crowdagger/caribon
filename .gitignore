@@ -1,4 +1,5 @@
 # Compiled files
+Cargo.lock
 *.o
 *.so
 *.rlib

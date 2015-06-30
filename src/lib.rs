@@ -18,13 +18,24 @@
 Detects the repetitions in an input file, using a stemming library in order to detect
 words that are not technically identical but are quite the same, such as `cat` and `cats`.
 
+Here's a short example (more details below):
+```
+use Caribon::Parser;
+let parser = Parser::new("English").unwrap();
+let words = parser.tokenize("Some text where you want to detect repetitions");
+let repetitions = parser.detect_local(words);
+let html = parser.words_to_html(&repetitions);
+println!("{}", html);
+```
+
 Since this stemming is dependent on the language, you must first create a new `Parser` with the 
-appropriate language, which will return `Some(Parser)` if the language is implemented, `None` else: 
+appropriate language. `Parser::new` returns a `caribon::Result<Parser>`, which will contain `Ok(Parser)` 
+if the language is implemented, `Err(caribon::Error)` else: 
 
 ```
 use caribon::Parser;
 let result = Parser::new("foo");
-assert!(result.is_none());
+assert!(result.is_err());
 ```
 
 Once you have a parser, you can then configure it with various options:
@@ -42,8 +53,10 @@ The next step is to read some string and convert it to some inner format (curren
 but it is possible that it will change):
 
 ```ignore
-let words = parser.tokenize(some_string);
+let words = parser.tokenize(some_string).unwrap();
 ```
+
+As `new`, this method can fail, so it returns a `Result`.
 
 You then have a choice between multiple repetition detection algorithms. `detect_local` is probably
 the one you want to use:

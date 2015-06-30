@@ -119,6 +119,11 @@ impl Parser {
     /// let result = caribon::Parser::new("english");
     /// assert!(result.is_ok());
     /// ```
+    ///
+    /// ```
+    /// let result = caribon::Parser::new("incorrect language");
+    /// assert!(result.is_err());
+    /// ```
     pub fn new(lang: &str) -> Result<Parser> {
         let stemmer = Stemmer::new(lang);
         if stemmer.is_none() {

@@ -25,13 +25,13 @@ static IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se 
 de et un une t s à d l je tu";
 static IGNORED_EN:&'static str = "it s i of the a you we she he they them its their";
 
-/// Parser type
+/// Parser which can load a string, detects repetition on it and outputs an HTML file
 pub struct Parser {
-    /// The stemmer object
+    /// The stemmer 
     stemmer: Stemmer,
-    /// List of ignored words
+    /// List of ignored words: we don't want to count repetitions on them
     ignored: Vec<String>,
-    /// Detect HTML in input
+    /// Whether there is HTML in the input text
     html: bool,
     /// Ignores proper nouns
     ignore_proper: bool,
@@ -42,23 +42,26 @@ pub struct Parser {
 }
 
 impl Parser {
-    ///  Returns a vector containing all languages implemented
+    /// Returns a vector containing all languages implemented.
+    ///
+    /// These values are correct values to give to `Parser::new`.
     pub fn list_languages() -> Vec<&'static str> {
         Stemmer::list()
     }
 
-    /// Returns a vector of ignored words from a string
+    /// Returns a vector of ignored words from a string.
     ///
     /// # Arguments
     ///
-    /// * `list` – A space or comma separated string
+    /// * `list` – A space or comma separated string, containing words that
+    ///   should be ignored (i.e., don't count repetitions on them).
     pub fn get_ignored_from_string(list: &str) -> Vec<String> {
         list.split(|c: char| !c.is_alphabetic())
             .map(|s| s.to_string())
             .collect()
     }    
     
-    /// Returns a vector containing ignored words for this language
+    /// Returns a vector containing the default ignored words for this language.
     pub fn get_ignored_from_lang(lang: &str) -> Vec<String> {
         match lang {
             "french" => Parser::get_ignored_from_string(IGNORED_FR),
@@ -67,7 +70,19 @@ impl Parser {
         }
     }
     
-    /// Returns Some(Parser) if language is ok, None else
+    /// Returns `Some(Parser)` if language is `ok`, None else.
+    ///
+    /// # Arguments
+    ///
+    /// `lang` – The input text language. This will be used to create the
+    ///          stemmer; it also determines what list of ignored words to use.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// let result = caribon::Parser::new("english");
+    /// assert!(result.is_some());
+    /// ```
     pub fn new(lang: &str) -> Option<Parser> {
         let stemmer = Stemmer::new(lang);
         if stemmer.is_none() {
@@ -83,35 +98,50 @@ impl Parser {
                     max_distance: 50})
     }
 
-    /// Sets max distance for repetition (default 50)
+    /// Sets max distance for repetitions (default 50).
+    ///
+    /// # Arguments
+    ///
+    /// `max_dist` – A number corresponding to a number of words. If two
+    ///              occurences of a same word are separated by more than
+    ///              this distance, it will not be counted as a repetition.
     pub fn with_max_distance(mut self, max_dist: u32) -> Parser {
         self.max_distance = max_dist;
         self
     }
-    
-    /// Sets HTML detection in input (default true)
+   
+    /// Sets HTML detection in input (default true).
+    ///
+    /// You should set it to `false` if a text is text-formatted, and to
+    /// `true` if it contains HTML. 
     pub fn with_html(mut self, html: bool) -> Parser {
         self.html = html;
         self
     }
 
-    /// Sets ignore_proper flag (default false)
+    /// Sets whether repetition detection should ignore proper nouns (default false).
+    ///
+    /// Basically, if set to `true`, words that start with a capital and are not at the beginning of
+    /// a sentence won't be counted for repetitions. Currently, there are still counted if they are in the beginning of
+    /// a sentence, but with most texts it won't be enough to highlight them as repetitions.
     pub fn with_ignore_proper(mut self, proper: bool) -> Parser {
         self.ignore_proper = proper;
         self
     }
     
-    /// Sets the leak (default 0.98)
+    /// Sets the leak (default 0.98).
+    ///
+    /// Only used by `detect_leak` algorithm.
     pub fn with_leak(mut self, leak: f32) -> Parser {
         self.leak = leak;
         self
     }
         
-    /// Sets the ignored list to a list contained in the string
+    /// Sets the ignored list with a list of words contained in the argument string.
     ///
     /// # Arguments
     ///
-    /// * `list` – A comma or whitespace separated list of words
+    /// * `list` – A comma or whitespace separated list of words that should be ignored.
     pub fn with_ignored(mut self, list: &str) -> Parser {
         self.ignored = Parser::get_ignored_from_string(list);
         self
@@ -239,11 +269,13 @@ impl Parser {
     }
 
 
-    /// Tokenize a string into a list of words
+    /// Tokenize a string into a list of words. 
+    ///
+    /// This is the step that converts a string to some inner representation.
     ///
     /// # Arguments
     ///
-    /// * `s` – The string to tokenize
+    /// * `s` – The string to tokenize.
     pub fn tokenize(&self, s: &str) -> Vec<Word> {
         let v_chars:Vec<char> = s.chars().collect();
         let mut chars:&[char] = &v_chars;
@@ -276,10 +308,10 @@ impl Parser {
         res
     }
 
-    /// Detect the local repetitions, using a leak value
+    /// Detect the local repetitions using a leak value.
     ///
     /// Basically, each time a word occurs, increase value by 1.0
-    /// and each time it does not, multiply by leak (default: 0.98)
+    /// and each time it does not, multiply by leak (default: 0.98).
     pub fn detect_leak(&self, mut vec:Vec<Word>) -> Vec<Word> {
         let mut h:HashMap<String, (u32, f32)> = HashMap::new();
         let mut pos = 0;
@@ -309,9 +341,10 @@ impl Parser {
 
     /// Detect the local number of repetitions.
     ///
-    /// For each word, value is set to the total number of occurences of this word
-    /// but it is reset to zero if there is more than `self.max_distance` between
-    /// two occurences.
+    /// For each word, the repetition value is set to the total number of occurences of this word
+    /// since there has been hat least `self.max_distance` between two occurences.
+    ///
+    /// It is the default algorithm, and probably the one you want to use.
     pub fn detect_local(&self, mut vec:Vec<Word>) -> Vec<Word> {
         let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
         let mut pos = 1;
@@ -351,12 +384,12 @@ impl Parser {
     
     /// Detect the global number of repetitions.
     ///
-    /// For each word, value is set to the total number of occurences of this word.
+    /// For each word, repetition value is set to the total number of occurences of this word in whole text.
     ///
     /// # Arguments
     ///
-    /// * `vec` – A vector of `Word`
-    /// * `is_relative` – If true, divide the number of occurences by total number of words
+    /// * `vec` – A vector of `Word`.
+    /// * `is_relative` – If true, divide the number of occurences by the number of words in the text.
     pub fn detect_global(&self, mut vec:Vec<Word>, is_relative: bool) -> Vec<Word> {
         let mut h:HashMap<String, f32> = HashMap::new();
         let mut count = 0;
@@ -396,15 +429,15 @@ impl Parser {
         vec
     }
 
-        /// Display the words to HTML
+    /// Display the words to HTML.
     ///
     /// Use some basic CSS/Js for underlining repetitions and highlighting the
     /// over occurrences of the word under the mouse.
     ///
     /// # Arguments
     ///
-    /// * `words` – A vector containing all words
-    /// * `threshold` – The threshold above which words must be highlighted
+    /// * `words` – A vector containing repetitions.
+    /// * `threshold` – The threshold above which words must be highlighted.
     /// * `standalone` –  If true, generate a standalone HTML file.
     pub fn words_to_html(&self, words: &Vec<Word>, threshold: f32, standalone: bool) -> String {
         let mut res = String::new();

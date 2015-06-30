@@ -1,18 +1,20 @@
 ChangeLog
 =========
 
-0.5.0 (???)
------------
-* More documentation
+0.5.0 (2015-07-01)
+------------------
+* Improved documentation
 * `Parser.tokenize` now returns a `Result`, giving an `Error` instead of
 panicking
 * `Parser::new` also returns a `Result` instead of an `Option`
 * `detect_leak` now uses `max_distance` to compute a leak, so `leak`
 parameter is removed.
 * Therefore, `--leak=x` argument is removed from the binary
+* Options for the binary have some more changes (see `--help`)
 * It is now possible to chain detection methods, highlighting
 with different colours
 * Added `words_stats` method
+
 
 
 0.4.0 (2015-06-30)

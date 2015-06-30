@@ -237,7 +237,7 @@ impl Parser {
                 break;
             }
             let c = chars[0];
-            if c == '<' || c == '&' || c.is_alphabetic() {
+            if  ((c == '<' || c == '&') && self.html) || c.is_alphabetic() {
                 break;
             }
             chars = &chars[1..];
@@ -557,10 +557,7 @@ impl Parser {
     /// * `standalone` –  If true, generate a standalone HTML file.
     pub fn words_to_html(&self, words: &Vec<Word>, standalone: bool) -> String {
         let mut res = String::new();
-        if standalone {
-            res = res + START;
-        }
-        
+
         for word in words {
             match word {
                 &Word::Untracked(ref s) => res = res + s,
@@ -584,13 +581,13 @@ impl Parser {
             }
         }
         
-        if standalone {
-            res = res + END;
-        }
         
         if !self.html {
             // If input is in HTML, don't add <br /> for newlines
-            res.replace("\n", "<br/>\n")
+            res = res.replace("\n", "<br/>\n");
+        }
+        if standalone {
+            format!("{} {} {}", START, res, END)
         } else {
             res
         }

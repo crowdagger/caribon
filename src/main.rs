@@ -46,7 +46,7 @@ fn main() {
     let mut s = String::new();
     config.input.read_to_string(&mut s).unwrap();
     
-    let words = parser.tokenize(&s);
+    let words = parser.tokenize(&s).unwrap();
     let repetitions = match config.algo {
         Algorithm::Local => parser.detect_local(words),
         Algorithm::Global => parser.detect_global(words, config.is_relative),

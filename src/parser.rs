@@ -18,6 +18,41 @@ use self::stemmer::Stemmer;
 use word::Word;
 use std::collections::HashMap;
 
+use std::error;
+use std::result;
+use std::fmt;
+
+#[derive(Debug)]
+/// Parser error type
+pub struct Error {
+    content: String
+}
+
+impl Error {
+    fn new(s: &str) -> Error {
+        Error { content: s.to_string() }
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        f.write_str(&self.content)
+    }
+}
+
+impl error::Error for Error {
+    fn description(&self) -> &str {
+        &self.content
+    }
+}
+
+/// Result from tokenize
+pub type Result<T> = result::Result<T, Error>;
+type TokenizeResult<'a> = Result<(&'a [char], Word)>;
+
+
+
+
 static START:&'static str = include_str!("html/start.html");
 static END:&'static str = include_str!("html/end.html");
 
@@ -148,24 +183,24 @@ impl Parser {
     }
 
     /// When we know it is the beginning of an escape character (e.g. &nbsp;)
-    fn tokenize_escape<'b>(&self, c:&'b [char]) -> (&'b [char], Word) {
+    fn tokenize_escape<'b>(&self, c:&'b [char]) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
 
         loop {
             if chars.is_empty() {
-                panic!("Error reading HTML: ill-formed escape code. Maybe this is not an HTML file?");
+                return Err(Error::new("Error reading HTML: ill-formed escape code. Maybe this is not an HTML file?"));
             }
             let c = chars[0];
             res.push(c);
             chars = &chars[1..];
             if c == ';' {
-                return (chars, Word::Untracked(res));
+                return Ok((chars, Word::Untracked(res)));
             }
         }
     }
     
-    fn tokenize_html<'b>(&self, c:&'b [char]) -> (&'b [char], Word) {
+    fn tokenize_html<'b>(&self, c:&'b [char]) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
 
@@ -175,7 +210,7 @@ impl Parser {
 
         loop {
             if chars.is_empty() {
-                panic!("Error reading HTML: ill-formed HTML. Maybe this is not an HTML file?");
+                return Err(Error::new("Error reading HTML: ill-formed HTML. Maybe this is not an HTML file?"));
             }
             let c = chars[0];
             res.push(c);
@@ -191,10 +226,10 @@ impl Parser {
             }
         }
 
-        (chars, Word::Untracked(res))
+        Ok((chars, Word::Untracked(res)))
     }
     
-    fn tokenize_whitespace<'b>(&self, c:&'b [char], is_begin: &mut bool) -> (&'b [char], Word) {
+    fn tokenize_whitespace<'b>(&self, c:&'b [char], is_begin: &mut bool) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
 
@@ -213,7 +248,7 @@ impl Parser {
             }
         }
 
-        (chars, Word::Untracked(res))
+        Ok((chars, Word::Untracked(res)))
     }
 
     /// Return true if `s` is a proper noun, false else
@@ -235,7 +270,7 @@ impl Parser {
         }
     }
 
-    fn tokenize_word<'b>(&self, c: &'b [char], is_begin:&mut bool) -> (&'b [char], Word) {
+    fn tokenize_word<'b>(&self, c: &'b [char], is_begin:&mut bool) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
         
@@ -265,7 +300,7 @@ impl Parser {
         };
 
         *is_begin = false;
-        (chars, word)
+        Ok((chars, word))
     }
 
 
@@ -276,7 +311,7 @@ impl Parser {
     /// # Arguments
     ///
     /// * `s` – The string to tokenize.
-    pub fn tokenize(&self, s: &str) -> Vec<Word> {
+    pub fn tokenize(&self, s: &str) -> Result<Vec<Word>> {
         let v_chars:Vec<char> = s.chars().collect();
         let mut chars:&[char] = &v_chars;
         let mut res:Vec<Word> = vec!();
@@ -286,32 +321,39 @@ impl Parser {
         while !chars.is_empty() {
             let c = chars[0];
             if c.is_alphabetic() {
-                let (c, word) = self.tokenize_word(chars, &mut is_sentence_beginning);
+                let (c, word) = try!(self.tokenize_word(chars, &mut is_sentence_beginning));
                 chars = c;
                 res.push(word);
             } else if self.html && c == '<' {
-                let (c, word) = self.tokenize_html(chars);
+                let (c, word) = try!(self.tokenize_html(chars));
                 chars = c;
                 res.push(word);
                 is_sentence_beginning = false;
             } else if self.html && c == '&' {
-                let (c, word) = self.tokenize_escape(chars);
+                let (c, word) = try!(self.tokenize_escape(chars));
                 chars = c;
                 res.push(word);
             } else {
-                let (c, word) = self.tokenize_whitespace(chars, &mut is_sentence_beginning);
+                let (c, word) = try!(self.tokenize_whitespace(chars, &mut is_sentence_beginning));
                 chars = c;
                 res.push(word);
             }
         }
      
-        res
+        Ok(res)
     }
 
     /// Detect the local repetitions using a leak value.
     ///
     /// Basically, each time a word occurs, increase value by 1.0
     /// and each time it does not, multiply by leak (default: 0.98).
+    ///
+    /// This algorithm give results that are not as good than `detect_local`:
+    /// instead of underlining a cluster a repeting words, it will only underline
+    /// the 'offending' ones, i.e. not the first ones.
+    ///
+    /// On the other hand, this method is faster and should use less memory, so
+    /// it might be useful for very long texts.
     pub fn detect_leak(&self, mut vec:Vec<Word>) -> Vec<Word> {
         let mut h:HashMap<String, (u32, f32)> = HashMap::new();
         let mut pos = 0;
@@ -326,8 +368,8 @@ impl Parser {
                     pos += 1;
                     let x = match h.get(stemmed) {
                         None => 0.0,
-                        Some(tmp) => {
-                            let &(n, y) = tmp;
+                        Some(map_content) => {
+                            let &(n, y) = map_content;
                             y * self.leak.powi((pos - n) as i32)
                         }
                     } + 1.0;

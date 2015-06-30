@@ -1,6 +1,10 @@
 ChangeLog
 =========
 
+0.4.1 (???)
+-----------
+* Completed documentation
+
 0.4.0 (2015-06-30)
 ------------------
 * `words_to_html` is now part of Parser implementation

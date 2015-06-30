@@ -76,9 +76,11 @@ let html = parser.words_to_html(&repetitions, 2.0, true):
 ```
 */
    
-
+//#![feature(test)]
+//mod tests;
 mod word;
 mod parser;
+
 
 pub use word::Word;
 pub use parser::Parser;

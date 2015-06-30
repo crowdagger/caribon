@@ -72,83 +72,33 @@ Usage
 =====
 
 ```
-Caribon, version 0.4.0 by Élisabeth Henry <liz.henry@ouvaton.org>
+Caribon, version 0.5.0 by Élisabeth Henry <liz.henry@ouvaton.org>
 
 Detects the repetitions in a text and renders a HTML document highlighting them
 
 Options:
 --help: displays this message
 --version: displays program version
---list_languages: lists the implemented languages
+--list-languages: lists the implemented languages
 --language=[language]: sets the language of the text (default: french)
 --input=[filename]: sets input file (default: stdin)
 --output=[filename]: sets output file (default: stdout)
 --ignore=[string]: a string containing custom ignored words, separated by spaces or comma
     (default: use a builtin list that depends on the language)
---algo=[global|local|leak]: sets the detection algoritm (default: local)
---leak=[value]: sets leak value (only used by leak algorithm) (default: 0.95)
---max_distance=[value]: sets max distance (only used by local algorithm) (default: 50)
---global_count=[relative|absolute]: sets repetitions count as absolute or relative ratio of words
-    (only used by global algorithm) (default: absolute)
---threshold=[value]: sets threshold value for underlining repetitions (default: 1.9)
+--max-distance=[value]: sets max distance (used by local and leak algorithm) (default: 50)
+--threshold=[value]: sets threshold value for underlining local repetitions (default: 1.9)
+--global-threshold=[value]: sets threshold value for underlining global repetitions (default: 0.01)
 --html=[true|false]: enables/disable HTML input (default: true)
---ignore_proper=[true|false]: if true, try to detect proper nouns and
-don't count them (default: false)
+--ignore-proper=[true|false]: if true, try to detect proper nouns and don't count them (default: false)
 ```
 
 Library
 =======
 
 It is possible to use Caribon as a library. The documentation is
-available [here](http://lady-segfault.github.io/caribon/); in order to
+available [here](http://lady-segfault.github.io/caribon/index.html); in order to
 get the latest version, you can also generate it with
 `cargo doc`.
-
-Basically, it's pretty easy:
-
-You create a new parser with `Parser::new("language")` (the only
-trick is that it returns an `Option`, as all languages are not
-implemented, see `Parser::list_languages()` to get a vector of those
-that are implemented by the stemming library.
-
-You can then set some parameters for the parser, e.g:
-
-```rust
-let parser = Parser::new("french")
-    .unwrap()
-    .with_html(true) // enable html in input (default value, so it's useless)
-    .with_ignore_proper(true); // don't count repetitions for proper nouns 
-```
-
-The first step is to "tokenize" the string you want to parse:
-
-```rust
-let words = parser.tokenize("Some string which may or may not contain repetitions");
-```
-
-The second step is to detect the repetitions, using one of the three
-algorithms:
-
-```rust
-let detected_words = parser.detect_local(words); 
-let detected_words = parser.detect_global(words, false); 
-let detected_words = parser.detect_leak(words);
-```
-
-The final step is to display this vector of words. The parser provides
-a method that generates an HTML file, which also takes as argument a
-threshold above which words are underlined, and a boolean to tell
-whether it must be a standalone file or not:
-
-```rust
-println!("{}", self::words_to_html(&detected_words, 1.5, true));
-```
-
-(A note on this threshold: its choices depends on the detection
-algorithm you use (and possibly your taste and the language you write
-in, of course). Generally, it should be a bit above 1.0, except for
-`detect_global` (in which case, it depends whether you set
-`is_relative` to true or false).
 
 Current features
 ================
@@ -158,8 +108,7 @@ Current features
 * Basic support for other
   languages supported by the Snowball (http://snowball.tartarus.org/)
   project.
-* Count repetitions either locally (either by ignoring repetitions
-  after a given distance, or using some leak-based algorithm) or globally.
+* Count repetitions locally and globally.
 * Detects HTML tags in input. It doesn't work with a full HTML file
   (containing `<html>`, `<body>` and so on) but it works fine if you
   use e.g `pandoc -o file.html file.md`.

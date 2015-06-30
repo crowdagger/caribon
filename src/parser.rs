@@ -71,8 +71,6 @@ pub struct Parser {
     html: bool,
     /// Ignores proper nouns
     ignore_proper: bool,
-    /// Leak, only used for detect_leak
-    leak: f32,
     /// Max distance to consider a repetition, only used for detect_local
     max_distance: u32
 }
@@ -139,7 +137,6 @@ impl Parser {
                     ignored: ignored,
                     html: true,
                     ignore_proper: false,
-                    leak: 0.98,
                     max_distance: 50})
     }
 
@@ -174,14 +171,6 @@ impl Parser {
         self
     }
     
-    /// Sets the leak (default 0.98).
-    ///
-    /// Only used by `detect_leak` algorithm.
-    pub fn with_leak(mut self, leak: f32) -> Parser {
-        self.leak = leak;
-        self
-    }
-        
     /// Sets the ignored list with a list of words contained in the argument string.
     ///
     /// # Arguments
@@ -353,6 +342,21 @@ impl Parser {
         Ok(res)
     }
 
+    /// Compute a leak more or less corresponding to `max_distance`
+    ///
+    /// Basically, it is set so that value is divided by two when max_distance is reached
+    /// So the threshold used should typicalle be something like 1.5 to get every repetition
+    ///
+    fn get_leak(&self) -> f32 {
+        // leak^distance = v 
+        // so log(leak^distance) = log(v)
+        // so distance*log(leak) = log(v)
+        // so leak = exp(log(v)/distance)
+        let v:f32 = 0.5;
+        (v.log2() / (self.max_distance as f32)).exp2()
+    }
+        
+
     /// Detect the local repetitions using a leak value.
     ///
     /// Basically, each time a word occurs, increase value by 1.0
@@ -367,6 +371,7 @@ impl Parser {
     pub fn detect_leak(&self, mut vec:Vec<Word>) -> Vec<Word> {
         let mut h:HashMap<String, (u32, f32)> = HashMap::new();
         let mut pos = 0;
+        let leak = self.get_leak();
 
         for i in 0 .. vec.len() {
             match &mut vec[i] {
@@ -380,7 +385,7 @@ impl Parser {
                         None => 0.0,
                         Some(map_content) => {
                             let &(n, y) = map_content;
-                            y * self.leak.powi((pos - n) as i32)
+                            y * leak.powi((pos - n) as i32)
                         }
                     } + 1.0;
                     h.insert(stemmed.clone(), (pos, x));

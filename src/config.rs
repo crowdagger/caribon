@@ -24,7 +24,6 @@ use caribon::Parser;
 
 static ARG_LANG:&'static str = "--language=";
 static ARG_ALGO:&'static str = "--algo=";
-static ARG_LEAK:&'static str = "--leak=";
 static ARG_THRESHOLD:&'static str = "--threshold=";
 static ARG_MAX_DISTANCE:&'static str = "--max_distance=";
 static ARG_HTML:&'static str = "--html=";
@@ -64,8 +63,7 @@ Options:
 {}[string]: a string containing custom ignored words, separated by spaces or comma
     (default: use a builtin list that depends on the language)
 {}[global|local|leak]: sets the detection algoritm (default: local)
-{}[value]: sets leak value (only used by leak algorithm) (default: 0.95)
-{}[value]: sets max distance (only used by local algorithm) (default: 50)
+{}[value]: sets max distance (used by local and leak algorithm) (default: 50)
 {}[relative|absolute]: sets repetitions count as absolute or relative ratio of words
     (only used by global algorithm) (default: absolute)
 {}[value]: sets threshold value for underlining repetitions (default: 1.9)
@@ -80,7 +78,6 @@ Options:
              ARG_OUTPUT,
              ARG_IGNORE,
              ARG_ALGO,
-             ARG_LEAK,
              ARG_MAX_DISTANCE,
              ARG_GLOBAL_COUNT,
              ARG_THRESHOLD,
@@ -97,7 +94,6 @@ pub enum Algorithm {
 pub struct Config {
     pub lang: String,
     pub algo: Algorithm,
-    pub leak: f32,
     pub threshold: f32,
     pub max_distance: u32,
     pub html: bool,
@@ -114,7 +110,6 @@ impl Config {
         Config {
             lang: "french".to_string(),
             algo: Algorithm::Local,
-            leak:0.95,
             threshold:1.9,
             max_distance:50,
             html:true,
@@ -173,12 +168,6 @@ impl Config {
         } else if arg.starts_with(ARG_LANG) {
             let option = &arg[ARG_LANG.len()..];
             self.lang = option.to_string();
-        } else if arg.starts_with(ARG_LEAK) {
-            let option = &arg[ARG_LEAK.len()..];
-            self.leak = match option.parse() {
-                Ok(x) => x,
-                Err(_) => panic!("Error passing argument to leak: {}", option),
-            }
         } else if arg.starts_with(ARG_THRESHOLD) {
             let option = &arg[ARG_THRESHOLD.len()..];
             self.threshold = match option.parse() {

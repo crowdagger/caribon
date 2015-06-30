@@ -28,8 +28,7 @@ fn try_parse () -> Result<(), Box<Error>> {
 
     parser = parser.with_html(config.html)
         .with_ignore_proper(config.ignore_proper)
-        .with_max_distance(config.max_distance)
-        .with_leak(config.leak);
+        .with_max_distance(config.max_distance);
 
     if !config.ignored.is_empty() {
         parser = parser.with_ignored(&config.ignored);

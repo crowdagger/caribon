@@ -88,9 +88,10 @@ want to set it to true).
 let html = parser.words_to_html(&repetitions, 2.0, true):
 ```
 */
-   
+
+// Uncomment this if you use nightly and want to run benchmarks
 //#![feature(test)]
-//mod tests;
+//mod bench;
 mod word;
 mod parser;
 

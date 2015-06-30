@@ -46,6 +46,7 @@ impl error::Error for Error {
     }
 }
 
+
 /// Result from tokenize
 pub type Result<T> = result::Result<T, Error>;
 type TokenizeResult<'a> = Result<(&'a [char], Word)>;
@@ -105,7 +106,7 @@ impl Parser {
         }
     }
     
-    /// Returns `Some(Parser)` if language is `ok`, None else.
+    /// Returns `Ok(Parser)` if language is `ok`, Err(Error) else.
     ///
     /// # Arguments
     ///
@@ -116,16 +117,20 @@ impl Parser {
     ///
     /// ```
     /// let result = caribon::Parser::new("english");
-    /// assert!(result.is_some());
+    /// assert!(result.is_ok());
     /// ```
-    pub fn new(lang: &str) -> Option<Parser> {
+    pub fn new(lang: &str) -> Result<Parser> {
         let stemmer = Stemmer::new(lang);
         if stemmer.is_none() {
-            return None;
+            return Err(Error {
+                content: format!("Language {} is not implemented.\nSupported languages: {}",
+                                 lang,
+                                 Parser::list_languages().connect(", "))
+            });
         }
         let stemmer = stemmer.unwrap();
         let ignored = Parser::get_ignored_from_lang(lang);
-        Some(Parser{stemmer: stemmer,
+        Ok(Parser{stemmer: stemmer,
                     ignored: ignored,
                     html: true,
                     ignore_proper: false,

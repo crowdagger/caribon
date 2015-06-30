@@ -82,5 +82,7 @@ mod word;
 mod parser;
 
 
+pub use parser::Error;
+pub use parser::Result;
 pub use word::Word;
 pub use parser::Parser;

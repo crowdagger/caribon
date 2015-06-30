@@ -1,9 +1,12 @@
 ChangeLog
 =========
 
-0.4.1 (???)
+0.5.0 (???)
 -----------
 * Completed documentation
+* `Parser.tokenize` now returns a Result, giving an Error instead of
+panicking
+* `Parser::new` also returns a Result instead of an Option
 
 0.4.0 (2015-06-30)
 ------------------

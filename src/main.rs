@@ -22,18 +22,10 @@ use caribon::Parser;
 use std::error::Error;
 use std::io::Read;
 
-fn main() {
+fn try_parse () -> Result<(), Box<Error>> {
     let mut config = Config::new_from_args();
-    let result = Parser::new(&config.lang);
+    let mut parser = try!(Parser::new(&config.lang));
 
-    let mut parser = match result {
-        None => {
-            println!("Language '{}' is not supported.", &config.lang);
-            config::list_languages();
-            return;
-        },
-        Some(x) => x
-    };
     parser = parser.with_html(config.html)
         .with_ignore_proper(config.ignore_proper)
         .with_max_distance(config.max_distance)
@@ -44,18 +36,23 @@ fn main() {
     }
         
     let mut s = String::new();
-    config.input.read_to_string(&mut s).unwrap();
+    try!(config.input.read_to_string(&mut s));
     
-    let words = parser.tokenize(&s).unwrap();
+    let words = try!(parser.tokenize(&s));
     let repetitions = match config.algo {
         Algorithm::Local => parser.detect_local(words),
         Algorithm::Global => parser.detect_global(words, config.is_relative),
         Algorithm::Leak => parser.detect_leak(words)
     };
     let html = parser.words_to_html(&repetitions, config.threshold, true);
-    match config.output.write(&html.bytes().collect::<Vec<u8>>())
-    {
+    try!(config.output.write(&html.bytes().collect::<Vec<u8>>()));
+    Ok(())
+}
+    
+
+fn main() {
+    match try_parse () {
         Ok(_) => {},
-        Err(e) => println!("Error writing HTML: {}", e.description())
+        Err(e) => println!("{}", e.description())
     }
 }

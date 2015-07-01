@@ -568,7 +568,6 @@ impl Parser {
     /// # Arguments
     ///
     /// * `words` – A vector containing repetitions.
-    /// * `standalone` –  If true, generate a standalone HTML file.
     pub fn words_to_terminal(&self, words: &Vec<Word>) -> String {
         let mut res = String::new();
 
@@ -590,6 +589,37 @@ impl Parser {
         }
         res
     }
+
+
+    /// Display the words to markdown, emphasizing the repetitions.
+    ///
+    /// This is more limited than HTML or even terminal output, as it completely discards
+    /// colour information that have been passed by `detect_*` methods, but it might be useful
+    /// if e.g. you want to generate some files later with Pandoc (or any other program).
+    ///
+    /// # Arguments
+    ///
+    /// * `words` – A vector containing repetitions.
+    pub fn words_to_markdown(&self, words: &Vec<Word>) -> String {
+        let mut res = String::new();
+
+        for word in words {
+            match word {
+                &Word::Untracked(ref s) => res = res + s,
+                &Word::Ignored(ref s) => res = res + s,
+                &Word::Tracked(ref s, _, _, highlight) => {
+                    if let Some(_) = highlight {
+                        res = res + "**" + s + "**";
+                    }
+                    else {
+                        res = res + s;
+                    }
+                }
+            }
+        }
+        res
+    }
+    
 
     /// Display the words to HTML, higlighting the repetitions.
     ///

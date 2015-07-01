@@ -3,8 +3,10 @@ ChangeLog
 
 0.5.2 (???)
 -----------
-* Added `Parser.words_to_terminal` that prints repetition on the
-  terminal instead of using HTML, using terminal colours characters
+* Added `Parser.words_to_terminal` that outputs repetitions for the
+terminal instead of using HTML, using terminal colours characters
+* Make the binary use this function when it outputs on stdout
+* Added `Parser.words_to_markdown` that outputs repetitions in markdown
 
 0.5.1 (2015-07-01)
 ------------------

@@ -1,9 +1,14 @@
 ChangeLog
 =========
 
+0.5.2 (???)
+-----------
+* Added `Parser.words_to_terminal` that prints repetition on the
+  terminal instead of using HTML, using terminal colours characters
+
 0.5.1 (2015-07-01)
 ------------------
-* bugfixes in `Parser.tokenize` and `Parser.words_to_html` when
+* Bugfixes in `Parser.tokenize` and `Parser.words_to_html` when
   handling non-html input text
 
 0.5.0 (2015-07-01)

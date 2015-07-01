@@ -59,6 +59,8 @@ fn get_shell_colour(colour: &str) -> Option<&'static str> {
     match colour {
         "red" => Some("\x1B[4;31m"),
         "green" => Some("\x1B[4;32m"),
+        "cyan" => Some("\x1B[4;36m"),
+        "brown" => Some("\x1B[4;33m"),
         "blue" => Some("\x1B[4;32m"),
         "purple" => Some("\x1B[4;35m"),
         "orange" => Some("\x1B[4;33m"),

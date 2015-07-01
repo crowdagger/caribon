@@ -89,7 +89,9 @@ pub struct Config {
     pub html: bool,
     pub ignore_proper: bool,
     pub input: Box<Read>,
+    pub input_filename: String,
     pub output: Box<Write>,
+    pub output_filename: String,
     pub ignored: String,
 }
 
@@ -104,7 +106,9 @@ impl Config {
             html:true,
             ignore_proper:false,
             input: Box::new(io::stdin()),
+            input_filename: String::new(),
             output: Box::new(io::stdout()),
+            output_filename: String::new(),
             ignored: String::new()
         }
     }
@@ -126,7 +130,10 @@ impl Config {
             let option = &arg[ARG_OUTPUT.len()..];
             let result = File::create(option);
             match result {
-                Ok(f) => self.output = Box::new(f),
+                Ok(f) => {
+                    self.output = Box::new(f);
+                    self.output_filename = option.to_string();
+                },
                 Err(e) => {
                     println!("Error opening file {}: {}", option, e.description());
                     exit(0);
@@ -136,7 +143,10 @@ impl Config {
             let option = &arg[ARG_INPUT.len()..];
             let result = File::open(option);
             match result {
-                Ok(f) => self.input = Box::new(f),
+                Ok(f) => {
+                    self.input = Box::new(f);
+                    self.input_filename = option.to_string();
+                },
                 Err(e) => {
                     println!("Error opening file {}: {}", option, e.description());
                     exit(0);

@@ -40,6 +40,7 @@ fn try_parse () -> Result<(), Box<Error>> {
     let mut repetitions = parser.detect_local(words, config.threshold);
     repetitions = parser.detect_global(repetitions, config.global_threshold);
     let html = parser.words_to_html(&repetitions, true);
+    //let html = parser.words_to_terminal(&repetitions);
     try!(config.output.write(&html.bytes().collect::<Vec<u8>>()));
     Ok(())
 }

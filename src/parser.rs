@@ -51,7 +51,20 @@ impl error::Error for Error {
 pub type Result<T> = result::Result<T, Error>;
 type TokenizeResult<'a> = Result<(&'a [char], Word)>;
 
+// Code to end shell colouring
+static SHELL_COLOUR_OFF:&'static str = "\x1B[0m";
 
+/// Get a shell colour from a string
+fn get_shell_colour(colour: &str) -> Option<&'static str> {
+    match colour {
+        "red" => Some("\x1B[4;31m"),
+        "green" => Some("\x1B[4;32m"),
+        "blue" => Some("\x1B[4;32m"),
+        "purple" => Some("\x1B[4;35m"),
+        "orange" => Some("\x1B[4;33m"),
+        _ => None
+    }
+}
 
 
 static START:&'static str = include_str!("html/start.html");
@@ -543,6 +556,36 @@ impl Parser {
             }
         }
 
+        res
+    }
+
+    /// Display the words to terminal, higlighting the repetitions.
+    ///
+    /// Use terminal colour codes to highlight the repetitions
+    ///
+    /// # Arguments
+    ///
+    /// * `words` – A vector containing repetitions.
+    /// * `standalone` –  If true, generate a standalone HTML file.
+    pub fn words_to_terminal(&self, words: &Vec<Word>) -> String {
+        let mut res = String::new();
+
+        for word in words {
+            match word {
+                &Word::Untracked(ref s) => res = res + s,
+                &Word::Ignored(ref s) => res = res + s,
+                &Word::Tracked(ref s, _, _, option) => {
+                    if let Some(colour) = option {
+                        match get_shell_colour(colour) {
+                            None => res = res + s,
+                            Some(shell_colour) => res = res + shell_colour + s + SHELL_COLOUR_OFF
+                        }
+                    } else {
+                        res = res + s;
+                    }
+                }
+            }
+        }
         res
     }
 

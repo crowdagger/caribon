@@ -26,7 +26,7 @@ fn try_parse () -> Result<(), Box<Error>> {
     let mut parser = try!(Parser::new(&config.lang));
 
     parser = parser.with_html(config.html)
-        .with_fuzzy(Some(0.25))
+        .with_fuzzy(Some(0.5))
         .with_ignore_proper(config.ignore_proper)
         .with_max_distance(config.max_distance);
 

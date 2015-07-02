@@ -105,14 +105,16 @@ Current features
 
 * Built-in list of ignored words (common words whose repetitions don't
   matter) for french and english, though they are not complete.
-* Basic support for other
-  languages supported by the Snowball (http://snowball.tartarus.org/)
+* Stemming support for languages supported by the Snowball (http://snowball.tartarus.org/)
   project.
+* Additionally (because stemming algorithms aren't always perfect, and sometimes
+  you make typos), support for fuzzy string matching (based on Levenhstein distance)
 * Count repetitions locally and globally.
 * Detects HTML tags in input. It doesn't work with a full HTML file
   (containing `<html>`, `<body>` and so on) but it works fine if you
   use e.g `pandoc -o file.html file.md`.
-* Outputs a basic HTML files which higlights the detected repetitions.
+* Outputs a basic HTML files which higlights the detected repetitions,
+  or directly to the terminal.
 
 ChangeLog
 =========
@@ -132,7 +134,10 @@ Author
 
 This software uses (rust bindings to) the
 [C Stemming library](http://snowball.tartarus.org/dist/libstemmer_c.tgz)
-written by Dr Martin Porter, licensed under the BSD License. 
+written by Dr Martin Porter, licensed under the BSD License.
+
+It also uses the [Rust implementation](https://crates.io/crates/edit-distance) of
+Levenshtein distance written by Florian Ebelling, licensed under the Apache 2.0 License.
 
 ToDo 
 ====

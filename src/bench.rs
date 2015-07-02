@@ -3,14 +3,18 @@ extern crate test;
 use self::test::Bencher;
 
 static TEST:&'static str = "This is some text string. We want to detect repetitions in it.
-Why? Because repetitions are bad, very bad, so we want to highlight them. ";
-static N_REPET:u32 = 1000;
+Why? Because repetitions are bad, very bad, so we want to highlight them. In order to have benches 
+that are not utterly worthless, it is required to have some variance in the text, so even if we are gonna repeat
+this string quite a while it must be a bit longer, so I am writing senseless stuff. I guess this is long enough now ? 
+Well, alright, let's say it is. ";
+static N_REPET:u32 = 500;
 
 fn get_input() -> String {
     let mut s = TEST.to_string();
     for _ in 1..N_REPET {
         s = s + TEST;
     }
+
     s
 }
 
@@ -99,6 +103,39 @@ fn bench_local_fuzzy(b:&mut Bencher) {
     });
 }
 
+#[bench]
+fn bench_local2(b:&mut Bencher) {
+    let s = get_input();
+//    let s = include_str!("../README.md");
+    let parser = Parser::new("english").unwrap();
+    let words = parser.tokenize(&s).unwrap();    
+    b.iter(|| {
+        parser.detect_local2(words.clone(), 1.9);
+    });
+}
+
+#[bench]
+fn bench_local2_fuzzy(b:&mut Bencher) {
+    let s = get_input();
+    let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
+    let words = parser.tokenize(&s).unwrap();    
+    b.iter(|| {
+        parser.detect_local2(words.clone(), 1.9);
+    });
+}
+
+
+#[bench]
+fn bench_total(b:&mut Bencher) {
+    let s = get_input();
+    b.iter(|| {
+        let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
+        let words = parser.tokenize(&s).unwrap();    
+        let detections = parser.detect_local(words.clone(), 1.9);
+        parser.words_to_html(&detections, true);
+    });
+}
+
 
 #[bench]
 fn bench_local_readme(b:&mut Bencher) {
@@ -119,6 +156,28 @@ fn bench_local_readme_fuzzy(b:&mut Bencher) {
     let words = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(words.clone(), 1.9);
+    });
+}
+
+#[bench]
+fn bench_local2_readme(b:&mut Bencher) {
+    //    let s = get_input();
+    let s = include_str!("../README.md");
+    let parser = Parser::new("english").unwrap();
+    let words = parser.tokenize(&s).unwrap();    
+    b.iter(|| {
+        parser.detect_local2(words.clone(), 1.9);
+    });
+}
+
+#[bench]
+fn bench_local2_readme_fuzzy(b:&mut Bencher) {
+    //    let s = get_input();
+    let s = include_str!("../README.md");
+    let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
+    let words = parser.tokenize(&s).unwrap();    
+    b.iter(|| {
+        parser.detect_local2(words.clone(), 1.9);
     });
 }
 

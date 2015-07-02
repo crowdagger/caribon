@@ -460,21 +460,50 @@ impl Parser {
     /// `threshold` – The threshold to consider a repetition (e.g. 1.9)
     pub fn detect_local(&self, mut vec:Vec<Word>, threshold: f32) -> Vec<Word> {
         let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
-        let mut pos = 1;
+        let mut pos:u32 = 1;
+        let mut pos_to_i:Vec<usize> = vec!(0);
 
+        fn try_remove (pos: u32,
+                       h: &mut HashMap<String, (u32, Vec<usize>)>,
+                       vec: &Vec<Word>,
+                       pos_to_i: &Vec<usize>,
+                       max_distance: u32) {
+            if pos > max_distance + 1 {
+                let pos_limit = pos - max_distance;
+                let i = pos_to_i[pos_limit as usize];
+                let stemmed = match vec[i] {
+                    Word::Untracked(_) => panic!("Should not happen"),
+                    Word::Ignored(_) => return,
+                    Word::Tracked(_, ref stemmed, _, _) => stemmed
+                };
+                if let Some(&(old_pos, _)) =  h.get(stemmed) {
+//                    println!("h.len: {}, value: {}, old_pos: {}, pos_limit: {}, bool: {:?}", h.len(), stemmed, old_pos, pos_limit, old_pos == pos_limit + 1);
+                    if old_pos == pos_limit + 1 {
+//                        println!("removing {}", stemmed);
+                        h.remove(stemmed);
+                    }
+                }
+            }
+        }
         for i in 0 .. vec.len() {
             let elem = match vec[i] {
                 Word::Untracked(_) => None,
                 Word::Ignored(_) => {
                     pos += 1;
+                    pos_to_i.push(i);
                     None
                 },
                 Word::Tracked(_, ref stemmed, _, _) => {
                     pos += 1;
+                    pos_to_i.push(i);
                     let s = self.fuzzy_get(&h, stemmed);
                     Some((h.remove(&s), s))
                 }
             };
+            // Try to remove elements on a map
+            if self.fuzzy.is_some() {
+                try_remove(pos, &mut h, &vec, &pos_to_i, self.max_distance);
+            }
             if let Some((e, stemmed)) = elem {
                 // Update old stemmed to the fuzzy matched one
                 vec[i].set_stemmed(stemmed.clone());

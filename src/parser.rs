@@ -704,7 +704,8 @@ impl Parser {
     /// Returns the matching string, or `None`
     fn fuzzy_get<T>(&self, h: &HashMap<String,T>, pattern:&str) -> String {
         if let Some(d_max) = self.fuzzy {
-            if pattern.len() < 2 { // Pattern is too short to do fuzzy matching
+            let length = pattern.len();
+            if length < 2 { // Pattern is too short to do fuzzy matching
                 pattern.to_string()
             } else {
                 // If hashmap contains the exact pattern, no need to fuzzy search
@@ -713,10 +714,19 @@ impl Parser {
                 } else {
                     let mut min_distance = h.len() as i32;
                     let mut key = pattern;
-                    for s in h.keys() {
-                        if s.len() < 2 {
-                            continue;
-                        }
+                    for s in h.keys()
+                        .filter(|s| {
+                            // string is too small
+                            if s.len() < 2 { 
+                                return false;
+                            }
+                            if (s.len() as f32 - length as f32).abs() > (d_max  * pattern.len() as f32) {
+                                // Lengths don't allow a matching distance
+                                return false;
+                            }
+                            return true;
+                        })
+                    {
                         let dist = edit_distance(s, pattern);
                         if dist < min_distance {
                             min_distance = dist;

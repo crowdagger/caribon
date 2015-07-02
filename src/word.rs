@@ -30,9 +30,18 @@ pub enum Word {
 }
 
 impl Word {
+    /// Sets the stemmed value of a word.
+    pub fn set_stemmed(&mut self, s:String) {
+        match self {
+            &mut Word::Tracked(_, ref mut stemmed, _, _) => {
+                *stemmed = s;
+            },
+            _ => {}
+        }
+    }
+    
     /// Sets the repetition value of a word.
-    pub fn set_count(&mut self, x: f32) 
-    {
+    pub fn set_count(&mut self, x: f32)  {
         match self {
             &mut Word::Tracked(_, _, ref mut v, _) => {
                 *v = x;

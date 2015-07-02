@@ -476,6 +476,8 @@ impl Parser {
                 }
             };
             if let Some((e, stemmed)) = elem {
+                // Update old stemmed to the fuzzy matched one
+                vec[i].set_stemmed(stemmed.clone());
                 let (p_pos, mut subvec) = match e {
                     None => (0, vec!()),
                     Some(y) => y
@@ -495,7 +497,6 @@ impl Parser {
         }
         self.highlight(vec, threshold, value_to_colour)
     }
-
 
     /// Returns stats about the words
     ///
@@ -546,7 +547,7 @@ impl Parser {
         // We set each word value to the relative number of occurences
         for i in 0..vec.len() {
             let tmp = if let Word::Tracked(_, ref stemmed, _, _) = vec[i] {
-                let x = h.get(&self.fuzzy_get(&h, stemmed)).expect("HashMap was not filled correctly");
+                let x = h.get(stemmed).expect("HashMap was not filled correctly");
                 Some(*x)
             } else {
                 None
@@ -699,7 +700,6 @@ impl Parser {
         }
     }
 
-
     /// Search a string in a hashmap with fuzzy string matching
     /// Returns the matching string, or `None`
     fn fuzzy_get<T>(&self, h: &HashMap<String,T>, pattern:&str) -> String {
@@ -707,6 +707,7 @@ impl Parser {
             if pattern.len() < 2 { // Pattern is too short to do fuzzy matching
                 pattern.to_string()
             } else {
+                // If hashmap contains the exact pattern, no need to fuzzy search
                 if h.contains_key(pattern) {
                     pattern.to_string()
                 } else {
@@ -720,6 +721,9 @@ impl Parser {
                         if dist < min_distance {
                             min_distance = dist;
                             key = s;
+                        }
+                        if min_distance == 1 {
+                            break; // best result since perfect match has been ruled out
                         }
                     }
                     if min_distance < (d_max * pattern.len() as f32) as i32 {

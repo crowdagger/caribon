@@ -89,6 +89,16 @@ fn bench_local(b:&mut Bencher) {
     });
 }
 
+#[bench]
+fn bench_local_fuzzy(b:&mut Bencher) {
+    let s = get_input();
+    let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
+    let words = parser.tokenize(&s).unwrap();    
+    b.iter(|| {
+        parser.detect_local(words.clone(), 1.9);
+    });
+}
+
 
 #[bench]
 fn bench_local_readme(b:&mut Bencher) {

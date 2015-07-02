@@ -14,7 +14,9 @@
 // along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
 
 extern crate stemmer;
+extern crate edit_distance;
 use self::stemmer::Stemmer;
+use self::edit_distance::edit_distance;
 use word::Word;
 use std::collections::HashMap;
 
@@ -87,7 +89,9 @@ pub struct Parser {
     /// Ignores proper nouns
     ignore_proper: bool,
     /// Max distance to consider a repetition, only used for detect_local
-    max_distance: u32
+    max_distance: u32,
+    /// Triggers fuzzy string matching
+    fuzzy: Option<f32>,
 }
 
 impl Parser {
@@ -149,10 +153,27 @@ impl Parser {
         let stemmer = stemmer.unwrap();
         let ignored = Parser::get_ignored_from_lang(lang);
         Ok(Parser{stemmer: stemmer,
-                    ignored: ignored,
-                    html: true,
-                    ignore_proper: false,
-                    max_distance: 50})
+                  ignored: ignored,
+                  html: true,
+                  ignore_proper: false,
+                  max_distance: 50,
+                  fuzzy: None
+        })
+    }
+
+    /// Sets fuzzy string matching (default None)
+    ///
+    /// If sets to Some(x), instead of just using equality to compare string,
+    /// the Parser will use Levenhstein distance.
+    ///
+    /// # Arguments
+    ///
+    /// * `fuzzy` – `None` to deactivate fuzzy matching, or `Some(x)` to activate it. x must be between
+    /// 0.0 and 1.0 as it corresponds to the relative distance, e.g "Caribon" has a length of 7 so if
+    /// fuzzy is set with `Some(0.5)`, it will requires a maximal distance of 3 (actually 3.5 but distance is Integer)
+    pub fn with_fuzzy(mut self, fuzzy: Option<f32>) -> Parser {
+        self.fuzzy = fuzzy;
+        self
     }
 
     /// Sets max distance for repetitions (default 50).
@@ -402,14 +423,23 @@ impl Parser {
                 },
                 &mut Word::Tracked(_, ref stemmed, ref mut v, _) => {
                     pos += 1;
-                    let x = match h.get(stemmed) {
-                        None => 0.0,
-                        Some(map_content) => {
-                            let &(n, y) = map_content;
-                            y * leak.powi((pos - n) as i32)
-                        }
-                    } + 1.0;
-                    h.insert(stemmed.clone(), (pos, x));
+                    let (s, x) = {
+                        let (option, s) = if self.fuzzy.is_none() {
+                            (h.get(stemmed), stemmed.clone())
+                        } else {
+                            let s = self.fuzzy_get(&h, stemmed);
+                            (h.get(&s), s)
+                        };
+                        let x = match option {
+                            None => 0.0,
+                            Some(map_content) => {
+                                let &(n, y) = map_content;
+                                y * leak.powi((pos - n) as i32)
+                            }
+                        } + 1.0;
+                        (s, x)
+                    };
+                    h.insert(s, (pos, x));
                     *v = x;
                 }
             };
@@ -441,7 +471,8 @@ impl Parser {
                 },
                 Word::Tracked(_, ref stemmed, _, _) => {
                     pos += 1;
-                    Some((h.remove(stemmed), stemmed.clone()))
+                    let s = self.fuzzy_get(&h, stemmed);
+                    Some((h.remove(&s), s))
                 }
             };
             if let Some((e, stemmed)) = elem {
@@ -515,7 +546,7 @@ impl Parser {
         // We set each word value to the relative number of occurences
         for i in 0..vec.len() {
             let tmp = if let Word::Tracked(_, ref stemmed, _, _) = vec[i] {
-                let x = h.get(stemmed).expect("HashMap was not filled correctly");
+                let x = h.get(&self.fuzzy_get(&h, stemmed)).expect("HashMap was not filled correctly");
                 Some(*x)
             } else {
                 None
@@ -667,6 +698,42 @@ impl Parser {
             res
         }
     }
+
+
+    /// Search a string in a hashmap with fuzzy string matching
+    /// Returns the matching string, or `None`
+    fn fuzzy_get<T>(&self, h: &HashMap<String,T>, pattern:&str) -> String {
+        if let Some(d_max) = self.fuzzy {
+            if pattern.len() < 2 { // Pattern is too short to do fuzzy matching
+                pattern.to_string()
+            } else {
+                if h.contains_key(pattern) {
+                    pattern.to_string()
+                } else {
+                    let mut min_distance = h.len() as i32;
+                    let mut key = pattern;
+                    for s in h.keys() {
+                        if s.len() < 2 {
+                            continue;
+                        }
+                        let dist = edit_distance(s, pattern);
+                        if dist < min_distance {
+                            min_distance = dist;
+                            key = s;
+                        }
+                    }
+                    if min_distance < (d_max * pattern.len() as f32) as i32 {
+                        key.to_string()
+                    } else {
+                        pattern.to_string()
+                    }
+                }
+            }
+        } else {
+            pattern.to_string()
+        }
+    }
+    
 }
 
 /// Generate the style attribute according to x and threshold
@@ -681,6 +748,4 @@ fn value_to_colour(x: f32, threshold: f32) -> &'static str {
         "red"
     }
 }
-
-
 

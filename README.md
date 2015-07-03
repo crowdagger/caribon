@@ -20,43 +20,73 @@ in french are called *caractères*. In french, *good* is *bon* so
 Alright, this doesn't make much sense, I'll admit I just found the
 name funny.
 
-How?
-====
+Downloading
+===========
 
-Internally, Caribon use a stemming library
-(https://github.com/lady-segfault/stemmer-rs, the Rust bindings for
-Snowball C implementation: http://snowball.tartarus.org/) to reduce
-words to their stems, which allows e.g. to see a singular and a plural
-as the "same" word. Then it's just counting the repetitions, and
-outputting HTML.
+Either use `git` to get the latest version:
+
+`$ git clone https://github.com/lady-segfault/caribon.git`
+
+or just download one of the stable(ish)
+[releases](https://github.com/lady-segfault/caribon/releases).
+
+(If you only plan to use Caribon as a library for your rust program,
+you don't need to worry too much about downloading and building, just
+add `caribon = "0.5"` in your `Cargo.toml` file.)
+
 
 Build
 =====
 
-You'll need Rust and Cargo, see [install instructions](http://www.rust-lang.org/install.html). Then
+You'll need Rust and Cargo, see their [install instructions](http://www.rust-lang.org/install.html). Then
 
-`$ cargo build`
+`$ make`
 
-should do the job (it works with Rust 1.1). You can then run caribon either with:
+should do the job, though you can also run `cargo build --release`
+directly. You can then run caribon either with:
 
-`$ cargo run`
+`$ cargo run --release`
 
 or by directly executing the binary (in `target/debug` or
-`target/release`).
+`target/release`):
 
-If you plan to use `cargo run`, note that command-line arguments must
+`$ target/release/caribon`
+
+Installing
+==========
+
+The basic `Makefile` provides an `install` target, so
+
+`# make install`
+
+(as root) should install `caribon` (in `/usr/bin/`) (it is possible to
+change that by modifing the first `Makefile` line to `INSTALL_DIR= some/install/directory`).
+
+Similarly,
+
+`# sudo make uninstall` should uninstall `caribon`.
+
+WARNING: the install procedure hasn't been really tested and is a bit
+YOLO at this time. But it should then allow you to run Caribon with:
+
+`# caribon`
+
+Cargo run
+=========
+
+If you don't want to install Caribon, `cargo run` might be the
+simplest option. Note, though, that command-line arguments must
 be prefixed by `--` so cargo gives them to the binary: 
 
-`$ cargo run -- --input=some_text.txt --output=output.html`
+`$ cargo run -- --input=some_text.txt`
 
-You can also install the `caribon` binary somewhere in your path
-(e.g. `/usr/local/bin`) but currently there is no install/uninstall
-option, so you'll have to do it manually.
+Also note that, by default, `cargo run` builds and runs the program in
+debug mode, which is slower. This isn't a problem for tiny file, but
+if you plan to detect a repetitions in, say, a novel, using
+cpu-extensive features (such as fuzzy string matching), you might want
+to run with `--release`:
 
-Once you have generated an HTML file, just open it with your favorite
-browser and see your repetitions. Words that are repeated too closely
-are underlined in green, orange and red (depending on the number of
-repetitions); words that appear globally too often are underlined in blue.
+`$ cargo run --release -- --input=big_file.html --output=output_big_file.html`
 
 Examples
 ========
@@ -75,10 +105,12 @@ quite high (words only needs to be 50% similar to be considered the
 same, matching `just` and `rust`); for real life usage, a lower value
 would be recommended.)
 
-Another [example](https://lady-segfault.github.io/caribon-examples/screenshot.png), displaying repetitions in
+Here is another [example](https://lady-segfault.github.io/caribon-examples/screenshot.png), displaying repetitions in
 `README.md` to the terminal, using the following command:
 
 `cargo run -- --language=english --input=README.md --fuzzy=0.5 | more`
+
+![example](https://lady-segfault.github.io/caribon-examples/screenshot.png)
 
 
 Usage
@@ -110,6 +142,57 @@ Options:
                 'difference' between two words until they are no more considered identical (e.g. 0.25 means that two words
                  must have no more than 25% of difference) (default: not activated)
 ```
+
+Options
+=======
+
+Caribon provides a pretty wild list of options. Here's the
+explanations to a few ones, from the most commons the the pretty
+advanced ones:
+
+### Language ###
+
+* `--language=[english|french|spanish|...]`specify the language of the
+  input file. It is important for two reasons. The first one is that
+  Caribon internally uses a stemming library, which will detect when
+  words are derived from the same stem, e.g. "eats", "eat" and
+  "eating" will be considered the same word. (More information on how
+  this stemming library works can be found on the
+  [Snowball project website](http://snowball.tartarus.org/).) The
+  second reason is that for some languages (currently only french and
+  english), Caribon provides a default list of words to ignore for
+  repetition counting (e.g. in english "it", "a" and so on are on it)
+  to avoid cluttering the result file.
+* `--list-languages` prints the list of languages supported by the
+  stemming library.
+
+### Input and output ###
+
+* `--input=[file]` specify the input file. By default it is `stdin`,
+which means you'll have directly to type your text and end with
+`control-D`. If `file` does not exist, the program aborts.
+* `--output=[file]` specify the output file. It defaults to `stdout`,
+printting the result to the terminal.
+
+The input and output filenames extension determine the input and
+output format, e.g. if you pass `--input=text.html --output=result.html`, Caribon will
+infer that the content is in HTML and that it must also output HTML
+(so `$ caribon < input.html > output.html` is NOT equivalent to `$
+caribon --input=input.html --output=output.html`: in the former case,
+Caribon will consider the input as raw text and will output in
+`terminal` format (see below), while in the latter one it will
+understand that both files are HTML).
+
+It is, possible to override this behaviour by specifying
+
+* `input-format=[text|html]` or
+* `output-format=[terminal|html|markdown]`.
+
+A note on the `terminal` outputs format: it is designed to prints text
+to the terminal, by underlining and colouring some words with UNIX
+terminal special characters (see screenshot above). It is, thus, only activated when no
+output file name is given and Caribon prints on the standard output,
+HTML output being the default for most of the cases.
 
 Library
 =======

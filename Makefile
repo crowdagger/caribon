@@ -1,5 +1,4 @@
-# Useful for packaging(?)
-
+INSTALL_DIR = /usr/bin/
 BINARYNAME = caribon
 BINARY = target/release/$(BINARYNAME)
 
@@ -12,8 +11,8 @@ $(BINARY): src/*.rs Cargo.toml
 	cargo build --release
 
 install: $(BINARY)
-	install -d $(DESTDIR)/usr/bin/
-	install $(BINARY) $(DESTDIR)/usr/bin/
+	install -d $(DESTDIR)$(INSTALL_DIR)
+	install $(BINARY) $(DESTDIR)$(INSTALL_DIR)
 
 uninstall:
 	rm $(DESTDIR)/usr/bin/$(BINARYNAME)

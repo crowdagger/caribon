@@ -13,10 +13,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
 
-extern crate stemmer;
-extern crate edit_distance;
-use self::stemmer::Stemmer;
-use self::edit_distance::edit_distance;
+use super::stemmer::Stemmer;
+use super::edit_distance::edit_distance;
 use word::Word;
 use std::collections::HashMap;
 

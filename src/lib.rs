@@ -21,12 +21,12 @@ words that are not technically identical but are quite the same, such as singula
 Here's a short example (more details below):
 
 ```
-use Caribon::Parser;
+use caribon::Parser;
 let parser = Parser::new("english").unwrap();
-let words = parser.tokenize("Some text where you want to detect repetitions");
+let words = parser.tokenize("Some text where you want to detect repetitions").unwrap();
 let mut repetitions = parser.detect_local(words, 1.5);
-repetitions = parser.detect_global(words, 0.01);
-let html = parser.words_to_html(&repetitions);
+repetitions = parser.detect_global(repetitions, 0.01); // actually doesn't make sens on a string so small
+let html = parser.words_to_html(&repetitions, true);
 println!("{}", html);
 ```
 
@@ -94,9 +94,12 @@ let html = parser.words_to_html(&repetitions, true):
 // Uncomment this if you use nightly and want to run benchmarks
 #![feature(test)]
 mod bench;
+
+extern crate stemmer;
+extern crate edit_distance;
+
 mod word;
 mod parser;
-
 
 pub use parser::Error;
 pub use parser::Result;

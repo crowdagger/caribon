@@ -20,4 +20,7 @@ doc = false
 
 [dependencies]
 stemmer = "*"
-edit-distance = "1"
+
+[dependencies.edit-distance]
+git = "https://github.com/lady-segfault/edit-distance.git"
+

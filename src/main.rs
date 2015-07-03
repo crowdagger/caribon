@@ -26,7 +26,7 @@ fn try_parse () -> Result<(), Box<Error>> {
     let mut parser = try!(Parser::new(&config.lang));
 
     parser = parser.with_html(&config.input_format == "html")
-        .with_fuzzy(Some(0.25))
+        .with_fuzzy(config.fuzzy)
         .with_ignore_proper(config.ignore_proper)
         .with_max_distance(config.max_distance);
 
@@ -39,7 +39,9 @@ fn try_parse () -> Result<(), Box<Error>> {
     
     let words = try!(parser.tokenize(&s));
     let mut repetitions = parser.detect_local(words, config.threshold);
-    repetitions = parser.detect_global(repetitions, config.global_threshold);
+    if let Some(threshold) = config.global_threshold {
+        repetitions = parser.detect_global(repetitions, threshold);
+    }
     let output = match &*config.output_format {
         "html" => parser.words_to_html(&repetitions, true),
         "terminal" => parser.words_to_terminal(&repetitions),

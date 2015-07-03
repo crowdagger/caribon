@@ -35,6 +35,7 @@ static ARG_OUTPUT:&'static str = "--output=";
 static ARG_VERSION:&'static str = "--version";
 static ARG_LIST_LANGUAGES:&'static str = "--list-languages";
 static ARG_IGNORE:&'static str = "--ignore=";
+static ARG_FUZZY:&'static str = "--fuzzy=";
 
 pub fn list_languages() {
     println!("Supported languages:");
@@ -62,12 +63,17 @@ Options:
 \t{}[filename]: sets output file (default: stdout)
 \t{}[string]: a string containing custom ignored words, separated by spaces or comma
 \t\t(default: use a builtin list that depends on the language)
-\t{}[value]: sets max distance (used by local and leak algorithm) (default: 50)
+\t{}[value]: sets max distance to be considered a repetition (in words) (default: 50)
 \t{}[value]: sets threshold value for underlining local repetitions (default: 1.9)
-\t{}[value]: sets threshold value for underlining global repetitions (default: 0.01)
+\t{}[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions
+\t\t(this threshold corresponds to the minimal ratio of words in the text, e.g. a threshold of 0.01 means
+\t\tthat a word must represent at least 1% of the total words in the text to be underlined) (default: not activated)
 \t{}[text|html]: sets input format (default: text, depends on input file extension)
 \t{}[terminal|html]|markdown]: sets output format (default: terminal, depends on output file extension)
-\t{}[true|false]: if true, try to detect proper nouns and don't count them (default: false)",
+\t{}[true|false]: if true, try to detect proper nouns and don't count them (default: false)
+\t{}[value|none]: activate fuzzy string matching; value must be between 0.0 and 1.0 and corresponds to the maximal
+\t\t'difference' between two words until they are no more considered identical (e.g. 0.25 means that two words
+\t\t must have no more than 25% of difference) (default: not activated)",
              env!("CARGO_PKG_VERSION"),
              ARG_USAGE,
              ARG_VERSION,
@@ -81,13 +87,14 @@ Options:
              ARG_GLOBAL_THRESHOLD,
              ARG_INPUT_FORMAT,
              ARG_OUTPUT_FORMAT,
-             ARG_IGNORE_PROPER);
+             ARG_IGNORE_PROPER,
+             ARG_FUZZY);
 }
 
 pub struct Config {
     pub lang: String,
     pub threshold: f32,
-    pub global_threshold: f32,
+    pub global_threshold: Option<f32>,
     pub max_distance: u32,
     pub input_format: String,
     pub output_format: String,
@@ -97,6 +104,7 @@ pub struct Config {
     pub output: Box<Write>,
     pub output_filename: String,
     pub ignored: String,
+    pub fuzzy: Option<f32>,
 }
 
 impl Config {
@@ -105,7 +113,7 @@ impl Config {
         Config {
             lang: "french".to_string(),
             threshold:1.9,
-            global_threshold: 0.01,
+            global_threshold: None,
             max_distance:50,
             input_format: String::new(),
             output_format: String::new(),
@@ -114,7 +122,8 @@ impl Config {
             input_filename: String::new(),
             output: Box::new(io::stdout()),
             output_filename: String::new(),
-            ignored: String::new()
+            ignored: String::new(),
+            fuzzy: None
         }
     }
 
@@ -187,13 +196,30 @@ impl Config {
                     exit(0);
                 }
             }
+        } else if arg.starts_with(ARG_FUZZY) {
+            let option = &arg[ARG_FUZZY.len()..];
+            self.fuzzy = if option == "none" {
+                None
+            } else {
+                match option.parse() {
+                    Ok(x) => Some(x),
+                    Err(_) => {
+                        println!("Error passing argument to fuzzy: {}", option);
+                        exit(0);
+                    }
+                }
+            }
         } else if arg.starts_with(ARG_GLOBAL_THRESHOLD) {
             let option = &arg[ARG_GLOBAL_THRESHOLD.len()..];
-            self.global_threshold = match option.parse() {
-                Ok(x) => x,
-                Err(_) => {
-                    println!("Error passing argument to threshold: {}", option);
-                    exit(0);
+            self.global_threshold = if option == "none" {
+                None
+            } else {
+                match option.parse() {
+                    Ok(x) => Some(x),
+                    Err(_) => {
+                        println!("Error passing argument to global threshold: {}", option);
+                        exit(0);
+                    }
                 }
             }
         } else if arg.starts_with(ARG_MAX_DISTANCE) {

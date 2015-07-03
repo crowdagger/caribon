@@ -98,10 +98,11 @@ mod bench;
 extern crate stemmer;
 extern crate edit_distance;
 
+mod error;
 mod word;
 mod parser;
 
-pub use parser::Error;
-pub use parser::Result;
+pub use error::Error;
+pub use error::Result;
 pub use word::Word;
 pub use parser::Parser;

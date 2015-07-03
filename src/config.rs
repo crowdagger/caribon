@@ -26,7 +26,8 @@ static ARG_LANG:&'static str = "--language=";
 static ARG_THRESHOLD:&'static str = "--threshold=";
 static ARG_MAX_DISTANCE:&'static str = "--max-distance=";
 static ARG_GLOBAL_THRESHOLD:&'static str = "--global-threshold=";
-static ARG_HTML:&'static str = "--html=";
+static ARG_INPUT_FORMAT:&'static str = "--input-format=";
+static ARG_OUTPUT_FORMAT:&'static str = "--output-format=";
 static ARG_IGNORE_PROPER:&'static str = "--ignore-proper=";
 static ARG_USAGE:&'static str = "--help";
 static ARG_INPUT:&'static str = "--input=";
@@ -50,22 +51,23 @@ fn usage() {
     println!("
 Caribon, version {} by Élisabeth Henry <liz.henry@ouvaton.org>
 
-Detects the repetitions in a text and renders a HTML document highlighting them
+Detects the repetitions in a text and highlights them
 
 Options:
-{}: displays this message
-{}: displays program version
-{}: lists the implemented languages
-{}[language]: sets the language of the text (default: french)
-{}[filename]: sets input file (default: stdin)
-{}[filename]: sets output file (default: stdout)
-{}[string]: a string containing custom ignored words, separated by spaces or comma
-    (default: use a builtin list that depends on the language)
-{}[value]: sets max distance (used by local and leak algorithm) (default: 50)
-{}[value]: sets threshold value for underlining local repetitions (default: 1.9)
-{}[value]: sets threshold value for underlining global repetitions (default: 0.01)
-{}[true|false]: enables/disable HTML input (default: true)
-{}[true|false]: if true, try to detect proper nouns and don't count them (default: false)",
+\t{}: displays this message
+\t{}: displays program version
+\t{}: lists the implemented languages
+\t{}[language]: sets the language of the text (default: french)
+\t{}[filename]: sets input file (default: stdin)
+\t{}[filename]: sets output file (default: stdout)
+\t{}[string]: a string containing custom ignored words, separated by spaces or comma
+\t\t(default: use a builtin list that depends on the language)
+\t{}[value]: sets max distance (used by local and leak algorithm) (default: 50)
+\t{}[value]: sets threshold value for underlining local repetitions (default: 1.9)
+\t{}[value]: sets threshold value for underlining global repetitions (default: 0.01)
+\t{}[text|html]: sets input format (default: text, depends on input file extension)
+\t{}[terminal|html]|markdown]: sets output format (default: terminal, depends on output file extension)
+\t{}[true|false]: if true, try to detect proper nouns and don't count them (default: false)",
              env!("CARGO_PKG_VERSION"),
              ARG_USAGE,
              ARG_VERSION,
@@ -77,7 +79,8 @@ Options:
              ARG_MAX_DISTANCE,
              ARG_THRESHOLD,
              ARG_GLOBAL_THRESHOLD,
-             ARG_HTML,
+             ARG_INPUT_FORMAT,
+             ARG_OUTPUT_FORMAT,
              ARG_IGNORE_PROPER);
 }
 
@@ -86,7 +89,8 @@ pub struct Config {
     pub threshold: f32,
     pub global_threshold: f32,
     pub max_distance: u32,
-    pub html: bool,
+    pub input_format: String,
+    pub output_format: String,
     pub ignore_proper: bool,
     pub input: Box<Read>,
     pub input_filename: String,
@@ -103,7 +107,8 @@ impl Config {
             threshold:1.9,
             global_threshold: 0.01,
             max_distance:50,
-            html:true,
+            input_format: String::new(),
+            output_format: String::new(),
             ignore_proper:false,
             input: Box::new(io::stdin()),
             input_filename: String::new(),
@@ -118,8 +123,26 @@ impl Config {
         let mut config = Config::new();
         let mut iter = env::args();
         iter.next();
+        // Sets fields from args
         for argument in iter {
             config.parse_arg(&argument);
+        }
+        // Sets fields to default values if they have not been set
+        if config.input_format.is_empty() {
+            if config.input_filename.ends_with(".html") {
+                config.input_format = "html".to_string();
+            } else {
+                config.input_format = "text".to_string();
+            }
+        }
+        if config.output_format.is_empty() {
+            if config.output_filename.ends_with(".html") {
+                config.output_format = "html".to_string();
+            } else if config.output_filename.ends_with(".md") {
+                config.output_format = "markdown".to_string();
+            } else {
+                config.output_format = "terminal".to_string();
+            }
         }
         config
     }
@@ -159,33 +182,59 @@ impl Config {
             let option = &arg[ARG_THRESHOLD.len()..];
             self.threshold = match option.parse() {
                 Ok(x) => x,
-                Err(_) => panic!("Error passing argument to threshold: {}", option),
+                Err(_) => {
+                    println!("Error passing argument to threshold: {}", option);
+                    exit(0);
+                }
             }
         } else if arg.starts_with(ARG_GLOBAL_THRESHOLD) {
             let option = &arg[ARG_GLOBAL_THRESHOLD.len()..];
             self.global_threshold = match option.parse() {
                 Ok(x) => x,
-                Err(_) => panic!("Error passing argument to threshold: {}", option),
+                Err(_) => {
+                    println!("Error passing argument to threshold: {}", option);
+                    exit(0);
+                }
             }
         } else if arg.starts_with(ARG_MAX_DISTANCE) {
             let option = &arg[ARG_MAX_DISTANCE.len()..];
             self.max_distance = match option.parse() {
                 Ok(x) => x,
-                Err(_) => panic!("Error passing argument to max_distance: {}", option),
+                Err(_) => {
+                    println!("Error passing argument to max_distance: {}", option);
+                    exit(0);
+                }
             }
-        } else if arg.starts_with(ARG_HTML) {
-            let option = &arg[ARG_HTML.len()..];
+        } else if arg.starts_with(ARG_INPUT_FORMAT) {
+            let option = &arg[ARG_INPUT_FORMAT.len()..];
             match option {
-                "true" => self.html = true,
-                "false" => self.html = false,
-                _ => panic!("Wrong argument to html: expected 'true' or 'false', received: {}", option)
+                "html" => self.input_format = option.to_string(),
+                "text" => self.input_format = option.to_string(),
+                _ => {
+                    println!("Wrong argument to {}: expected 'html' or 'text', received: {}", ARG_INPUT_FORMAT, option);
+                    exit(0);
+                }
+            }
+        } else if arg.starts_with(ARG_OUTPUT_FORMAT) {
+            let option = &arg[ARG_OUTPUT_FORMAT.len()..];
+            match option {
+                "html" => self.input_format = option.to_string(),
+                "terminal" => self.input_format = option.to_string(),
+                "markdown" => self.input_format = option.to_string(),
+                _ => {
+                    println!("Wrong argument to {}: expected 'html', 'terminal' or 'markdown', received: {}", ARG_OUTPUT_FORMAT, option);
+                    exit(0);
+                }
             }
         } else if arg.starts_with(ARG_IGNORE_PROPER) {
             let option = &arg[ARG_IGNORE_PROPER.len()..];
             match option {
                 "true" => self.ignore_proper = true,
                 "false" => self.ignore_proper = false,
-                _ => panic!("Wrong argument to ignore_proper: expected 'true' or 'false', received: {}", option)
+                _ => {
+                    println!("Wrong argument to ignore_proper: expected 'true' or 'false', received: {}", option);
+                    exit(0);
+                }
             }
         } else if arg.starts_with(ARG_IGNORE) {
             let option = &arg[ARG_IGNORE.len()..];

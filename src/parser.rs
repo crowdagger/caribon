@@ -16,39 +16,10 @@
 use super::stemmer::Stemmer;
 use super::edit_distance::edit_distance;
 use word::Word;
+use error::Error;
+use error::Result;
 use std::collections::HashMap;
 
-use std::error;
-use std::result;
-use std::fmt;
-
-#[derive(Debug)]
-/// Parser error type
-pub struct Error {
-    content: String
-}
-
-impl Error {
-    fn new(s: &str) -> Error {
-        Error { content: s.to_string() }
-    }
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(&self.content)
-    }
-}
-
-impl error::Error for Error {
-    fn description(&self) -> &str {
-        &self.content
-    }
-}
-
-
-/// Result from tokenize
-pub type Result<T> = result::Result<T, Error>;
 type TokenizeResult<'a> = Result<(&'a [char], Word)>;
 
 // Code to end shell colouring

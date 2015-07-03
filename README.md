@@ -75,7 +75,7 @@ quite high (words only needs to be 50% similar to be considered the
 same, matching `just` and `rust`); for real life usage, a lower value
 would be recommended.)
 
-Another [example](example/screenshot.png), displaying repetitions in
+Another [example](https://lady-segfault.github.io/caribon-examples/screenshot.png), displaying repetitions in
 `README.md` to the terminal, using the following command:
 
 `cargo run -- --language=english --input=README.md --fuzzy=0.5 | more`

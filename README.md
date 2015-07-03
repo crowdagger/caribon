@@ -194,13 +194,134 @@ terminal special characters (see screenshot above). It is, thus, only activated 
 output file name is given and Caribon prints on the standard output,
 HTML output being the default for most of the cases.
 
+### Threshold and max-distance ###
+
+The most useful algorithm of Caribon is local repetitions
+detections. It detects when a word is repeated in a given interval of
+words. This interval is determined by
+
+* `--max-distance=[value]` (default is currently 50).
+
+So basically, if value is 50 and the word 'foo' occur twice in this
+interval, each occurrence will have a "repetition value" of 2. If
+'foo' is repeated a third time in a 50-words interval *after the second
+occurence*, then each of these occurrences will have a repetition
+value of 3. (If there is then more than 50 words without apparition of
+'foo', and 'foo' appears again, the value of the latest apparition
+will be set to 1 again).
+
+Words are underlined when their "repetition value" is higher than a
+threshold, which can be set by:
+
+* `--threshold=[value]`. The default is `1.9`, so a word be underlined
+  as such that is is repeated two times. If you change it to, say,
+  `2.5`, a word will have to be repeated three times (locally) to be
+  underlined.
+
+(Why a float value for the threshold, instead of an integer one?
+Because the local repetitions detector will underline words in
+different colors: green, orange and red according to the "severity" of
+the repetitions. So setting the threshold to `1.01` or `1.99` will not
+change which words are underlined, but they will be in orange or red
+more quickly in the first case.)
+
+### Fuzzy string matching ###
+
+Caribon uses a stemming library to detect words that are part of the
+same 'family'. It turns out that this algorithm is not always
+enough, and particularly it doesn't detect repetition when there is a
+typo (e.g. "higlight" and "highlight" should probably be considered a
+repetition, even if it is mispelled in the first case). To solve this
+issue, there is the option of activating fuzzy string matching:
+
+* `fuzzy=[value]`, where the value is a number between 0.0 and 1.0 which
+  represents the maximal 'difference' between two words until the are
+  no more identical: a value of 0.2 means that two words must be at
+  most "20% different" until they are no more considered the same.
+
+Internally, this algorithm uses the
+[Levenshein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
+(and more specifically the
+[Rust implementation by Florian Ebelling](https://crates.io/crates/edit-distance))
+which computes a distance between two strings by estimating the number
+of insertions, deletions and permutations it require to go from one to
+another. E.g., "dog" and "dogs" have a distance of 1, while "dog" and
+"cat" have a distance of 3. This value is then divided by the lenght
+of the string to match, and two string are considered "identical" (or,
+at least, a repetition) when this value is less than the value given
+to `--fuzzy=`.
+
+E.g., with `--fuzzy=0.2`, "highlight" and "higlight" will have a
+"difference" estimated to 1/9 (Levenshtein distance of 1, it only needs
+one deletion to go from the first to the second, divide by the lenght
+of highlight = 9), so it will be a repetition. "Just" and "Rust" will
+have a "difference" 1/4, so won't be considered a repetition.
+
+Fuzzy matching is practical, but you should not set it to a too high
+value, else you will have a lot of false positive. Empirically, `0.2`
+or `0.25` is a good choice.
+
+Fuzzy matching has a drawback: it requires a lot more of CPU. Caribon
+still manages to run reasonably fast (e.g., less than a second to
+detect repetitions on a whole novel, with fuzzy string matching
+activated) but it only uses fuzzy string matching for local
+repetitions, and not for global ones.
+
+### Global repetitions ###
+
+By default, Caribon only detects repetition at a local level. It is,
+however, possible to activate global repetitions detecting with:
+
+* `global-threshold=[value]`, value being (again) a number between 0.0
+and 1.0.
+
+In this case, a word will be considered a repetition (even if it is
+never repeated in a `max-distance` range of words) if the relative
+number of occurence is higher than the global threshold. I.e., if
+`global-threshold` is set to 0.01, a word will be highlighted (in
+blue) if it represents more than 1% of the total number of words in
+the document.
+
+### Ignored words ###
+
+Some words, like "a" or "the", are unavoidably repeated a
+lot and it doesn't make much sense to consider them a repetition each
+time. It is thus useful to ignore some words. `Caribon` provides a
+default list for english and french, but it is in all cases possible
+to provide your own with:
+
+* `--ignore="list of common words"`.
+
+This list must be separated by either spaces or commas (or, actually,
+anything that isn't a letter, and must be encircled by
+quotes. Note that currently this list totally replace the default one
+provided by Caribon (for english and french, at least).
+
+Another option for ignoring words is the
+
+* `--ignore-proper=[true|false]` (default is to false)
+
+one, which tries to ignore proper nouns if set to "true". That is, a word will not
+count for repetition counting if it starts with a capital letter and
+is not at the beginning of a sentence.
+
 Library
 =======
 
-It is possible to use Caribon as a library. The documentation is
+It is possible to use Caribon as a Rust library. The documentation is
 available [here](http://lady-segfault.github.io/caribon/index.html); in order to
-get the latest version, you can also generate it with
+be certain to have the documentation version corresponding to the code
+you downloaded, you can also generate it with
 `cargo doc`.
+
+Caribon library is also available on
+[Crates.io](https://crates.io/crates/caribon), allowing you to easily
+use it in any Cargo project: just add
+
+`caribon = "*"`
+
+(or `caribon = "0.5"`) in the dependencies section of your
+`Cargo.toml` file.
 
 Current features
 ================
@@ -253,8 +374,14 @@ Library
   languages (currently, only french, and english);
 * Provide algorithm to detect repetitions of expressions, not just
   single words;
-* Find better default values;
+* Make library callable from C (and other languages than Rust);
 * Enhance documentation and add tests.
+
+Program
+-------
+* Find better default values?
+* Make different repositories for program and library?
+* Add a variant with GUI (Gtk+?)?
 
 See also 
 ---------

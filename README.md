@@ -58,15 +58,28 @@ browser and see your repetitions. Words that are repeated too closely
 are underlined in green, orange and red (depending on the number of
 repetitions); words that appear globally too often are underlined in blue.
 
-Example
-=======
+Examples
+========
 
 Here is an
 [example](https://lady-segfault.github.io/caribon-examples/example_readme.html)
-of Caribon used on a (previous) version of this 
+of Caribon used the HTML output of a (previous) version of this 
 README, using the following command:
 
-`cargo run -- --language=english --input=README.html --output=example.html`
+`cargo run -- --language=english --input=README.html
+--output=example.html --fuzzy=0.5`
+
+(Note that `--fuzzy=0.5`, while useful to show that fuzzy string
+matching does indeed work, is not a very sensible parameter as is it
+quite high (words only needs to be 50% similar to be considered the
+same, matching `just` and `rust`); for real life usage, a lower value
+would be recommended.)
+
+Another [example](example/screenshot.png), displaying repetitions in
+`README.md` to the terminal, using the following command:
+
+`cargo run -- --language=english --input=README.md --fuzzy=0.5 | more`
+
 
 Usage
 =====

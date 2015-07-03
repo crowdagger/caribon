@@ -1,8 +1,8 @@
 ChangeLog
 =========
 
-0.5.2 (???)
------------
+0.5.2 (2015-07-03)
+------------------
 * Added `Parser.words_to_terminal` that outputs repetitions for the
 terminal instead of using HTML, using terminal colours characters
 * Added `Parser.words_to_markdown` that outputs repetitions in

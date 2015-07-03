@@ -85,24 +85,30 @@ Usage
 =====
 
 ```
-Caribon, version 0.5.0 by Élisabeth Henry <liz.henry@ouvaton.org>
+Caribon, version 0.5.2 by Élisabeth Henry <liz.henry@ouvaton.org>
 
-Detects the repetitions in a text and renders a HTML document highlighting them
+Detects the repetitions in a text and highlights them
 
 Options:
---help: displays this message
---version: displays program version
---list-languages: lists the implemented languages
---language=[language]: sets the language of the text (default: french)
---input=[filename]: sets input file (default: stdin)
---output=[filename]: sets output file (default: stdout)
---ignore=[string]: a string containing custom ignored words, separated by spaces or comma
-    (default: use a builtin list that depends on the language)
---max-distance=[value]: sets max distance (used by local and leak algorithm) (default: 50)
---threshold=[value]: sets threshold value for underlining local repetitions (default: 1.9)
---global-threshold=[value]: sets threshold value for underlining global repetitions (default: 0.01)
---html=[true|false]: enables/disable HTML input (default: true)
---ignore-proper=[true|false]: if true, try to detect proper nouns and don't count them (default: false)
+        --help: displays this message
+        --version: displays program version
+        --list-languages: lists the implemented languages
+        --language=[language]: sets the language of the text (default: french)
+        --input=[filename]: sets input file (default: stdin)
+        --output=[filename]: sets output file (default: stdout)
+        --ignore=[string]: a string containing custom ignored words, separated by spaces or comma
+                (default: use a builtin list that depends on the language)
+        --max-distance=[value]: sets max distance to be considered a repetition (in words) (default: 50)
+        --threshold=[value]: sets threshold value for underlining local repetitions (default: 1.9)
+        --global-threshold=[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions
+                (this threshold corresponds to the minimal ratio of words in the text, e.g. a threshold of 0.01 means
+                that a word must represent at least 1% of the total words in the text to be underlined) (default: not activated)
+        --input-format=[text|html]: sets input format (default: text, depends on input file extension)
+        --output-format=[terminal|html]|markdown]: sets output format (default: terminal, depends on output file extension)
+        --ignore-proper=[true|false]: if true, try to detect proper nouns and don't count them (default: false)
+        --fuzzy=[value|none]: activate fuzzy string matching; value must be between 0.0 and 1.0 and corresponds to the maximal
+                'difference' between two words until they are no more considered identical (e.g. 0.25 means that two words
+                 must have no more than 25% of difference) (default: not activated)
 ```
 
 Library
@@ -121,13 +127,13 @@ Current features
 * Stemming support for languages supported by the Snowball (http://snowball.tartarus.org/)
   project.
 * Additionally (because stemming algorithms aren't always perfect, and sometimes
-  you make typos), support for fuzzy string matching (based on Levenhstein distance)
+  you make typos), support for fuzzy string matching (based on Levenhstein distance).
 * Count repetitions locally and globally.
 * Detects HTML tags in input. It doesn't work with a full HTML file
   (containing `<html>`, `<body>` and so on) but it works fine if you
   use e.g `pandoc -o file.html file.md`.
 * Outputs a basic HTML files which higlights the detected repetitions,
-  or directly to the terminal.
+  or directly to the terminal, or to a Markdown file (with less useful information).
 
 ChangeLog
 =========
@@ -140,10 +146,10 @@ License
 Caribon is licensed under the [GNU General Public License](LICENSE), version 2.0
 or (at your convenience) any ulterior version.
 
-Author
-======
+Credits
+=======
 
-Élisabeth Henry <liz.henry at ouvaton.org>.
+Caribon is written by Élisabeth Henry <liz.henry at ouvaton.org>.
 
 This software uses (rust bindings to) the
 [C Stemming library](http://snowball.tartarus.org/dist/libstemmer_c.tgz)

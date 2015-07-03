@@ -55,25 +55,25 @@ Caribon, version {} by Élisabeth Henry <liz.henry@ouvaton.org>
 Detects the repetitions in a text and highlights them
 
 Options:
-\t{}: displays this message
-\t{}: displays program version
-\t{}: lists the implemented languages
-\t{}[language]: sets the language of the text (default: french)
-\t{}[filename]: sets input file (default: stdin)
-\t{}[filename]: sets output file (default: stdout)
-\t{}[string]: a string containing custom ignored words, separated by spaces or comma
-\t\t(default: use a builtin list that depends on the language)
-\t{}[value]: sets max distance to be considered a repetition (in words) (default: 50)
-\t{}[value]: sets threshold value for underlining local repetitions (default: 1.9)
-\t{}[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions
-\t\t(this threshold corresponds to the minimal ratio of words in the text, e.g. a threshold of 0.01 means
-\t\tthat a word must represent at least 1% of the total words in the text to be underlined) (default: not activated)
-\t{}[text|html]: sets input format (default: text, depends on input file extension)
-\t{}[terminal|html]|markdown]: sets output format (default: terminal, depends on output file extension)
-\t{}[true|false]: if true, try to detect proper nouns and don't count them (default: false)
-\t{}[value|none]: activate fuzzy string matching; value must be between 0.0 and 1.0 and corresponds to the maximal
-\t\t'difference' between two words until they are no more considered identical (e.g. 0.25 means that two words
-\t\t must have no more than 25% of difference) (default: not activated)",
+  {}: displays this message
+  {}: displays program version
+  {}: lists the implemented languages
+  {}[language]: sets the language of the text (default: french)
+  {}[filename]: sets input file (default: stdin)
+  {}[filename]: sets output file (default: stdout)
+  {}[string]: a string containing custom ignored words, separated by spaces or comma
+  \t(default: use a builtin list that depends on the language)
+  {}[value]: sets max distance to be considered a repetition (in words) (default: 50)
+  {}[value]: sets threshold value for underlining local repetitions (default: 1.9)
+  {}[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions
+  \t(this threshold corresponds to the minimal ratio of words in the text, e.g. a threshold of 0.01 means
+  \tthat a word must represent at least 1% of the total words in the text to be underlined) (default: not activated)
+  {}[text|html]: sets input format (default: text, depends on input file extension)
+  {}[terminal|html]|markdown]: sets output format (default: terminal, depends on output file extension)
+  {}[true|false]: if true, try to detect proper nouns and don't count them (default: false)
+  {}[value|none]: activate fuzzy string matching; value must be between 0.0 and 1.0 and corresponds to the maximal
+  \t'difference' between two words until they are no more considered identical (e.g. 0.25 means that two words
+  \t must have no more than 25% of difference) (default: not activated)",
              env!("CARGO_PKG_VERSION"),
              ARG_USAGE,
              ARG_VERSION,

@@ -69,7 +69,7 @@ Similarly,
 WARNING: the install procedure hasn't been really tested and is a bit
 YOLO at this time. But it should then allow you to run Caribon with:
 
-`# caribon`
+`$ caribon`
 
 Cargo run
 =========
@@ -81,9 +81,9 @@ be prefixed by `--` so cargo gives them to the binary:
 `$ cargo run -- --input=some_text.txt`
 
 Also note that, by default, `cargo run` builds and runs the program in
-debug mode, which is slower. This isn't a problem for tiny file, but
+debug mode, which is slower. This isn't a problem for tiny files, but
 if you plan to detect a repetitions in, say, a novel, using
-cpu-extensive features (such as fuzzy string matching), you might want
+cpu-extensive features (such as fuzzy string matching, see below), you might want
 to run with `--release`:
 
 `$ cargo run --release -- --input=big_file.html --output=output_big_file.html`
@@ -93,60 +93,33 @@ Examples
 
 Here is an
 [example](https://lady-segfault.github.io/caribon-examples/example_readme.html)
-of Caribon used the HTML output of a (previous) version of this 
-README, using the following command:
+of Caribon using the HTML output of a (previous) version of this 
+README, obtained with the following command:
 
-`cargo run -- --language=english --input=README.html
+`$ caribon --language=english --input=README.html
 --output=example.html --fuzzy=0.5`
 
 (Note that `--fuzzy=0.5`, while useful to show that fuzzy string
 matching does indeed work, is not a very sensible parameter as is it
 quite high (words only needs to be 50% similar to be considered the
-same, matching `just` and `rust`); for real life usage, a lower value
+same, matching e.g. `just` and `rust`). For real life usage, a lower value
 would be recommended.)
 
 Here is another [example](https://lady-segfault.github.io/caribon-examples/screenshot.png), displaying repetitions in
 `README.md` to the terminal, using the following command:
 
-`cargo run -- --language=english --input=README.md --fuzzy=0.5 | more`
+`$ caribon --language=english --input=README.md --fuzzy=0.5 | more`
 
 ![example](https://lady-segfault.github.io/caribon-examples/screenshot.png)
 
-
-Usage
-=====
-
-```
-Caribon, version 0.5.2 by Élisabeth Henry <liz.henry@ouvaton.org>
-
-Detects the repetitions in a text and highlights them
-
-Options:
-        --help: displays this message
-        --version: displays program version
-        --list-languages: lists the implemented languages
-        --language=[language]: sets the language of the text (default: french)
-        --input=[filename]: sets input file (default: stdin)
-        --output=[filename]: sets output file (default: stdout)
-        --ignore=[string]: a string containing custom ignored words, separated by spaces or comma
-                (default: use a builtin list that depends on the language)
-        --max-distance=[value]: sets max distance to be considered a repetition (in words) (default: 50)
-        --threshold=[value]: sets threshold value for underlining local repetitions (default: 1.9)
-        --global-threshold=[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions
-                (this threshold corresponds to the minimal ratio of words in the text, e.g. a threshold of 0.01 means
-                that a word must represent at least 1% of the total words in the text to be underlined) (default: not activated)
-        --input-format=[text|html]: sets input format (default: text, depends on input file extension)
-        --output-format=[terminal|html]|markdown]: sets output format (default: terminal, depends on output file extension)
-        --ignore-proper=[true|false]: if true, try to detect proper nouns and don't count them (default: false)
-        --fuzzy=[value|none]: activate fuzzy string matching; value must be between 0.0 and 1.0 and corresponds to the maximal
-                'difference' between two words until they are no more considered identical (e.g. 0.25 means that two words
-                 must have no more than 25% of difference) (default: not activated)
-```
+While outputting to the terminal might be useful for small files, HTML
+outputs gives a more useful result, as higlighting a word will show
+you the other occurrences of it.
 
 Options
 =======
 
-Caribon provides a pretty wild list of options. Here's the
+Caribon provides a pretty wide list of options. Here's the
 explanations to a few ones, from the most commons the the pretty
 advanced ones:
 
@@ -168,27 +141,27 @@ advanced ones:
 
 ### Input and output ###
 
-* `--input=[file]` specify the input file. By default it is `stdin`,
-which means you'll have directly to type your text and end with
-`control-D`. If `file` does not exist, the program aborts.
-* `--output=[file]` specify the output file. It defaults to `stdout`,
-printting the result to the terminal.
+* `--input=[file]` specifies the input file. By default it is `stdin`,
+which means you'll have directly to type your text and end it with
+`control-D`. If `file` is a non-existing file, the program aborts.
+* `--output=[file]` specifies the output file. It defaults to `stdout`,
+printing the result to the terminal.
 
 The input and output filenames extension determine the input and
 output format, e.g. if you pass `--input=text.html --output=result.html`, Caribon will
 infer that the content is in HTML and that it must also output HTML
 (so `$ caribon < input.html > output.html` is NOT equivalent to `$
-caribon --input=input.html --output=output.html`: in the former case,
+caribon --input=input.html --output=output.html`: in the first case,
 Caribon will consider the input as raw text and will output in
 `terminal` format (see below), while in the latter one it will
 understand that both files are HTML).
 
-It is, possible to override this behaviour by specifying
+It is possible to override this behaviour by specifying
 
-* `input-format=[text|html]` or
-* `output-format=[terminal|html|markdown]`.
+* `--input-format=[text|html]` or
+* `--output-format=[terminal|html|markdown]`.
 
-A note on the `terminal` outputs format: it is designed to prints text
+A note on the `terminal` output format: it is designed to print text
 to the terminal, by underlining and colouring some words with UNIX
 terminal special characters (see screenshot above). It is, thus, only activated when no
 output file name is given and Caribon prints on the standard output,
@@ -196,30 +169,30 @@ HTML output being the default for most of the cases.
 
 ### Threshold and max-distance ###
 
-The most useful algorithm of Caribon is local repetitions
+The most useful algorithm of Caribon is local repetition
 detections. It detects when a word is repeated in a given interval of
 words. This interval is determined by
 
 * `--max-distance=[value]` (default is currently 50).
 
-So basically, if value is 50 and the word 'foo' occur twice in this
+So basically, if `max-distance` is 50 and the word 'foo' occurs twice in this
 interval, each occurrence will have a "repetition value" of 2. If
 'foo' is repeated a third time in a 50-words interval *after the second
 occurence*, then each of these occurrences will have a repetition
 value of 3. (If there is then more than 50 words without apparition of
 'foo', and 'foo' appears again, the value of the latest apparition
-will be set to 1 again).
+will be reset to 1).
 
 Words are underlined when their "repetition value" is higher than a
 threshold, which can be set by:
 
-* `--threshold=[value]`. The default is `1.9`, so a word be underlined
-  as such that is is repeated two times. If you change it to, say,
+* `--threshold=[value]`. The default is `1.9`, so a word will be underlined
+  as soon that is is repeated two times locally. If you change the threshold to, say,
   `2.5`, a word will have to be repeated three times (locally) to be
   underlined.
 
 (Why a float value for the threshold, instead of an integer one?
-Because the local repetitions detector will underline words in
+Because the local repetition detector will underline words in
 different colors: green, orange and red according to the "severity" of
 the repetitions. So setting the threshold to `1.01` or `1.99` will not
 change which words are underlined, but they will be in orange or red
@@ -229,50 +202,51 @@ more quickly in the first case.)
 
 Caribon uses a stemming library to detect words that are part of the
 same 'family'. It turns out that this algorithm is not always
-enough, and particularly it doesn't detect repetition when there is a
+enough, and particularly it doesn't detect repetitions when there is a
 typo (e.g. "higlight" and "highlight" should probably be considered a
 repetition, even if it is mispelled in the first case). To solve this
 issue, there is the option of activating fuzzy string matching:
 
 * `fuzzy=[value]`, where the value is a number between 0.0 and 1.0 which
-  represents the maximal 'difference' between two words until the are
+  represents the maximal 'difference' between two words until they are
   no more identical: a value of 0.2 means that two words must be at
   most "20% different" until they are no more considered the same.
 
 Internally, this algorithm uses the
-[Levenshein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
+[Levenshtein distance](https://en.wikipedia.org/wiki/Levenshtein_distance)
 (and more specifically the
 [Rust implementation by Florian Ebelling](https://crates.io/crates/edit-distance))
 which computes a distance between two strings by estimating the number
 of insertions, deletions and permutations it require to go from one to
 another. E.g., "dog" and "dogs" have a distance of 1, while "dog" and
-"cat" have a distance of 3. This value is then divided by the lenght
+"cat" have a distance of 3. This value is then divided by the length
 of the string to match, and two string are considered "identical" (or,
 at least, a repetition) when this value is less than the value given
 to `--fuzzy=`.
 
 E.g., with `--fuzzy=0.2`, "highlight" and "higlight" will have a
 "difference" estimated to 1/9 (Levenshtein distance of 1, it only needs
-one deletion to go from the first to the second, divide by the lenght
-of highlight = 9), so it will be a repetition. "Just" and "Rust" will
-have a "difference" 1/4, so won't be considered a repetition.
+one deletion to go from the first to the second, divided by the length
+of "highlight", 9), so it will be a repetition. "Just" and "Rust" will
+have a "difference" of 1/4, so won't be considered a repetition.
 
 Fuzzy matching is practical, but you should not set it to a too high
-value, else you will have a lot of false positive. Empirically, `0.2`
+value, else you will have a lot of false positives. Empirically, `0.2`
 or `0.25` is a good choice.
 
 Fuzzy matching has a drawback: it requires a lot more of CPU. Caribon
 still manages to run reasonably fast (e.g., less than a second to
 detect repetitions on a whole novel, with fuzzy string matching
 activated) but it only uses fuzzy string matching for local
-repetitions, and not for global ones.
+repetitions, and not for global ones (see below).
 
 ### Global repetitions ###
 
-By default, Caribon only detects repetition at a local level. It is,
-however, possible to activate global repetitions detecting with:
+By default, Caribon only detects repetitions at a local level (if they
+are separated by less than `max-distance` words). It is,
+however, possible to activate global repetition detecting with:
 
-* `global-threshold=[value]`, value being (again) a number between 0.0
+* `--global-threshold=[value]`, value being (again) a number between 0.0
 and 1.0.
 
 In this case, a word will be considered a repetition (even if it is
@@ -285,24 +259,24 @@ the document.
 ### Ignored words ###
 
 Some words, like "a" or "the", are unavoidably repeated a
-lot and it doesn't make much sense to consider them a repetition each
-time. It is thus useful to ignore some words. `Caribon` provides a
+lot and it doesn't make much sense to consider them a repetition. It
+is thus useful to ignore some words. `Caribon` provides a 
 default list for english and french, but it is in all cases possible
 to provide your own with:
 
 * `--ignore="list of common words"`.
 
 This list must be separated by either spaces or commas (or, actually,
-anything that isn't a letter, and must be encircled by
-quotes. Note that currently this list totally replace the default one
+anything that isn't a letter), and must be encircled by
+quotes. Note that currently this list totally replaces the default one
 provided by Caribon (for english and french, at least).
 
-Another option for ignoring words is the
+Another option for ignoring words is:
 
 * `--ignore-proper=[true|false]` (default is to false)
 
-one, which tries to ignore proper nouns if set to "true". That is, a word will not
-count for repetition counting if it starts with a capital letter and
+If sets to true, Caribon will try to ignore proper nouns". That is, a word will not
+count for repetition if it starts with a capital letter and
 is not at the beginning of a sentence.
 
 Library

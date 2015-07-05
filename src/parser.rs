@@ -186,6 +186,18 @@ impl Parser {
         self
     }
 
+    /// Appends a list of words contained in the argument string to the ignored list
+    ///
+    /// # Arguments
+    ///
+    /// * `list` – A comma or whitespace separated list of words that should be ignored.
+    pub fn with_more_ignored(mut self, list: &str) -> Parser {
+        list.split(|c: char| !c.is_alphabetic())
+            .fold((), |_, s| { self.ignored.push(s.to_string());  });
+        self
+    }
+        
+
     /// When we know it is the beginning of an escape character (e.g. &nbsp;)
     fn tokenize_escape<'b>(&self, c:&'b [char]) -> TokenizeResult<'b> {
         let mut res = String::new();

@@ -61,8 +61,8 @@ Options:
   {}[language]: sets the language of the text (default: french)
   {}[filename]: sets input file (default: stdin)
   {}[filename]: sets output file (default: stdout)
-  {}[string]: a string containing custom ignored words, separated by spaces or comma
-  \t(default: use a builtin list that depends on the language)
+  {}[string]: adds ignored word contained in the string separated by spaces or comma
+  \t(default: just the builtin list that depends on the language)
   {}[value]: sets max distance to be considered a repetition (in words) (default: 50)
   {}[value]: sets threshold value for underlining local repetitions (default: 1.9)
   {}[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions

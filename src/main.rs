@@ -31,7 +31,7 @@ fn try_parse () -> Result<(), Box<Error>> {
         .with_max_distance(config.max_distance);
 
     if !config.ignored.is_empty() {
-        parser = parser.with_ignored(&config.ignored);
+        parser = parser.with_more_ignored(&config.ignored);
     }
         
     let mut s = String::new();

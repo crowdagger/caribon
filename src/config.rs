@@ -35,6 +35,7 @@ static ARG_OUTPUT:&'static str = "--output=";
 static ARG_VERSION:&'static str = "--version";
 static ARG_LIST_LANGUAGES:&'static str = "--list-languages";
 static ARG_IGNORE:&'static str = "--ignore=";
+static ARG_ADD_IGNORED:&'static str = "--add-ignored=";
 static ARG_FUZZY:&'static str = "--fuzzy=";
 
 pub fn list_languages() {
@@ -61,8 +62,9 @@ Options:
   {}[language]: sets the language of the text (default: french)
   {}[filename]: sets input file (default: stdin)
   {}[filename]: sets output file (default: stdout)
-  {}[string]: adds ignored word contained in the string separated by spaces or comma
-  \t(default: just the builtin list that depends on the language)
+  {}[string]: sets ignored word to those contained in the string separated by spaces or comma
+  \t(default: the builtin list that depends on the language)
+  {}[string]: adds words contained in the string to the list of ignored words (default: none)
   {}[value]: sets max distance to be considered a repetition (in words) (default: 50)
   {}[value]: sets threshold value for underlining local repetitions (default: 1.9)
   {}[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions
@@ -82,6 +84,7 @@ Options:
              ARG_INPUT,
              ARG_OUTPUT,
              ARG_IGNORE,
+             ARG_ADD_IGNORED,
              ARG_MAX_DISTANCE,
              ARG_THRESHOLD,
              ARG_GLOBAL_THRESHOLD,
@@ -104,6 +107,7 @@ pub struct Config {
     pub output: Box<Write>,
     pub output_filename: String,
     pub ignored: String,
+    pub add_ignored: String,
     pub fuzzy: Option<f32>,
 }
 
@@ -123,6 +127,7 @@ impl Config {
             output: Box::new(io::stdout()),
             output_filename: String::new(),
             ignored: String::new(),
+            add_ignored: String::new(),
             fuzzy: None
         }
     }
@@ -265,6 +270,9 @@ impl Config {
         } else if arg.starts_with(ARG_IGNORE) {
             let option = &arg[ARG_IGNORE.len()..];
             self.ignored = option.to_string();
+        } else if arg.starts_with(ARG_ADD_IGNORED) {
+            let option = &arg[ARG_ADD_IGNORED.len()..];
+            self.add_ignored = option.to_string();
         } else if arg == ARG_USAGE {
             usage();
             exit(0);

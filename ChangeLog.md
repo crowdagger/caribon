@@ -1,6 +1,12 @@
 ChangeLog
 =========
 
+0.5.3 (???)
+-----------
+* Added `Parser.with_more_ignored` to add ignored words instead of replacing them
+* Added `--add-ignored=` option for the binary 
+
+
 0.5.2 (2015-07-03)
 ------------------
 * Added `Parser.words_to_terminal` that outputs repetitions for the

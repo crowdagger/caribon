@@ -268,8 +268,11 @@ to provide your own with:
 
 This list must be separated by either spaces or commas (or, actually,
 anything that isn't a letter), and must be encircled by
-quotes. Note that currently this list totally replaces the default one
-provided by Caribon (for english and french, at least).
+quotes. This list *replaces* the default one
+provided by Caribon (for english and french, at least). If you want to
+*add* words to these list instead of replace it, use:
+
+* `--add-ignored="list of more ignored words"`
 
 Another option for ignoring words is:
 

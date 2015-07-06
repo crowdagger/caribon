@@ -51,3 +51,15 @@ impl Word {
     }
 }
 
+#[derive(Debug,Clone)]
+/// Represents an AST. Contains a vector of words plus some additonal informations for HTML parsing
+pub struct Ast {
+    /// Vector of words, used by detect_[local|global]
+    pub words: Vec<Word>,
+    /// Position of <head> tag, if any
+    pub begin_head: Option<usize>,
+    /// position of <body> tag, if any
+    pub begin_body: Option<usize>,
+    /// position of </body> tag, if any
+    pub end_body: Option<usize>,
+}

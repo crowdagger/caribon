@@ -1,7 +1,7 @@
 ChangeLog
 =========
 
-0.5.3 (???)
+0.6.0 (???)
 -----------
 * Added `Parser.with_more_ignored` to add ignored words instead of replacing them
 * Added `--add-ignored=` option for the binary 

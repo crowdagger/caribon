@@ -105,4 +105,5 @@ mod parser;
 pub use error::Error;
 pub use error::Result;
 pub use word::Word;
+pub use word::Ast;
 pub use parser::Parser;

@@ -337,24 +337,19 @@ impl Parser {
 
         while !chars.is_empty() {
             let c = chars[0];
-            if c.is_alphabetic() {
-                let (c, word) = try!(self.tokenize_word(chars, &mut is_sentence_beginning));
-                chars = c;
-                res.push(word);
+            let (cs, word) = if c.is_alphabetic() {
+                try!(self.tokenize_word(chars, &mut is_sentence_beginning))
             } else if self.html && c == '<' {
-                let (c, word) = try!(self.tokenize_html(chars));
-                chars = c;
-                res.push(word);
                 is_sentence_beginning = false;
+                try!(self.tokenize_html(chars))
             } else if self.html && c == '&' {
-                let (c, word) = try!(self.tokenize_escape(chars));
-                chars = c;
-                res.push(word);
+                try!(self.tokenize_escape(chars))
+
             } else {
-                let (c, word) = try!(self.tokenize_whitespace(chars, &mut is_sentence_beginning));
-                chars = c;
-                res.push(word);
-            }
+                try!(self.tokenize_whitespace(chars, &mut is_sentence_beginning))
+            };
+            chars = cs;
+            res.push(word);
         }
      
         Ok(res)

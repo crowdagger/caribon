@@ -16,6 +16,7 @@
 use super::stemmer::Stemmer;
 use super::edit_distance::edit_distance;
 use word::Word;
+use word::Ast;
 use error::Error;
 use error::Result;
 use std::collections::HashMap;
@@ -216,11 +217,12 @@ impl Parser {
         }
     }
     
-    fn tokenize_html<'b>(&self, c:&'b [char]) -> TokenizeResult<'b> {
+    fn tokenize_html<'b>(&self, c:&'b [char], ast: &mut Ast) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
-
         let mut brackets = 1;
+        let mut was_tag_found = false;
+        
         res.push(chars[0]);
         chars = &chars[1..];
 
@@ -230,6 +232,19 @@ impl Parser {
             }
             let c = chars[0];
             res.push(c);
+            if !was_tag_found && (c == '/' || c.is_alphabetic()) {
+                was_tag_found = true;
+                let tag:String = chars.iter()
+                    .take_while(|c:&&char| **c == '/' || c.is_alphabetic())
+                    .map(|c| c.to_lowercase().collect::<String>())
+                    .fold(String::new(), |acc, x| acc + &x);
+                match &*tag {
+                    "head" => ast.mark_begin_head(),
+                    "body" => ast.mark_begin_body(),
+                    "/body" => ast.mark_end_body(),
+                    _ => ()
+                }
+            }
             chars = &chars[1..];
             if c == '<' {
                 brackets += 1;
@@ -241,7 +256,6 @@ impl Parser {
                 }
             }
         }
-
         Ok((chars, Word::Untracked(res)))
     }
     
@@ -328,10 +342,10 @@ impl Parser {
     /// # Arguments
     ///
     /// * `s` – The string to tokenize.
-    pub fn tokenize(&self, s: &str) -> Result<Vec<Word>> {
+    pub fn tokenize(&self, s: &str) -> Result<Ast> {
         let v_chars:Vec<char> = s.chars().collect();
         let mut chars:&[char] = &v_chars;
-        let mut res:Vec<Word> = vec!();
+        let mut ast = Ast::new();
         let mut is_sentence_beginning = true;
         
 
@@ -341,7 +355,7 @@ impl Parser {
                 try!(self.tokenize_word(chars, &mut is_sentence_beginning))
             } else if self.html && c == '<' {
                 is_sentence_beginning = false;
-                try!(self.tokenize_html(chars))
+                try!(self.tokenize_html(chars, &mut ast))
             } else if self.html && c == '&' {
                 try!(self.tokenize_escape(chars))
 
@@ -349,79 +363,11 @@ impl Parser {
                 try!(self.tokenize_whitespace(chars, &mut is_sentence_beginning))
             };
             chars = cs;
-            res.push(word);
+            ast.words.push(word);
         }
-     
-        Ok(res)
+        Ok(ast)
     }
 
-    /// Compute a leak more or less corresponding to `max_distance`
-    ///
-    /// Basically, it is set so that value is divided by two when max_distance is reached
-    /// So the threshold used should typicalle be something like 1.5 to get every repetition
-    ///
-    fn get_leak(&self) -> f32 {
-        // leak^distance = v 
-        // so log(leak^distance) = log(v)
-        // so distance*log(leak) = log(v)
-        // so leak = exp(log(v)/distance)
-        let v:f32 = 0.5;
-        (v.log2() / (self.max_distance as f32)).exp2()
-    }
-        
-
-    /// Detect the local repetitions using a leak value.
-    ///
-    /// Basically, each time a word occurs, increase value by 1.0
-    /// and each time it does not, multiply by leak (default: 0.98).
-    ///
-    /// This algorithm give results that are not as good than `detect_local`:
-    /// instead of underlining a cluster a repeting words, it will only underline
-    /// the 'offending' ones, i.e. not the first ones.
-    ///
-    /// On the other hand, this method is faster and should use less memory, so
-    /// it might be useful for very long texts.
-    ///
-    /// # Arguments
-    ///
-    /// `vec` – A list of words
-    /// `threshold` – The threshold to consider a repetition (e.g. 1.5)
-    pub fn detect_leak(&self, mut vec:Vec<Word>, threshold: f32) -> Vec<Word> {
-        let mut h:HashMap<String, (u32, f32)> = HashMap::new();
-        let mut pos = 0;
-        let leak = self.get_leak();
-
-        for i in 0 .. vec.len() {
-            match &mut vec[i] {
-                &mut Word::Untracked(_) => {}
-                &mut Word::Ignored(_) => {
-                    pos += 1;
-                },
-                &mut Word::Tracked(_, ref stemmed, ref mut v, _) => {
-                    pos += 1;
-                    let (s, x) = {
-                        let (option, s) = if self.fuzzy.is_none() {
-                            (h.get(stemmed), stemmed.clone())
-                        } else {
-                            let s = self.fuzzy_get(&h, stemmed);
-                            (h.get(&s), s)
-                        };
-                        let x = match option {
-                            None => 0.0,
-                            Some(map_content) => {
-                                let &(n, y) = map_content;
-                                y * leak.powi((pos - n) as i32)
-                            }
-                        } + 1.0;
-                        (s, x)
-                    };
-                    h.insert(s, (pos, x));
-                    *v = x;
-                }
-            };
-        }
-        self.highlight(vec, threshold, value_to_colour)
-    }
 
     /// Detect the local number of repetitions.
     ///
@@ -432,12 +378,13 @@ impl Parser {
     ///
     /// # Arguments
     ///
-    /// `vec` – A list of words
+    /// `ast` – A AST, containing a list of words
     /// `threshold` – The threshold to consider a repetition (e.g. 1.9)
-    pub fn detect_local(&self, mut vec:Vec<Word>, threshold: f32) -> Vec<Word> {
+    pub fn detect_local(&self, ast:&mut Ast, threshold: f32)  {
         let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
         let mut pos:u32 = 1;
         let mut pos_to_i:Vec<usize> = vec!(0);
+        let mut vec = &mut ast.words;
 
         fn try_remove (pos: u32,
                        h: &mut HashMap<String, (u32, Vec<usize>)>,
@@ -546,8 +493,10 @@ impl Parser {
     ///
     /// * `vec` – A vector of `Word`.
     /// * `threshold` – A threshold to highlight repetitions (e.g. 0.01)
-    pub fn detect_global(&self, mut vec:Vec<Word>, threshold: f32) -> Vec<Word> {
-        let (h, count) = self.words_stats(&vec);
+    pub fn detect_global(&self, ast: &mut Ast, threshold: f32)  {
+        let mut vec = &mut ast.words;
+        let (h, count) = self.words_stats(vec);
+
 
         // We set each word value to the relative number of occurences
         for i in 0..vec.len() {
@@ -576,7 +525,7 @@ impl Parser {
     /// # Returns
     ///
     /// A vector of highlight
-    fn highlight<F>(&self, words: Vec<Word>, threshold: f32, f:F) -> Vec<Word>
+    fn highlight<F>(&self, words: &mut Vec<Word>, threshold: f32, f:F) 
     where F: Fn(f32, f32) -> &'static str {
         let mut res = words;
         for i in 0..res.len() {
@@ -594,8 +543,6 @@ impl Parser {
                 _ => {}
             }
         }
-
-        res
     }
 
     /// Display the words to terminal, higlighting the repetitions.
@@ -604,9 +551,10 @@ impl Parser {
     ///
     /// # Arguments
     ///
-    /// * `words` – A vector containing repetitions.
-    pub fn words_to_terminal(&self, words: &Vec<Word>) -> String {
+    /// * `ast` – An AST
+    pub fn ast_to_terminal(&self, ast: &Ast) -> String {
         let mut res = String::new();
+        let words = &ast.words;
 
         for word in words {
             match word {
@@ -628,7 +576,7 @@ impl Parser {
     }
 
 
-    /// Display the words to markdown, emphasizing the repetitions.
+    /// Display the AST to markdown, emphasizing the repetitions.
     ///
     /// This is more limited than HTML or even terminal output, as it completely discards
     /// colour information that have been passed by `detect_*` methods, but it might be useful
@@ -636,9 +584,10 @@ impl Parser {
     ///
     /// # Arguments
     ///
-    /// * `words` – A vector containing repetitions.
-    pub fn words_to_markdown(&self, words: &Vec<Word>) -> String {
+    /// * `ast` – An AST containing repetitions.
+    pub fn ast_to_markdown(&self, ast: &Ast) -> String {
         let mut res = String::new();
+        let words = &ast.words;
 
         for word in words {
             match word {
@@ -658,17 +607,18 @@ impl Parser {
     }
     
 
-    /// Display the words to HTML, higlighting the repetitions.
+    /// Display the AST to HTML, higlighting the repetitions.
     ///
     /// Use some basic CSS/Js for underlining repetitions and highlighting the
     /// over occurrences of the word under the mouse.
     ///
     /// # Arguments
     ///
-    /// * `words` – A vector containing repetitions.
+    /// * `ast` – An AST containing repetitions.
     /// * `standalone` –  If true, generate a standalone HTML file.
-    pub fn words_to_html(&self, words: &Vec<Word>, standalone: bool) -> String {
+    pub fn ast_to_html(&self, ast: &Ast, standalone: bool) -> String {
         let mut res = String::new();
+        let words = &ast.words;
 
         for word in words {
             match word {

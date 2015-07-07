@@ -40,15 +40,15 @@ fn try_parse () -> Result<(), Box<Error>> {
     let mut s = String::new();
     try!(config.input.read_to_string(&mut s));
     
-    let words = try!(parser.tokenize(&s));
-    let mut repetitions = parser.detect_local(words, config.threshold);
+    let mut ast = try!(parser.tokenize(&s));
+    parser.detect_local(&mut ast, config.threshold);
     if let Some(threshold) = config.global_threshold {
-        repetitions = parser.detect_global(repetitions, threshold);
+        parser.detect_global(&mut ast, threshold);
     }
     let output = match &*config.output_format {
-        "html" => parser.words_to_html(&repetitions, true),
-        "terminal" => parser.words_to_terminal(&repetitions),
-        "markdown" => parser.words_to_markdown(&repetitions),
+        "html" => parser.ast_to_html(&ast, true),
+        "terminal" => parser.ast_to_terminal(&ast),
+        "markdown" => parser.ast_to_markdown(&ast),
         _ => return Err(Box::new(caribon::Error::new("Wrong output format: must be 'html, 'terminal', or 'markdown'")))
     };
     try!(config.output.write(&output.bytes().collect::<Vec<u8>>()));

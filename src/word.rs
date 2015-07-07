@@ -13,6 +13,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
 
+use error::Error;
+use error::Result;
+
 /// `Word` type: some inner representation used by `Parser`.
 ///
 /// You probably should not use this type directly.
@@ -62,4 +65,42 @@ pub struct Ast {
     pub begin_body: Option<usize>,
     /// position of </body> tag, if any
     pub end_body: Option<usize>,
+}
+
+impl Ast {
+    /// Creates a new, empty AST
+    pub fn new() -> Ast {
+        Ast {
+            words: vec!(),
+            begin_head: None,
+            begin_body: None,
+            end_body: None
+        }
+    }
+
+    /// Sets begin_head to current last position of words
+    pub fn mark_begin_head(&mut self) {
+        if self.begin_head.is_some() {
+            return;
+        }
+        
+        let i = self.words.len();
+        self.begin_head = Some(i);
+    }
+
+    /// Sets begin_head to current last position of words
+    pub fn mark_begin_body(&mut self)  {
+        if self.begin_body.is_some() {
+            return;
+        }
+        
+        let i = self.words.len();
+        self.begin_body = Some(i);
+    }
+    
+    /// Sets begin_head to current last position of words
+    pub fn mark_end_body(&mut self) {
+        let i = self.words.len();
+        self.end_body = Some(i);
+    }
 }

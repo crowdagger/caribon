@@ -4,7 +4,10 @@ ChangeLog
 0.6.0 (???)
 -----------
 * Added `Parser.with_more_ignored` to add ignored words instead of replacing them
-* Added `--add-ignored=` option for the binary 
+* Added `--add-ignored=` option for the binary
+* Use a struct `Ast` instead of `Vec<Word>`
+* Renamed `words_to_*` to `ast_to_*`
+* Removed `detect_leak` algortihm
 
 
 0.5.2 (2015-07-03)

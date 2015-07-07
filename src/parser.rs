@@ -618,7 +618,13 @@ impl Parser {
     /// * `standalone` –  If true, generate a standalone HTML file.
     pub fn ast_to_html(&self, ast: &Ast, standalone: bool) -> String {
         let mut res = String::new();
-        let words = &ast.words;
+        let mut words:&[Word] = &ast.words;
+
+        // If standalone, only use words located between <body> and </body>
+        println!("standalone: {}, begin_body: {:?}, end_body: {:?}", standalone, ast.begin_body, ast.end_body);
+        if !standalone {
+            words = ast.get_body();
+        }
 
         for word in words {
             match word {

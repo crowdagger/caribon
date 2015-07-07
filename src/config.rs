@@ -249,9 +249,9 @@ impl Config {
         } else if arg.starts_with(ARG_OUTPUT_FORMAT) {
             let option = &arg[ARG_OUTPUT_FORMAT.len()..];
             match option {
-                "html" => self.input_format = option.to_string(),
-                "terminal" => self.input_format = option.to_string(),
-                "markdown" => self.input_format = option.to_string(),
+                "html" => self.output_format = option.to_string(),
+                "terminal" => self.output_format = option.to_string(),
+                "markdown" => self.output_format = option.to_string(),
                 _ => {
                     println!("Wrong argument to {}: expected 'html', 'terminal' or 'markdown', received: {}", ARG_OUTPUT_FORMAT, option);
                     exit(0);

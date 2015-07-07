@@ -103,4 +103,19 @@ impl Ast {
         let i = self.words.len();
         self.end_body = Some(i);
     }
+
+    /// Get only the words contained between <body> and </body>
+    ///
+    /// If body_begin and body_end are both set (and the fist one is before the second),
+    /// returns a slice that contains only words in this part; else, returns all words.
+    pub fn get_body(&self) -> &[Word] {
+        if let Some(begin) = self.begin_body {
+            if let Some(end) = self.end_body {
+                if begin < end {
+                    return &self.words[begin + 1..end];
+                }
+            }
+        }
+        return &self.words;
+    }
 }

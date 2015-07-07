@@ -23,10 +23,10 @@ Here's a short example (more details below):
 ```
 use caribon::Parser;
 let parser = Parser::new("english").unwrap();
-let words = parser.tokenize("Some text where you want to detect repetitions").unwrap();
-let mut repetitions = parser.detect_local(words, 1.5);
-repetitions = parser.detect_global(repetitions, 0.01); // actually doesn't make sens on a string so small
-let html = parser.words_to_html(&repetitions, true);
+let mut ast = parser.tokenize("Some text where you want to detect repetitions").unwrap();
+parser.detect_local(&mut ast, 1.5);
+parser.detect_global(&mut ast, 0.01); // actually doesn't make sens on a string so small
+let html = parser.ast_to_html(&mut ast, true);
 println!("{}", html);
 ```
 
@@ -51,11 +51,10 @@ let parser = Parser::new("english").unwrap()
                                             .with_ignored("some, words, to, ignore");
 ```
 
-The next step is to read some string and convert it to some inner format (currently `Vec<Word>`
-but it is possible that it will change):
+The next step is to read some string and convert it to some inner format (see the `Ast` structure).
 
 ```ignore
-let words = parser.tokenize(some_string).unwrap();
+let mut ast = parser.tokenize(some_string).unwrap();
 ```
 
 As `new`, this method can fail, so it returns a `Result`.
@@ -64,30 +63,22 @@ You then have a choice between multiple repetition detection algorithms. `detect
 the one you want to use:
 
 ```ignore
-let repetitions = parser.detect_local(words, 1.5);
+parser.detect_local(&mut ast, 1.5);
 ```
 
-There is also `detect_leak`, which is a particular algorithm which probably will be removed at some 
-point:
+There is also `detect_global`, which detects repetiion in the whole file:
 
 ```ignore
-let repetitions = parser.detect_leak(words, 1.5);
-```
-
-The last one is `detect_global`, which detects repetiion in the whole file:
-
-```ignore
-let repetitions = parser.detect_global(words, 0.01);
+parser.detect_global(&mut ast, 0.01);
 ```
 
 Once you have detected those repetitions, the final step is to print them. 
-`words_to_html` does this. Besides a reference to a <Vec<Word>>, it takes two arguments:
-a threshold (basically, the number of repetitions to trigger underlining in HTML), and a 
+`ast_to_html` does this. Besides a reference to an `Ast`, it takes one argument: a 
 boolean that tests whether the HTML code must be a standalone file or not (you will probably
 want to set it to true).
 
 ```ignore
-let html = parser.words_to_html(&repetitions, true):
+let html = parser.ast_to_html(&mut ast, true):
 ```
 */
 

@@ -46,7 +46,7 @@ fn try_parse () -> Result<(), Box<Error>> {
         parser.detect_global(&mut ast, threshold);
     }
     let output = match &*config.output_format {
-        "html" => parser.ast_to_html(&ast, false),
+        "html" => parser.ast_to_html(&mut ast, true),
         "terminal" => parser.ast_to_terminal(&ast),
         "markdown" => parser.ast_to_markdown(&ast),
         _ => return Err(Box::new(caribon::Error::new("Wrong output format: must be 'html, 'terminal', or 'markdown'")))

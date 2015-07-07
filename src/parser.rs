@@ -41,8 +41,7 @@ fn get_shell_colour(colour: &str) -> Option<&'static str> {
 }
 
 
-static START:&'static str = include_str!("html/start.html");
-static END:&'static str = include_str!("html/end.html");
+static SCRIPTS:&'static str = include_str!("html/scripts.js");
 
 static IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur leurs \
 de et un une t s à d l je tu";
@@ -400,9 +399,7 @@ impl Parser {
                     Word::Tracked(_, ref stemmed, _, _) => stemmed
                 };
                 if let Some(&(old_pos, _)) =  h.get(stemmed) {
-//                    println!("h.len: {}, value: {}, old_pos: {}, pos_limit: {}, bool: {:?}", h.len(), stemmed, old_pos, pos_limit, old_pos == pos_limit + 1);
                     if old_pos == pos_limit + 1 {
-//                        println!("removing {}", stemmed);
                         h.remove(stemmed);
                     }
                 }
@@ -616,14 +613,29 @@ impl Parser {
     ///
     /// * `ast` – An AST containing repetitions.
     /// * `standalone` –  If true, generate a standalone HTML file.
-    pub fn ast_to_html(&self, ast: &Ast, standalone: bool) -> String {
+    pub fn ast_to_html(&self, ast: &mut Ast, standalone: bool) -> String {
         let mut res = String::new();
-        let mut words:&[Word] = &ast.words;
+        let words:&[Word];
 
+        println!("standalone: {}, begin_head: {:?}, begin_body: {:?}, end_body: {:?}", standalone, ast.begin_head, ast.begin_body, ast.end_body);
         // If standalone, only use words located between <body> and </body>
-        println!("standalone: {}, begin_body: {:?}, end_body: {:?}", standalone, ast.begin_body, ast.end_body);
         if !standalone {
+            // If standalone, only prints the body part of the AST
             words = ast.get_body();
+        } else {
+            // There is a head, so we must insert the scripts in the right place
+            if let Some(i) = ast.begin_head  {
+                ast.words.insert(i+1, Word::Untracked(SCRIPTS.to_string()));
+            } else {
+                // If there is no head, generate the beginning of the document
+                res = res + "<html><head>\n";
+                res = res + SCRIPTS;
+                res = res + "</head>\n";
+                if ast.begin_body.is_none() || ast.end_body.is_none() {
+                    res = res + "<body>\n";
+                }
+            }
+            words = &ast.words;
         }
 
         for word in words {
@@ -651,14 +663,14 @@ impl Parser {
         
         
         if !self.html {
-            // If input is in HTML, don't add <br /> for newlines
+            // If input is in text, add <br /> for newlines
             res = res.replace("\n", "<br/>\n");
         }
-        if standalone {
-            format!("{} {} {}", START, res, END)
-        } else {
-            res
+        if standalone && ast.begin_body.is_none() && ast.end_body.is_none() {
+            // We need to add </body> at the end
+            res = res + "</body></html>";
         }
+        res
     }
 
     /// Search a string in a hashmap with fuzzy string matching

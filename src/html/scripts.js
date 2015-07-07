@@ -1,8 +1,4 @@
-<html>
-  <head>
-    <meta charset = "utf-8">
-
-    <script language = "javascript">
+<script language = "javascript">
     function on(name) {
         var elements = document.getElementsByClassName(name);
         for (var i = 0; i < elements.length; i++) {
@@ -18,5 +14,4 @@
         }
     }
     </script>
-  </head>
-  <body>
+

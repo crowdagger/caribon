@@ -5,9 +5,13 @@ ChangeLog
 -----------
 * Added `Parser.with_more_ignored` to add ignored words instead of replacing them
 * Added `--add-ignored=` option for the binary
-* Use a struct `Ast` instead of `Vec<Word>`
-* Renamed `words_to_*` to `ast_to_*`
-* Removed `detect_leak` algortihm
+* Caribon now supports working on full HTML files, not just HTML
+  fragments. This necessitated some changes in the API:
+   * Use a struct `Ast` instead of `Vec<Word>`
+   * Renamed `words_to_*` to `ast_to_*`
+   * `detect_[local|global]` methods now takes a mutable ref to an Ast
+   instead of moving a `Vec<Word>` and returning a new one
+* Removed `detect_leak` algorithm
 
 
 0.5.2 (2015-07-03)

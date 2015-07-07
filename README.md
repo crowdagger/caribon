@@ -330,7 +330,7 @@ or (at your convenience) any ulterior version.
 Credits
 =======
 
-Caribon is written by Élisabeth Henry <liz.henry at ouvaton.org>.
+Caribon is written by Élisabeth Henry `<liz.henry at ouvaton.org>`.
 
 This software uses (rust bindings to) the
 [C Stemming library](http://snowball.tartarus.org/dist/libstemmer_c.tgz)
@@ -345,8 +345,6 @@ ToDo
 Library
 -------
 * Render prettier output files;
-* Allow tokenizer to have in input "full" (with <html>,<head>,<body>
-  tags) HTML documents;
 * Complete builtin lists of ignored words and provide them for other
   languages (currently, only french, and english);
 * Provide algorithm to detect repetitions of expressions, not just

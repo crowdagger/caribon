@@ -216,7 +216,7 @@ impl Parser {
         }
     }
     
-    fn tokenize_html<'b>(&self, c:&'b [char], ast: &mut Ast) -> TokenizeResult<'b> {
+    fn tokenize_html<'b>(&self, c:&'b [char], ast: &mut Ast, in_body: &mut bool) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
         let mut brackets = 1;
@@ -238,9 +238,21 @@ impl Parser {
                     .map(|c| c.to_lowercase().collect::<String>())
                     .fold(String::new(), |acc, x| acc + &x);
                 match &*tag {
-                    "head" => ast.mark_begin_head(),
-                    "body" => ast.mark_begin_body(),
-                    "/body" => ast.mark_end_body(),
+                    "head" => {
+                        ast.mark_begin_head();
+                        *in_body = false;
+                    }
+                    "body" => {
+                        ast.mark_begin_body();
+                        *in_body = true;
+                    },
+                    "/body" => {
+                        ast.mark_end_body();
+                        *in_body = false;
+                    }
+                    "html" => {
+                        *in_body = false;
+                    },
                     _ => ()
                 }
             }
@@ -299,7 +311,7 @@ impl Parser {
         }
     }
 
-    fn tokenize_word<'b>(&self, c: &'b [char], is_begin:&mut bool) -> TokenizeResult<'b> {
+    fn tokenize_word<'b>(&self, c: &'b [char], is_begin:&mut bool, in_body: bool) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
         
@@ -319,8 +331,10 @@ impl Parser {
             .map(|c| c.to_lowercase().collect::<String>())
             .collect();
         let lower_s = lower_s.concat();
-        let word = if self.ignored.contains(&lower_s)
-            || self.is_proper_noun(&res, *is_begin) {
+        let word = if !in_body {
+            // We are not in body, so words are all untracked
+            Word::Untracked(res)
+        } else if self.ignored.contains(&lower_s) || self.is_proper_noun(&res, *is_begin) {
             Word::Ignored(res)
         } else {
             Word::Tracked(res,
@@ -346,18 +360,18 @@ impl Parser {
         let mut chars:&[char] = &v_chars;
         let mut ast = Ast::new();
         let mut is_sentence_beginning = true;
+        let mut in_body = true;
         
 
         while !chars.is_empty() {
             let c = chars[0];
             let (cs, word) = if c.is_alphabetic() {
-                try!(self.tokenize_word(chars, &mut is_sentence_beginning))
+                try!(self.tokenize_word(chars, &mut is_sentence_beginning, in_body))
             } else if self.html && c == '<' {
                 is_sentence_beginning = false;
-                try!(self.tokenize_html(chars, &mut ast))
+                try!(self.tokenize_html(chars, &mut ast, &mut in_body))
             } else if self.html && c == '&' {
                 try!(self.tokenize_escape(chars))
-
             } else {
                 try!(self.tokenize_whitespace(chars, &mut is_sentence_beginning))
             };

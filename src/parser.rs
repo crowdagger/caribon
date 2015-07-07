@@ -225,16 +225,25 @@ impl Parser {
         res.push(chars[0]);
         chars = &chars[1..];
 
+        // Inner function to determine if a char is part of a possible tag name
+        fn is_tag(c:char) -> bool {
+            c == '[' || c == ']' || c == '/' || c.is_alphabetic()
+        }
+
         loop {
             if chars.is_empty() {
-                return Err(Error::new("Error reading HTML: ill-formed HTML. Maybe this is not an HTML file?"));
+                return Err(Error {
+                    content: format!("Error reading HTML: unclosed tag. Maybe this is not an HTML file?
+Details: the following was not closed: {}",
+                                     res)});
             }
             let c = chars[0];
             res.push(c);
-            if !was_tag_found && (c == '/' || c.is_alphabetic()) {
+            if !was_tag_found && is_tag(c) {
                 was_tag_found = true;
+                
                 let tag:String = chars.iter()
-                    .take_while(|c:&&char| **c == '/' || c.is_alphabetic())
+                    .take_while(|c:&&char| is_tag(**c))
                     .map(|c| c.to_lowercase().collect::<String>())
                     .fold(String::new(), |acc, x| acc + &x);
                 match &*tag {
@@ -253,6 +262,26 @@ impl Parser {
                     "html" => {
                         *in_body = false;
                     },
+                    "[cdata[" => {
+                        // Special loop for CDATA
+                        println!("CDATA detected!");
+                        chars = &chars[1..];
+                        loop {
+                            if chars.len() < 2 {
+                                return Err(Error::new("CDATA field not terminated properly"));
+                            }
+                            res.push(chars[0]);
+                            if chars[0] == ']' && chars[1] == ']' {
+                                println!("CDATA end detected");
+                                res.push(chars[1]);
+                                chars = &chars[2..];
+                                break;
+                            } else {
+                                chars = &chars[1..];
+                            }
+                        }
+                        continue;
+                    }
                     _ => ()
                 }
             }

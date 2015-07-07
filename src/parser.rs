@@ -700,6 +700,7 @@ Details: the following was not closed: {}",
             } else {
                 // If there is no head, generate the beginning of the document
                 res = res + "<html><head>\n";
+                res = res + "<meta charset = \"UTF-8\">\n";
                 res = res + SCRIPTS;
                 res = res + "</head>\n";
                 if ast.begin_body.is_none() || ast.end_body.is_none() {

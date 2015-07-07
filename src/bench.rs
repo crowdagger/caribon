@@ -22,9 +22,9 @@ fn get_input() -> String {
 fn bench_clone(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap();
-    let words = parser.tokenize(&s).unwrap();
+    let ast = parser.tokenize(&s).unwrap();
     b.iter(|| {
-        words.clone();
+        ast.clone();
     });
 }
 
@@ -33,10 +33,10 @@ fn bench_clone(b:&mut Bencher) {
 fn bench_html(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap().with_html(true);
-    let words = parser.tokenize(&s).unwrap();
-    let repetitions = parser.detect_local(words.clone(), 2.0);
+    let mut ast = parser.tokenize(&s).unwrap();
+    parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
-        parser.words_to_html(&repetitions, false);
+        parser.ast_to_html(&mut ast.clone(), false);
     });
 }
 
@@ -44,10 +44,10 @@ fn bench_html(b:&mut Bencher) {
 fn bench_html2(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap().with_html(false);
-    let words = parser.tokenize(&s).unwrap();
-    let repetitions = parser.detect_local(words.clone(), 2.0);
+    let mut ast = parser.tokenize(&s).unwrap();
+    parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
-        parser.words_to_html(&repetitions, false);
+        parser.ast_to_html(&mut ast.clone(), false);
     });
 }
 
@@ -55,10 +55,10 @@ fn bench_html2(b:&mut Bencher) {
 fn bench_terminal(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap();
-    let words = parser.tokenize(&s).unwrap();
-    let repetitions = parser.detect_local(words.clone(), 2.0);
+    let mut ast = parser.tokenize(&s).unwrap();
+    parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
-        parser.words_to_terminal(&repetitions);
+        parser.ast_to_terminal(&ast.clone());
     });
 }
 
@@ -66,10 +66,10 @@ fn bench_terminal(b:&mut Bencher) {
 fn bench_markdown(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap();
-    let words = parser.tokenize(&s).unwrap();
-    let repetitions = parser.detect_local(words.clone(), 2.0);
+    let mut ast = parser.tokenize(&s).unwrap();
+    parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
-        parser.words_to_markdown(&repetitions);
+        parser.ast_to_markdown(&mut ast.clone());
     });
 }
 
@@ -87,9 +87,9 @@ fn bench_local(b:&mut Bencher) {
     let s = get_input();
 //    let s = include_str!("../README.md");
     let parser = Parser::new("english").unwrap();
-    let words = parser.tokenize(&s).unwrap();    
+    let mut ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
+        parser.detect_local(&mut ast.clone(), 1.9);
     });
 }
 
@@ -97,9 +97,9 @@ fn bench_local(b:&mut Bencher) {
 fn bench_local_fuzzy(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
-    let words = parser.tokenize(&s).unwrap();    
+    let mut ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
+        parser.detect_local(&mut ast.clone(), 1.9);
     });
 }
 
@@ -108,9 +108,9 @@ fn bench_total(b:&mut Bencher) {
     let s = get_input();
     b.iter(|| {
         let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
-        let words = parser.tokenize(&s).unwrap();    
-        let detections = parser.detect_local(words.clone(), 1.9);
-        parser.words_to_html(&detections, true);
+        let mut ast = parser.tokenize(&s).unwrap();    
+        parser.detect_local(&mut ast, 1.9);
+        parser.ast_to_html(&mut ast, true);
     });
 }
 
@@ -120,9 +120,9 @@ fn bench_local_readme(b:&mut Bencher) {
     //    let s = get_input();
     let s = include_str!("../README.md");
     let parser = Parser::new("english").unwrap();
-    let words = parser.tokenize(&s).unwrap();    
+    let mut ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
+        parser.detect_local(&mut ast.clone(), 1.9);
     });
 }
 
@@ -131,73 +131,9 @@ fn bench_local_readme_fuzzy(b:&mut Bencher) {
     //    let s = get_input();
     let s = include_str!("../README.md");
     let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
-    let words = parser.tokenize(&s).unwrap();    
+    let mut ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
-    });
-}
-
-#[bench]
-fn bench_local10_readme(b:&mut Bencher) {
-    //    let s = get_input();
-    let s = include_str!("../README.md");
-    let parser = Parser::new("english").unwrap().with_max_distance(10);
-    let words = parser.tokenize(&s).unwrap();    
-    b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
-    });
-}
-
-#[bench]
-fn bench_local10_readme_fuzzy(b:&mut Bencher) {
-    //    let s = get_input();
-    let s = include_str!("../README.md");
-    let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5)).with_max_distance(10);
-    let words = parser.tokenize(&s).unwrap();    
-    b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
-    });
-}
-
-#[bench]
-fn bench_local100_readme(b:&mut Bencher) {
-    //    let s = get_input();
-    let s = include_str!("../README.md");
-    let parser = Parser::new("english").unwrap().with_max_distance(100);
-    let words = parser.tokenize(&s).unwrap();    
-    b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
-    });
-}
-
-#[bench]
-fn bench_local100_readme_fuzzy(b:&mut Bencher) {
-    //    let s = get_input();
-    let s = include_str!("../README.md");
-    let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5)).with_max_distance(100);
-    let words = parser.tokenize(&s).unwrap();    
-    b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
-    });
-}
-
-#[bench]
-fn bench_local10(b:&mut Bencher) {
-    let s = get_input();
-    let parser = Parser::new("english").unwrap().with_max_distance(10);
-    let words = parser.tokenize(&s).unwrap();
-    b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
-    });
-}
-
-#[bench]
-fn bench_local100(b:&mut Bencher) {
-    let s = get_input();
-    let parser = Parser::new("english").unwrap().with_max_distance(100);
-    let words = parser.tokenize(&s).unwrap();
-    b.iter(|| {
-        parser.detect_local(words.clone(), 1.9);
+        parser.detect_local(&mut ast.clone(), 1.9);
     });
 }
 
@@ -205,9 +141,9 @@ fn bench_local100(b:&mut Bencher) {
 fn bench_global(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap();
-    let words = parser.tokenize(&s).unwrap();
+    let mut ast = parser.tokenize(&s).unwrap();
     b.iter(|| {
-        parser.detect_global(words.clone(), 0.01);
+        parser.detect_global(&mut ast.clone(), 0.01);
     });
 }
 

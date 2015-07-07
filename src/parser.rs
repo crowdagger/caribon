@@ -631,7 +631,6 @@ impl Parser {
         let mut res = String::new();
         let words:&[Word];
 
-        println!("standalone: {}, begin_head: {:?}, begin_body: {:?}, end_body: {:?}", standalone, ast.begin_head, ast.begin_body, ast.end_body);
         // If standalone, only use words located between <body> and </body>
         if !standalone {
             // If standalone, only prints the body part of the AST

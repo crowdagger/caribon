@@ -50,7 +50,7 @@ static IGNORED_EN:&'static str = "it s i of the a you we she he they them its th
 /// Parser which can load a string, detects repetition on it and outputs an HTML file
 pub struct Parser {
     /// The stemmer 
-    stemmer: Stemmer,
+    stemmer: Option<Stemmer>,
     /// List of ignored words: we don't want to count repetitions on them
     ignored: Vec<String>,
     /// Whether there is HTML in the input text
@@ -64,7 +64,7 @@ pub struct Parser {
 }
 
 impl Parser {
-    /// Returns a vector containing all languages implemented.
+    /// Returns a vector containing all languages that are implemented.
     ///
     /// These values are correct values to give to `Parser::new`.
     pub fn list_languages() -> Vec<&'static str> {
@@ -98,6 +98,7 @@ impl Parser {
     ///
     /// `lang` – The input text language. This will be used to create the
     ///          stemmer; it also determines what list of ignored words to use.
+    ///          If `lang == "no_stemmer"`, stemming is disabled
     ///
     /// # Example
     ///
@@ -110,16 +111,25 @@ impl Parser {
     /// let result = caribon::Parser::new("incorrect language");
     /// assert!(result.is_err());
     /// ```
+    ///
+    /// ```
+    /// let result = caribon::Parser::new("no_stemmer");
+    /// assert!(result.is_ok());
+    /// ```
     pub fn new(lang: &str) -> Result<Parser> {
-        let stemmer = Stemmer::new(lang);
-        if stemmer.is_none() {
-            return Err(Error {
-                content: format!("Language {} is not implemented.\nSupported languages: {}",
-                                 lang,
-                                 Parser::list_languages().connect(", "))
-            });
+        let stemmer;
+        if lang == "no_stemmer" {
+            stemmer = None;
+        } else {
+            stemmer = Stemmer::new(lang);
+            if stemmer.is_none() {
+                return Err(Error {
+                    content: format!("Language {} is not implemented.\nSupported languages: {}",
+                                     lang,
+                                     Parser::list_languages().connect(", "))
+                });
+            }
         }
-        let stemmer = stemmer.unwrap();
         let ignored = Parser::get_ignored_from_lang(lang);
         Ok(Parser{stemmer: stemmer,
                   ignored: ignored,
@@ -264,7 +274,6 @@ Details: the following was not closed: {}",
                     },
                     "[cdata[" => {
                         // Special loop for CDATA
-                        println!("CDATA detected!");
                         chars = &chars[1..];
                         loop {
                             if chars.len() < 2 {
@@ -272,7 +281,6 @@ Details: the following was not closed: {}",
                             }
                             res.push(chars[0]);
                             if chars[0] == ']' && chars[1] == ']' {
-                                println!("CDATA end detected");
                                 res.push(chars[1]);
                                 chars = &chars[2..];
                                 break;
@@ -367,7 +375,7 @@ Details: the following was not closed: {}",
             Word::Ignored(res)
         } else {
             Word::Tracked(res,
-                          self.stemmer.stem(&lower_s),
+                          self.stem(&lower_s),
                           0.0,
                           None)
         };
@@ -714,6 +722,17 @@ Details: the following was not closed: {}",
         }
         res
     }
+
+    /// Stems a string
+    ///
+    /// Either warps call to `stemmer.stem`, or, if `stemmer == None`, just returns the string
+    fn stem(&self, s: &str) -> String {
+        match self.stemmer {
+            Some(ref stemmer) => stemmer.stem(s),
+            None => s.to_string(),
+        }
+    }
+    
 
     /// Search a string in a hashmap with fuzzy string matching
     /// Returns the matching string, or `None`

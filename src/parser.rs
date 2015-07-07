@@ -150,6 +150,17 @@ impl Parser {
     /// * `fuzzy` – `None` to deactivate fuzzy matching, or `Some(x)` to activate it. x must be between
     /// 0.0 and 1.0 as it corresponds to the relative distance, e.g "Caribon" has a length of 7 so if
     /// fuzzy is set with `Some(0.5)`, it will requires a maximal distance of 3 (actually 3.5 but distance is Integer)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let parser = caribon::Parser::new("english").unwrap()
+    ///                                             .with_fuzzy(Some(0.25));
+    /// let mut ast = parser.tokenize("trust Rust").unwrap();
+    /// parser.detect_local(&mut ast, 1.9);
+    /// let result = parser.ast_to_markdown(&ast); // not the best output format, but easy to debug
+    /// assert_eq!(&result, "**trust** **Rust**"); // these two words does have some letters in common
+    /// ```
     pub fn with_fuzzy(mut self, fuzzy: Option<f32>) -> Parser {
         self.fuzzy = fuzzy;
         self
@@ -428,8 +439,18 @@ Details: the following was not closed: {}",
     ///
     /// # Arguments
     ///
-    /// `ast` – A AST, containing a list of words
+    /// `ast` – A mutable reference to an internal data structure returned by `tokenize`
     /// `threshold` – The threshold to consider a repetition (e.g. 1.9)
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let parser = caribon::Parser::new("english").unwrap();
+    /// let mut ast = parser.tokenize("Testing whether this repetition detector works or does not work").unwrap();
+    /// parser.detect_local(&mut ast, 1.9);
+    /// let result = parser.ast_to_markdown(&ast); // not the most useful output format, but the easiest to debug
+    /// assert_eq!(&result, "Testing whether this repetition detector **works** or does not **work**");
+    /// ```
     pub fn detect_local(&self, ast:&mut Ast, threshold: f32)  {
         let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
         let mut pos:u32 = 1;
@@ -746,7 +767,7 @@ Details: the following was not closed: {}",
                 if h.contains_key(pattern) {
                     pattern.to_string()
                 } else {
-                    let mut min_distance = h.len() as i32;
+                    let mut min_distance = pattern.len() as i32;
                     let mut key = pattern;
                     for s in h.keys()
                         .filter(|s| {
@@ -770,7 +791,7 @@ Details: the following was not closed: {}",
                             break; // best result since perfect match has been ruled out
                         }
                     }
-                    if min_distance < (d_max * pattern.len() as f32) as i32 {
+                    if min_distance <= (d_max * pattern.len() as f32) as i32 {
                         key.to_string()
                     } else {
                         pattern.to_string()

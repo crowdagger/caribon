@@ -12,6 +12,7 @@ ChangeLog
    * `detect_[local|global]` methods now takes a mutable ref to an Ast
    instead of moving a `Vec<Word>` and returning a new one
 * Removed `detect_leak` algorithm
+* When `Parser::new` is initiated with "no_stemmer", stemming is disabled.
 
 
 0.5.2 (2015-07-03)

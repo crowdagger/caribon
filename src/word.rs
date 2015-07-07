@@ -52,9 +52,12 @@ impl Word {
 }
 
 #[derive(Debug,Clone)]
-/// Represents an AST. Contains a vector of words plus some additonal informations for HTML parsing
+/// The internal representation of the document.
+///
+/// Technically the name AST is not really well chosen, since it is not a tree, but mainly a vector of
+/// `Word`s plus some additonal informations for HTML parsing, but the idea is the same.
 pub struct Ast {
-    /// Vector of words, used by detect_[local|global]
+    /// Vector of `Word`s. The main data of the structure.
     pub words: Vec<Word>,
     /// Position of <head> tag, if any
     pub begin_head: Option<usize>,
@@ -76,6 +79,8 @@ impl Ast {
     }
 
     /// Sets begin_head to current last position of words
+    ///
+    /// This should be called *before* inserting the corresponding element.
     pub fn mark_begin_head(&mut self) {
         if self.begin_head.is_some() {
             return;
@@ -85,7 +90,9 @@ impl Ast {
         self.begin_head = Some(i);
     }
 
-    /// Sets begin_head to current last position of words
+    /// Sets begin_body to current last position of words
+    ///
+    /// This should be called *before* inserting the corresponding element.
     pub fn mark_begin_body(&mut self)  {
         if self.begin_body.is_some() {
             return;
@@ -95,7 +102,9 @@ impl Ast {
         self.begin_body = Some(i);
     }
     
-    /// Sets begin_head to current last position of words
+    /// Sets end_body to current last position of words
+    ///
+    /// This should be called *before* inserting the corresponding element.
     pub fn mark_end_body(&mut self) {
         let i = self.words.len();
         self.end_body = Some(i);
@@ -103,7 +112,7 @@ impl Ast {
 
     /// Get only the words contained between <body> and </body>
     ///
-    /// If body_begin and body_end are both set (and the fist one is before the second),
+    /// If body_begin and body_end are both set (and the first one is before the second),
     /// returns a slice that contains only words in this part; else, returns all words.
     pub fn get_body(&self) -> &[Word] {
         if let Some(begin) = self.begin_body {

@@ -135,7 +135,10 @@ advanced ones:
   second reason is that for some languages (currently only french and
   english), Caribon provides a default list of words to ignore for
   repetition counting (e.g. in english "it", "a" and so on are on it)
-  to avoid cluttering the result file.
+  to avoid cluttering the result file. It is possible to disable
+  stemming by using "no_stemmer" instead of a language. This isn't
+  really advised, but it might be useful if you want to try Caribon on
+  a language that isn't implemented.
 * `--list-languages` prints the list of languages supported by the
   stemming library.
 

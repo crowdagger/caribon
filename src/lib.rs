@@ -45,10 +45,10 @@ Once you have a parser, you can then configure it with various options:
 ```
 use caribon::Parser;
 let parser = Parser::new("english").unwrap()
-                                            .with_html(true)
-                                            .with_ignore_proper(true)
-                                            .with_max_distance(20)
-                                            .with_ignored("some, words, to, ignore");
+                                   .with_html(true)
+                                   .with_ignore_proper(true)
+                                   .with_max_distance(20)
+                                   .with_ignored("some, words, to, ignore");
 ```
 
 The next step is to read some string and convert it to some inner format (see the `Ast` structure).
@@ -83,8 +83,8 @@ let html = parser.ast_to_html(&mut ast, true):
 */
 
 // Uncomment this if you use nightly and want to run benchmarks
-#![feature(test)]
-mod bench;
+//#![feature(test)]
+//mod bench;
 
 extern crate stemmer;
 extern crate edit_distance;

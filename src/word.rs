@@ -13,9 +13,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
 
-use error::Error;
-use error::Result;
-
 /// `Word` type: some inner representation used by `Parser`.
 ///
 /// You probably should not use this type directly.

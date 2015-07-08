@@ -119,13 +119,13 @@ you the other occurrences of it.
 Options
 =======
 
-Caribon provides a pretty wide list of options. Here's the
+Caribon provides a list of options. Here's the
 explanations to a few ones, from the most commons the the pretty
 advanced ones:
 
 ### Language ###
 
-* `--language=[english|french|spanish|...]`specify the language of the
+* `--language=[english|french|spanish|...]`specifies the language of the
   input file. It is important for two reasons. The first one is that
   Caribon internally uses a stemming library, which will detect when
   words are derived from the same stem, e.g. "eats", "eat" and
@@ -300,7 +300,7 @@ use it in any Cargo project: just add
 
 `caribon = "*"`
 
-(or `caribon = "0.5"`) in the dependencies section of your
+(or `caribon = "0.6"`) in the dependencies section of your
 `Cargo.toml` file.
 
 Current features
@@ -313,11 +313,10 @@ Current features
 * Additionally (because stemming algorithms aren't always perfect, and sometimes
   you make typos), support for fuzzy string matching (based on Levenhstein distance).
 * Count repetitions locally and globally.
-* Detects HTML tags in input. It doesn't work with a full HTML file
-  (containing `<html>`, `<body>` and so on) but it works fine if you
-  use e.g `pandoc -o file.html file.md`.
-* Outputs a basic HTML files which higlights the detected repetitions,
-  or directly to the terminal, or to a Markdown file (with less useful information).
+* Detects HTML tags in input. Normally works both for HTML fragments
+  or full HTML pages.
+* Outputs the detected repetitions either in an HTML file (the most
+  useful option), directly to the terminal, or to a Markdown file (with less useful information).
 
 ChangeLog
 =========
@@ -347,7 +346,7 @@ ToDo
 
 Library
 -------
-* Render prettier output files;
+* Make colour highlighting more configurable
 * Complete builtin lists of ignored words and provide them for other
   languages (currently, only french, and english);
 * Provide algorithm to detect repetitions of expressions, not just
@@ -357,6 +356,7 @@ Library
 
 Program
 -------
+* Add options to select highligting colours
 * Find better default values?
 * Make different repositories for program and library?
 * Add a variant with GUI (Gtk+?)?

@@ -1,8 +1,8 @@
 ChangeLog
 =========
 
-0.6.0 (???)
------------
+0.6.0 (2015-07-08)
+------------------
 * Added `Parser.with_more_ignored` to add ignored words instead of replacing them
 * Added `--add-ignored=` option for the binary
 * Caribon now supports working on full HTML files, not just HTML

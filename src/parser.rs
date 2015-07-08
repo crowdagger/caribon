@@ -47,7 +47,7 @@ static IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se 
 de et un une t s à d l je tu";
 static IGNORED_EN:&'static str = "it s i of the a you we she he they them its their";
 
-/// Parser which can load a string, detects repetition on it and outputs an HTML file
+/// Parser which can load a string, detects repetition on it and outputs an HTML file.
 pub struct Parser {
     /// The stemmer 
     stemmer: Option<Stemmer>,
@@ -77,8 +77,16 @@ impl Parser {
     ///
     /// * `list` – A space or comma separated string, containing words that
     ///   should be ignored (i.e., don't count repetitions on them).
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let v = caribon::Parser::get_ignored_from_string("some, words; to ignore");
+    /// assert_eq!(v.len(), 4);
+    /// ```
     pub fn get_ignored_from_string(list: &str) -> Vec<String> {
         list.split(|c: char| !c.is_alphabetic())
+            .filter(|s| !s.is_empty())
             .map(|s| s.to_string())
             .collect()
     }    
@@ -159,7 +167,7 @@ impl Parser {
     /// let mut ast = parser.tokenize("trust Rust").unwrap();
     /// parser.detect_local(&mut ast, 1.9);
     /// let result = parser.ast_to_markdown(&ast); // not the best output format, but easy to debug
-    /// assert_eq!(&result, "**trust** **Rust**"); // these two words does have some letters in common
+    /// assert_eq!(&result, "**trust** **Rust**"); // these two words do have some letters in common
     /// ```
     pub fn with_fuzzy(mut self, fuzzy: Option<f32>) -> Parser {
         self.fuzzy = fuzzy;
@@ -173,6 +181,26 @@ impl Parser {
     /// `max_dist` – A number corresponding to a number of words. If two
     ///              occurences of a same word are separated by more than
     ///              this distance, it will not be counted as a repetition.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// let parser = caribon::Parser::new("english").unwrap()
+    ///                                             .with_max_distance(20);
+    /// let mut ast = parser.tokenize("This word is repeated in a few words").unwrap();
+    /// parser.detect_local(&mut ast, 1.9);
+    /// let result = parser.ast_to_markdown(&ast); // not the best output format, but easy to debug
+    /// assert_eq!(&result, "This **word** is repeated in a few **words**"); //repetition detected
+    /// ```
+    ///
+    /// ```rust
+    /// let parser = caribon::Parser::new("english").unwrap()
+    ///                                             .with_max_distance(2);
+    /// let mut ast = parser.tokenize("This word is repeated in a few words").unwrap();
+    /// parser.detect_local(&mut ast, 1.9);
+    /// let result = parser.ast_to_markdown(&ast); // not the best output format, but easy to debug
+    /// assert_eq!(&result, "This word is repeated in a few words"); // repetition not detected because of
+    ///                                                              // excessively low max_distance
     pub fn with_max_distance(mut self, max_dist: u32) -> Parser {
         self.max_distance = max_dist;
         self
@@ -199,6 +227,9 @@ impl Parser {
     
     /// Sets the ignored list with a list of words contained in the argument string.
     ///
+    /// This method *replaces* the default list of ignored words. If you want to *add*
+    /// ignored words to the default list of a language, use `with_ignored` instead.
+    ///
     /// # Arguments
     ///
     /// * `list` – A comma or whitespace separated list of words that should be ignored.
@@ -207,7 +238,7 @@ impl Parser {
         self
     }
 
-    /// Appends a list of words contained in the argument string to the ignored list
+    /// Appends a list of words contained in the argument string to the list of ignored words
     ///
     /// # Arguments
     ///
@@ -217,7 +248,6 @@ impl Parser {
             .fold((), |_, s| { self.ignored.push(s.to_string());  });
         self
     }
-        
 
     /// When we know it is the beginning of an escape character (e.g. &nbsp;)
     fn tokenize_escape<'b>(&self, c:&'b [char]) -> TokenizeResult<'b> {
@@ -583,7 +613,7 @@ Details: the following was not closed: {}",
         self.highlight(vec, threshold, |_, _| "blue")
     }
 
-    /// Highlight words those value is superior te thresholds
+    /// Highlight words whose value is superior to the threshold
     ///
     /// # Arguments
     ///
@@ -620,7 +650,7 @@ Details: the following was not closed: {}",
     ///
     /// # Arguments
     ///
-    /// * `ast` – An AST
+    /// * `ast` – A reference to `Ast`, returned by `tokenize` and modified by `detect_*`
     pub fn ast_to_terminal(&self, ast: &Ast) -> String {
         let mut res = String::new();
         let words = &ast.words;
@@ -645,7 +675,7 @@ Details: the following was not closed: {}",
     }
 
 
-    /// Display the AST to markdown, emphasizing the repetitions.
+    /// Display the Ast to markdown, emphasizing the repetitions.
     ///
     /// This is more limited than HTML or even terminal output, as it completely discards
     /// colour information that have been passed by `detect_*` methods, but it might be useful
@@ -653,7 +683,7 @@ Details: the following was not closed: {}",
     ///
     /// # Arguments
     ///
-    /// * `ast` – An AST containing repetitions.
+    /// * `ast` – An Ast containing repetitions.
     pub fn ast_to_markdown(&self, ast: &Ast) -> String {
         let mut res = String::new();
         let words = &ast.words;
@@ -676,15 +706,15 @@ Details: the following was not closed: {}",
     }
     
 
-    /// Display the AST to HTML, higlighting the repetitions.
+    /// Display the Ast to HTML, higlighting the repetitions.
     ///
     /// Use some basic CSS/Js for underlining repetitions and highlighting the
     /// over occurrences of the word under the mouse.
     ///
     /// # Arguments
     ///
-    /// * `ast` – An AST containing repetitions.
-    /// * `standalone` –  If true, generate a standalone HTML file.
+    /// * `ast` – An Ast containing repetitions.
+    /// * `standalone` –  If true, generate a standalone HTML file, else just an HTML fragment
     pub fn ast_to_html(&self, ast: &mut Ast, standalone: bool) -> String {
         let mut res = String::new();
         let words:&[Word];

@@ -20,6 +20,13 @@ in french are called *caractères*. In french, *good* is *bon* so
 Alright, this doesn't make much sense, I'll admit I just found the
 name funny.
 
+Demo server
+===========
+
+If you want to have an idea of what Caribon does without downloading
+anything, you can have a look at
+[this instance that runs Caribon as a web service](http://vps184889.ovh.net/caribon/).
+
 Downloading
 ===========
 
@@ -303,6 +310,15 @@ use it in any Cargo project: just add
 (or `caribon = "0.6"`) in the dependencies section of your
 `Cargo.toml` file.
 
+Caribon-server
+==============
+
+If you are not a big fan of command-line interface, you can have a
+look at [Caribon-server](https://github.com/lady-segfault/caribon-server) that
+runs Caribon as a web service (using
+[Iron framework](https://github.com/iron/iron)). See [here for an
+instance running it](http://vps184889.ovh.net/caribon/).
+
 Current features
 ================
 
@@ -361,8 +377,3 @@ Program
 * Make different repositories for program and library?
 * Add a variant with GUI (Gtk+?)?
 
-See also 
----------
-
-[caribon-server](https://github.com/lady-segfault/caribon-server), a
-work-in-progress project that runs Caribon as a web server.

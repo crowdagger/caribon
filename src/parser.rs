@@ -163,7 +163,7 @@ impl Parser {
     ///
     /// ```rust
     /// let parser = caribon::Parser::new("english").unwrap()
-    ///                                             .with_fuzzy(Some(0.25));
+     ///                                             .with_fuzzy(Some(0.25));
     /// let mut ast = parser.tokenize("trust Rust").unwrap();
     /// parser.detect_local(&mut ast, 1.9);
     /// let result = parser.ast_to_markdown(&ast); // not the best output format, but easy to debug
@@ -596,6 +596,11 @@ Details: the following was not closed: {}",
         let mut vec = &mut ast.words;
         let (h, count) = self.words_stats(vec);
 
+        // If there are not enough words for the threshold, do nothing instead of
+        // underlining all words
+        if 1.0 / threshold >= (count as f32) {
+            return;
+        }
 
         // We set each word value to the relative number of occurences
         for i in 0..vec.len() {

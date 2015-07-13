@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.6.1 (???)
+-----------
+* `Parser.detect_global` now only does something if there is enough
+  words in the file compared to the threshold
+
 0.6.0 (2015-07-08)
 ------------------
 * Added `Parser.with_more_ignored` to add ignored words instead of replacing them

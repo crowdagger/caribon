@@ -1,8 +1,8 @@
 ChangeLog
 =========
 
-0.6.1 (???)
------------
+0.6.1 (2015-07-13)
+------------------
 * `Parser.detect_global` now only does something if there is enough
   words in the file compared to the threshold
 

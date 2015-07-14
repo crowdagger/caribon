@@ -11,11 +11,13 @@ description = "A repetition detector program and library"
 
 [lib]
 name = "caribon"
-path = "src/lib.rs"
+path = "src/lib/lib.rs"
 
 [[bin]]
 name = "caribon"
+path = "src/bin/main.rs"
 doc = false
+
 
 
 [dependencies]

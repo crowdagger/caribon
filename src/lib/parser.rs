@@ -24,9 +24,9 @@ use display::{get_shell_colour, value_to_colour, SHELL_COLOUR_OFF, SCRIPTS};
 
 type TokenizeResult<'a> = Result<(&'a [char], Word)>;
 
-static IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur leurs \
+const IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur leurs \
 de et un une t s à d l je tu";
-static IGNORED_EN:&'static str = "it s i of the a you we she he they them its their";
+const IGNORED_EN:&'static str = "it s i of the a you we she he they them its their";
 
 /// Parser which can load a string, detects repetition on it and outputs an HTML file.
 pub struct Parser {

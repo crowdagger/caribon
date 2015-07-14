@@ -16,10 +16,10 @@
 // along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
 
 // Code to end shell colouring
-pub static SHELL_COLOUR_OFF:&'static str = "\x1B[0m";
+pub const SHELL_COLOUR_OFF:&'static str = "\x1B[0m";
 
 // Javascript function to print repetitions
-pub static SCRIPTS:&'static str = include_str!("html/scripts.js");
+pub const SCRIPTS:&'static str = include_str!("html/scripts.js");
 
 /// Get a shell colour from a string
 pub fn get_shell_colour(colour: &str) -> Option<&'static str> {

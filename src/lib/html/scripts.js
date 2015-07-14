@@ -1,4 +1,4 @@
-<script language = "javascript">
+<script>
     function on(name) {
         var elements = document.getElementsByClassName(name);
         for (var i = 0; i < elements.length; i++) {
@@ -13,5 +13,5 @@
             elem.style.backgroundColor = "white";
         }
     }
-    </script>
+</script>
 

@@ -466,11 +466,11 @@ Details: the following was not closed: {}",
         let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
         let mut pos:u32 = 1;
         let mut pos_to_i:Vec<usize> = vec!(0);
-        let mut vec = &mut ast.words;
+        let mut vec = ast.get_body_mut();
 
         fn try_remove (pos: u32,
                        h: &mut HashMap<String, (u32, Vec<usize>)>,
-                       vec: &Vec<Word>,
+                       vec: &[Word],
                        pos_to_i: &Vec<usize>,
                        max_distance: u32) {
             if pos > max_distance + 1 {
@@ -505,7 +505,7 @@ Details: the following was not closed: {}",
             };
             // Try to remove elements on a map
             if self.fuzzy.is_some() {
-                try_remove(pos, &mut h, &vec, &pos_to_i, self.max_distance);
+                try_remove(pos, &mut h, vec, &pos_to_i, self.max_distance);
             }
             if let Some((e, stemmed)) = elem {
                 // Update old stemmed to the fuzzy matched one
@@ -540,10 +540,11 @@ Details: the following was not closed: {}",
     ///
     /// This method retuns a tuple:
     /// * the first element is a hashmap between stemmed strings and the number of occurences of this word
-    /// * the second element is the total number of (valid) words in the list (non counting whitespace, HTML tags...)
-    pub fn words_stats(&self, words: &Vec<Word>) -> (HashMap<String, f32>, u32) {
+    /// * the second oelement is the total number of (valid) words in the list (non counting whitespace, HTML tags...)
+    pub fn words_stats(&self, ast: &Ast) -> (HashMap<String, f32>, u32) {
         let mut h:HashMap<String, f32> = HashMap::new();
         let mut count:u32 = 0;
+        let words:&[Word] = ast.get_body();
 
         // we fill the map and count 
         for word in words {
@@ -574,8 +575,9 @@ Details: the following was not closed: {}",
     /// * `vec` – A vector of `Word`.
     /// * `threshold` – A threshold to highlight repetitions (e.g. 0.01)
     pub fn detect_global(&self, ast: &mut Ast, threshold: f32)  {
-        let mut vec = &mut ast.words;
-        let (h, count) = self.words_stats(vec);
+        let (h, count) = self.words_stats(&ast);
+        let mut vec = ast.get_body_mut();
+
 
         // If there are not enough words for the threshold, do nothing instead of
         // underlining all words
@@ -610,7 +612,7 @@ Details: the following was not closed: {}",
     /// # Returns
     ///
     /// A vector of highlight
-    fn highlight<F>(&self, words: &mut Vec<Word>, threshold: f32, f:F) 
+    fn highlight<F>(&self, words: &mut [Word], threshold: f32, f:F) 
     where F: Fn(f32, f32) -> &'static str {
         let mut res = words;
         for i in 0..res.len() {

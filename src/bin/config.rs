@@ -39,6 +39,7 @@ const ARG_LIST_LANGUAGES:&'static str = "--list-languages";
 const ARG_IGNORE:&'static str = "--ignore=";
 const ARG_ADD_IGNORED:&'static str = "--add-ignored=";
 const ARG_FUZZY:&'static str = "--fuzzy=";
+const ARG_STATS:&'static str = "--print-stats";
 
 pub fn list_languages() {
     println!("Supported languages:");
@@ -61,6 +62,7 @@ Options:
   {}: displays this message
   {}: displays program version
   {}: lists the implemented languages
+  {}: in addition to detecting repetition, displays some statistics on the input text
   {}[language]: sets the language of the text (default: french)
   {}[filename]: sets input file (default: stdin)
   {}[filename]: sets output file (default: stdout)
@@ -82,6 +84,7 @@ Options:
              ARG_USAGE,
              ARG_VERSION,
              ARG_LIST_LANGUAGES,
+             ARG_STATS,
              ARG_LANG,
              ARG_INPUT,
              ARG_OUTPUT,
@@ -111,6 +114,7 @@ pub struct Config {
     pub ignored: String,
     pub add_ignored: String,
     pub fuzzy: Option<f32>,
+    pub print_stats: bool,
 }
 
 impl Config {
@@ -130,7 +134,8 @@ impl Config {
             output_filename: String::new(),
             ignored: String::new(),
             add_ignored: String::new(),
-            fuzzy: None
+            fuzzy: None,
+            print_stats: false,
         }
     }
 
@@ -284,6 +289,8 @@ impl Config {
         } else if arg == ARG_LIST_LANGUAGES {
             list_languages();
             exit(0);
+        } else if arg == ARG_STATS {
+            self.print_stats = true;
         } else {
             println!("Unrecognized argument: {}. See {} for help", arg, ARG_USAGE);
             exit(0);

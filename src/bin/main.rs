@@ -22,8 +22,15 @@ use caribon::Parser;
 
 use std::error::Error;
 use std::io::Read;
+use std::collections::HashMap;
 
-fn try_parse () -> Result<(), Box<Error>> {
+fn print_stats(h: &HashMap<String, f32>, n_words: u32) {
+    let different_words = h.len();
+    println!("Number of words: {}", n_words);
+    println!("Number of different words: {}", different_words);
+}
+
+fn try_parse() -> Result<(), Box<Error>> {
     let mut config = Config::new_from_args();
     let mut parser = try!(Parser::new(&config.lang));
 
@@ -43,6 +50,10 @@ fn try_parse () -> Result<(), Box<Error>> {
     try!(config.input.read_to_string(&mut s));
     
     let mut ast = try!(parser.tokenize(&s));
+    if config.print_stats {
+        let (h, count) = parser.words_stats(&ast);
+        print_stats(&h, count);
+    }
     parser.detect_local(&mut ast, config.threshold);
     if let Some(threshold) = config.global_threshold {
         parser.detect_global(&mut ast, threshold);

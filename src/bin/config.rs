@@ -24,21 +24,21 @@ use std::io::Read;
 use std::io::Write;
 use caribon::Parser;
 
-static ARG_LANG:&'static str = "--language=";
-static ARG_THRESHOLD:&'static str = "--threshold=";
-static ARG_MAX_DISTANCE:&'static str = "--max-distance=";
-static ARG_GLOBAL_THRESHOLD:&'static str = "--global-threshold=";
-static ARG_INPUT_FORMAT:&'static str = "--input-format=";
-static ARG_OUTPUT_FORMAT:&'static str = "--output-format=";
-static ARG_IGNORE_PROPER:&'static str = "--ignore-proper=";
-static ARG_USAGE:&'static str = "--help";
-static ARG_INPUT:&'static str = "--input=";
-static ARG_OUTPUT:&'static str = "--output=";
-static ARG_VERSION:&'static str = "--version";
-static ARG_LIST_LANGUAGES:&'static str = "--list-languages";
-static ARG_IGNORE:&'static str = "--ignore=";
-static ARG_ADD_IGNORED:&'static str = "--add-ignored=";
-static ARG_FUZZY:&'static str = "--fuzzy=";
+const ARG_LANG:&'static str = "--language=";
+const ARG_THRESHOLD:&'static str = "--threshold=";
+const ARG_MAX_DISTANCE:&'static str = "--max-distance=";
+const ARG_GLOBAL_THRESHOLD:&'static str = "--global-threshold=";
+const ARG_INPUT_FORMAT:&'static str = "--input-format=";
+const ARG_OUTPUT_FORMAT:&'static str = "--output-format=";
+const ARG_IGNORE_PROPER:&'static str = "--ignore-proper=";
+const ARG_USAGE:&'static str = "--help";
+const ARG_INPUT:&'static str = "--input=";
+const ARG_OUTPUT:&'static str = "--output=";
+const ARG_VERSION:&'static str = "--version";
+const ARG_LIST_LANGUAGES:&'static str = "--list-languages";
+const ARG_IGNORE:&'static str = "--ignore=";
+const ARG_ADD_IGNORED:&'static str = "--add-ignored=";
+const ARG_FUZZY:&'static str = "--fuzzy=";
 
 pub fn list_languages() {
     println!("Supported languages:");

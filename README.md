@@ -160,6 +160,11 @@ terminal special characters (see screenshot above). It is, thus, only activated 
 output file name is given and Caribon prints on the standard output,
 HTML output being the default for most of the cases.
 
+### Text statistics ###
+
+* `--print-stats`, if passed to Caribon, will also display some statistics
+  on the input text on the standard output.
+
 ### Threshold and max-distance ###
 
 The most useful algorithm of Caribon is local repetition

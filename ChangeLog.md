@@ -1,10 +1,11 @@
 ChangeLog
 =========
 
-0.6.2 (???)
------------
+0.6.2 (2015-07-15)
+------------------
 * moved library files and binary files into separate directories
 * changed license to GNU Lesser General Public License
+* binary: added `--print-stats` option (a bit limited at the moment)
 
 0.6.1 (2015-07-13)
 ------------------

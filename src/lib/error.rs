@@ -20,7 +20,7 @@ use std::result;
 use std::fmt;
 
 #[derive(Debug)]
-/// Caribon error type (just a String for now)
+/// Caribon error type (just a String currently)
 pub struct Error {
     pub content: String
 }
@@ -43,5 +43,5 @@ impl error::Error for Error {
     }
 }
 
-/// Result from Caribon functions
+/// Caribon Result, used by some functions
 pub type Result<T> = result::Result<T, Error>;

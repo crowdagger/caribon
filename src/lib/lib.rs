@@ -112,6 +112,8 @@ extern crate edit_distance;
 mod error;
 mod word;
 mod parser;
+mod display;
+
 
 pub use error::Error;
 pub use error::Result;

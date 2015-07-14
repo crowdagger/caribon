@@ -17,33 +17,12 @@
 
 use super::stemmer::Stemmer;
 use super::edit_distance::edit_distance;
-use word::Word;
-use word::Ast;
-use error::Error;
-use error::Result;
+use word::{Word, Ast};
+use error::{Error, Result};
 use std::collections::HashMap;
+use display::{get_shell_colour, value_to_colour, SHELL_COLOUR_OFF, SCRIPTS};
 
 type TokenizeResult<'a> = Result<(&'a [char], Word)>;
-
-// Code to end shell colouring
-static SHELL_COLOUR_OFF:&'static str = "\x1B[0m";
-
-/// Get a shell colour from a string
-fn get_shell_colour(colour: &str) -> Option<&'static str> {
-    match colour {
-        "red" => Some("\x1B[4;31m"),
-        "green" => Some("\x1B[4;32m"),
-        "cyan" => Some("\x1B[4;36m"),
-        "brown" => Some("\x1B[4;33m"),
-        "blue" => Some("\x1B[4;32m"),
-        "purple" => Some("\x1B[4;35m"),
-        "orange" => Some("\x1B[4;33m"),
-        _ => None
-    }
-}
-
-
-static SCRIPTS:&'static str = include_str!("html/scripts.js");
 
 static IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur leurs \
 de et un une t s à d l je tu";
@@ -839,20 +818,6 @@ Details: the following was not closed: {}",
         } else {
             pattern.to_string()
         }
-    }
-    
-}
-
-/// Generate the style attribute according to x and threshold
-fn value_to_colour(x: f32, threshold: f32) -> &'static str {
-    if x < threshold {
-        panic!("WTF");
-    } else if x < 1.5 * threshold {
-        "green"
-    } else if x < 2.0 * threshold {
-        "orange"
-    } else {
-        "red"
     }
 }
 

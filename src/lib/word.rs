@@ -57,7 +57,8 @@ impl Word {
 /// The internal representation of the document.
 ///
 /// Technically the name AST is not really well chosen, since it is not a tree, but mainly a vector of
-/// `Word`s plus some additonal informations for HTML parsing, but the idea is the same.
+/// `Word`s plus some additonal informations for HTML parsing, but the idea is that it is the internal
+/// representation of the documentation.
 pub struct Ast {
     /// Vector of `Word`s. The main data of the structure.
     pub words: Vec<Word>,

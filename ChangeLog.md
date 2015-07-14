@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.6.2 (???)
+-----------
+* moved library files and binary files into separate directories
+* changed license to GNU Lesser General Public License
+
 0.6.1 (2015-07-13)
 ------------------
 * `Parser.detect_global` now only does something if there is enough

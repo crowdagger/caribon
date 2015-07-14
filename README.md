@@ -3,23 +3,6 @@ Caribon
 
 A repetition detector written in Rust.
 
-Why?
-====
-
-In some languages it is considered poor style to repeat a
-word too often in a text (particularly a literary text). The purpose
-of this tool is to assist a writer in detecting those repetitions.
-
-Why the name?
-=============
-
-A text is composed of words, themselves composed of characters, which
-in french are called *caractères*. In french, *good* is *bon* so
-*caribon* is essentially *good characters*.
-
-Alright, this doesn't make much sense, I'll admit I just found the
-name funny.
-
 Demo server
 ===========
 
@@ -39,7 +22,7 @@ or just download one of the stable(ish)
 
 (If you only plan to use Caribon as a library for your rust program,
 you don't need to worry too much about downloading and building, just
-add `caribon = "0.5"` in your `Cargo.toml` file.)
+add `caribon = "*"` in your `Cargo.toml` file.)
 
 
 Build
@@ -342,7 +325,8 @@ ChangeLog
 License
 =======
 
-Caribon is licensed under the [GNU General Public License](LICENSE), version 2.0
+Caribon is licensed under the
+[GNU Lesser General Public License](LICENSE), version 2.1
 or (at your convenience) any ulterior version.
 
 Credits

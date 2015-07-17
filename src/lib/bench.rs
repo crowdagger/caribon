@@ -102,7 +102,7 @@ fn bench_tokenize(b:&mut Bencher) {
 #[bench]
 fn bench_local(b:&mut Bencher) {
     let s = get_input();
-//    let s = include_str!("../README.md");
+//    let s = include_str!("../../README.md");
     let parser = Parser::new("english").unwrap();
     let mut ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
@@ -135,7 +135,7 @@ fn bench_total(b:&mut Bencher) {
 #[bench]
 fn bench_local_readme(b:&mut Bencher) {
     //    let s = get_input();
-    let s = include_str!("../README.md");
+    let s = include_str!("../../README.md");
     let parser = Parser::new("english").unwrap();
     let mut ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
@@ -146,7 +146,7 @@ fn bench_local_readme(b:&mut Bencher) {
 #[bench]
 fn bench_local_readme_fuzzy(b:&mut Bencher) {
     //    let s = get_input();
-    let s = include_str!("../README.md");
+    let s = include_str!("../../README.md");
     let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
     let mut ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {

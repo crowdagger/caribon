@@ -3,6 +3,7 @@ ChangeLog
 
 0.6.3 (???)
 -----------
+* in `ast_to_*`, use `string.push_str(...)` instead of `string = string + ...`
 
 
 0.6.2 (2015-07-15)

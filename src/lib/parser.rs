@@ -29,6 +29,7 @@ de et un une t s à d l je tu";
 const IGNORED_EN:&'static str = "it s i of the a you we she he they them its their";
 
 /// Parser which can load a string, detects repetition on it and outputs an HTML file.
+#[repr(C)]
 pub struct Parser {
     /// The stemmer 
     stemmer: Option<Stemmer>,
@@ -654,7 +655,7 @@ Details: the following was not closed: {}",
                             Some(shell_colour) => res = res + shell_colour + s + SHELL_COLOUR_OFF
                         }
                     } else {
-                        res = res + s;
+                        res.push_str(s);
                     }
                 }
             }
@@ -682,10 +683,12 @@ Details: the following was not closed: {}",
                 &Word::Ignored(ref s) => res = res + s,
                 &Word::Tracked(ref s, _, _, highlight) => {
                     if let Some(_) = highlight {
-                        res = res + "**" + s + "**";
+                        res.push_str("**");
+                        res.push_str(s);
+                        res.push_str("**");
                     }
                     else {
-                        res = res + s;
+                        res.push_str(s);
                     }
                 }
             }
@@ -717,12 +720,12 @@ Details: the following was not closed: {}",
                 ast.words.insert(i+1, Word::Untracked(SCRIPTS.to_string()));
             } else {
                 // If there is no head, generate the beginning of the document
-                res = res + "<html><head>\n";
-                res = res + "<meta charset = \"UTF-8\">\n";
-                res = res + SCRIPTS;
-                res = res + "</head>\n";
+                res.push_str("<html><head>\n");
+                res.push_str("<meta charset = \"UTF-8\">\n");
+                res.push_str(SCRIPTS);
+                res.push_str("</head>\n");
                 if ast.begin_body.is_none() || ast.end_body.is_none() {
-                    res = res + "<body>\n";
+                    res.push_str("<body>\n");
                 }
             }
             words = &ast.words;
@@ -746,7 +749,7 @@ Details: the following was not closed: {}",
                                            String::new()
                                        },
                                        s);
-                    res = res + &this;
+                    res.push_str(&this);
                 }
             }
         }
@@ -758,7 +761,7 @@ Details: the following was not closed: {}",
         }
         if standalone && ast.begin_body.is_none() && ast.end_body.is_none() {
             // We need to add </body> at the end
-            res = res + "</body></html>";
+            res.push_str("</body></html>");
         }
         res
     }

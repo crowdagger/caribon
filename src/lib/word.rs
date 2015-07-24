@@ -18,6 +18,7 @@
 /// `Word` type: some inner representation used by `Parser`.
 ///
 /// You probably should not use this type directly.
+#[repr(C)]
 #[derive(Debug,Clone)]
 pub enum Word {
     /// A String which is not part of the text (typically whitespace, HTML formatting, ...)
@@ -53,6 +54,7 @@ impl Word {
     }
 }
 
+#[repr(C)]
 #[derive(Debug,Clone)]
 /// The internal representation of the document.
 ///

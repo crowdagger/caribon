@@ -29,7 +29,7 @@ static N_REPET:u32 = 100;
 fn get_input() -> String {
     let mut s = TEST.to_string();
     for _ in 1..N_REPET {
-        s = s + TEST;
+        s.push_str(TEST);
     }
 
     s
@@ -104,7 +104,7 @@ fn bench_local(b:&mut Bencher) {
     let s = get_input();
 //    let s = include_str!("../../README.md");
     let parser = Parser::new("english").unwrap();
-    let mut ast = parser.tokenize(&s).unwrap();    
+    let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
     });
@@ -114,7 +114,7 @@ fn bench_local(b:&mut Bencher) {
 fn bench_local_fuzzy(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
-    let mut ast = parser.tokenize(&s).unwrap();    
+    let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
     });
@@ -137,7 +137,7 @@ fn bench_local_readme(b:&mut Bencher) {
     //    let s = get_input();
     let s = include_str!("../../README.md");
     let parser = Parser::new("english").unwrap();
-    let mut ast = parser.tokenize(&s).unwrap();    
+    let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
     });
@@ -148,7 +148,7 @@ fn bench_local_readme_fuzzy(b:&mut Bencher) {
     //    let s = get_input();
     let s = include_str!("../../README.md");
     let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
-    let mut ast = parser.tokenize(&s).unwrap();    
+    let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
     });
@@ -158,7 +158,7 @@ fn bench_local_readme_fuzzy(b:&mut Bencher) {
 fn bench_global(b:&mut Bencher) {
     let s = get_input();
     let parser = Parser::new("english").unwrap();
-    let mut ast = parser.tokenize(&s).unwrap();
+    let ast = parser.tokenize(&s).unwrap();
     b.iter(|| {
         parser.detect_global(&mut ast.clone(), 0.01);
     });

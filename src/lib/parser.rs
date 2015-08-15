@@ -116,7 +116,7 @@ impl Parser {
                 return Err(Error {
                     content: format!("Language {} is not implemented.\nSupported languages: {}",
                                      lang,
-                                     Parser::list_languages().connect(", "))
+                                     Parser::list_languages().join(", "))
                 });
             }
         }

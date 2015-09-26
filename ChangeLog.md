@@ -1,9 +1,10 @@
 ChangeLog
 =========
 
-0.6.3 (???)
+0.7.0 (???)
 -----------
 * in `ast_to_*`, use `string.push_str(...)` instead of `string = string + ...`
+* move to version 0.3 of stemmer library, requiring a bit more functions to be `&mut self`
 
 
 0.6.2 (2015-07-15)

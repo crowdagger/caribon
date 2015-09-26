@@ -1,6 +1,6 @@
 [package]
 name = "caribon"
-version = "0.6.3"
+version = "0.7.0"
 authors = ["Elisabeth Henry <liz.henry@ouvaton.org>"]
 readme = "README.md"
 documentation = "http://lady-segfault.github.io/caribon/"
@@ -18,8 +18,8 @@ name = "caribon"
 path = "src/bin/main.rs"
 doc = false
 
-[dependencies]
-stemmer = "*"
+[dependencies.stemmer]
+git = "https://github.com/lady-segfault/stemmer-rs.git"
 
 [dependencies.edit-distance]
 git = "https://github.com/lady-segfault/edit-distance.git"

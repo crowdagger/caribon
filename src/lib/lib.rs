@@ -25,7 +25,7 @@ Here's a short example (more details below):
 
 ```
 use caribon::Parser;
-let parser = Parser::new("english").unwrap(); //creates a new parser
+let mut parser = Parser::new("english").unwrap(); //creates a new parser
 let mut ast = parser.tokenize("Some text where you want to detect repetitions").unwrap();
 parser.detect_local(&mut ast, 1.5);
 parser.detect_global(&mut ast, 0.01); // wouldn't actually make much sense on a string so small
@@ -49,7 +49,7 @@ Once you have a parser, you can then configure it with various options:
 
 ```
 use caribon::Parser;
-let parser = Parser::new("english").unwrap()
+let mut parser = Parser::new("english").unwrap()
                                    .with_html(true)
                                    .with_ignore_proper(true)
                                    .with_max_distance(20)

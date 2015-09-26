@@ -38,7 +38,7 @@ fn get_input() -> String {
 #[bench]
 fn bench_clone(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap();
+    let mut parser = Parser::new("english").unwrap();
     let ast = parser.tokenize(&s).unwrap();
     b.iter(|| {
         ast.clone();
@@ -49,7 +49,7 @@ fn bench_clone(b:&mut Bencher) {
 #[bench]
 fn bench_html(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap().with_html(true);
+    let mut parser = Parser::new("english").unwrap().with_html(true);
     let mut ast = parser.tokenize(&s).unwrap();
     parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
@@ -60,7 +60,7 @@ fn bench_html(b:&mut Bencher) {
 #[bench]
 fn bench_html2(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap().with_html(false);
+    let mut parser = Parser::new("english").unwrap().with_html(false);
     let mut ast = parser.tokenize(&s).unwrap();
     parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
@@ -71,7 +71,7 @@ fn bench_html2(b:&mut Bencher) {
 #[bench]
 fn bench_terminal(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap();
+    let mut parser = Parser::new("english").unwrap();
     let mut ast = parser.tokenize(&s).unwrap();
     parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
@@ -82,7 +82,7 @@ fn bench_terminal(b:&mut Bencher) {
 #[bench]
 fn bench_markdown(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap();
+    let mut parser = Parser::new("english").unwrap();
     let mut ast = parser.tokenize(&s).unwrap();
     parser.detect_local(&mut ast, 2.0);
     b.iter(|| {
@@ -93,7 +93,7 @@ fn bench_markdown(b:&mut Bencher) {
 #[bench]
 fn bench_tokenize(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap();
+    let mut parser = Parser::new("english").unwrap();
     b.iter(|| {
         parser.tokenize(&s).unwrap();
     });
@@ -103,7 +103,7 @@ fn bench_tokenize(b:&mut Bencher) {
 fn bench_local(b:&mut Bencher) {
     let s = get_input();
 //    let s = include_str!("../../README.md");
-    let parser = Parser::new("english").unwrap();
+    let mut parser = Parser::new("english").unwrap();
     let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
@@ -113,7 +113,7 @@ fn bench_local(b:&mut Bencher) {
 #[bench]
 fn bench_local_fuzzy(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
+    let mut parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
     let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
@@ -124,7 +124,7 @@ fn bench_local_fuzzy(b:&mut Bencher) {
 fn bench_total(b:&mut Bencher) {
     let s = get_input();
     b.iter(|| {
-        let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
+        let mut parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
         let mut ast = parser.tokenize(&s).unwrap();    
         parser.detect_local(&mut ast, 1.9);
         parser.ast_to_html(&mut ast, true);
@@ -136,7 +136,7 @@ fn bench_total(b:&mut Bencher) {
 fn bench_local_readme(b:&mut Bencher) {
     //    let s = get_input();
     let s = include_str!("../../README.md");
-    let parser = Parser::new("english").unwrap();
+    let mut parser = Parser::new("english").unwrap();
     let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
@@ -147,7 +147,7 @@ fn bench_local_readme(b:&mut Bencher) {
 fn bench_local_readme_fuzzy(b:&mut Bencher) {
     //    let s = get_input();
     let s = include_str!("../../README.md");
-    let parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
+    let mut parser = Parser::new("english").unwrap().with_fuzzy(Some(0.5));
     let ast = parser.tokenize(&s).unwrap();    
     b.iter(|| {
         parser.detect_local(&mut ast.clone(), 1.9);
@@ -157,7 +157,7 @@ fn bench_local_readme_fuzzy(b:&mut Bencher) {
 #[bench]
 fn bench_global(b:&mut Bencher) {
     let s = get_input();
-    let parser = Parser::new("english").unwrap();
+    let mut parser = Parser::new("english").unwrap();
     let ast = parser.tokenize(&s).unwrap();
     b.iter(|| {
         parser.detect_global(&mut ast.clone(), 0.01);

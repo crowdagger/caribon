@@ -144,7 +144,7 @@ impl Parser {
     /// # Example
     ///
     /// ```rust
-    /// let parser = caribon::Parser::new("english").unwrap()
+    /// let mut parser = caribon::Parser::new("english").unwrap()
      ///                                             .with_fuzzy(Some(0.25));
     /// let mut ast = parser.tokenize("trust Rust").unwrap();
     /// parser.detect_local(&mut ast, 1.9);
@@ -167,7 +167,7 @@ impl Parser {
     /// # Examples
     ///
     /// ```rust
-    /// let parser = caribon::Parser::new("english").unwrap()
+    /// let mut parser = caribon::Parser::new("english").unwrap()
     ///                                             .with_max_distance(20);
     /// let mut ast = parser.tokenize("This word is repeated in a few words").unwrap();
     /// parser.detect_local(&mut ast, 1.9);
@@ -176,7 +176,7 @@ impl Parser {
     /// ```
     ///
     /// ```rust
-    /// let parser = caribon::Parser::new("english").unwrap()
+    /// let mut parser = caribon::Parser::new("english").unwrap()
     ///                                             .with_max_distance(2);
     /// let mut ast = parser.tokenize("This word is repeated in a few words").unwrap();
     /// parser.detect_local(&mut ast, 1.9);
@@ -371,7 +371,7 @@ Details: the following was not closed: {}",
         }
     }
 
-    fn tokenize_word<'b>(&self, c: &'b [char], is_begin:&mut bool, in_body: bool) -> TokenizeResult<'b> {
+    fn tokenize_word<'b>(&mut self, c: &'b [char], is_begin:&mut bool, in_body: bool) -> TokenizeResult<'b> {
         let mut res = String::new();
         let mut chars:&[char] = c;
         
@@ -415,7 +415,7 @@ Details: the following was not closed: {}",
     /// # Arguments
     ///
     /// * `s` – The string to tokenize.
-    pub fn tokenize(&self, s: &str) -> Result<Ast> {
+    pub fn tokenize(&mut self, s: &str) -> Result<Ast> {
         let v_chars:Vec<char> = s.chars().collect();
         let mut chars:&[char] = &v_chars;
         let mut ast = Ast::new();
@@ -457,7 +457,7 @@ Details: the following was not closed: {}",
     /// # Example
     ///
     /// ```rust
-    /// let parser = caribon::Parser::new("english").unwrap();
+    /// let mut parser = caribon::Parser::new("english").unwrap();
     /// let mut ast = parser.tokenize("Testing whether this repetition detector works or does not work").unwrap();
     /// parser.detect_local(&mut ast, 1.9);
     /// let result = parser.ast_to_markdown(&ast); // not the most useful output format, but the easiest to debug
@@ -769,9 +769,9 @@ Details: the following was not closed: {}",
     /// Stems a string
     ///
     /// Either warps call to `stemmer.stem`, or, if `stemmer == None`, just returns the string
-    fn stem(&self, s: &str) -> String {
+    fn stem(&mut self, s: &str) -> String {
         match self.stemmer {
-            Some(ref stemmer) => stemmer.stem(s),
+            Some(ref mut stemmer) => stemmer.stem(s),
             None => s.to_string(),
         }
     }

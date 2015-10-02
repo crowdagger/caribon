@@ -27,7 +27,7 @@ pub struct Error {
 
 impl Error {
     pub fn new(s: &str) -> Error {
-        Error { content: s.to_string() }
+        Error { content: s.to_owned() }
     }
 }
 

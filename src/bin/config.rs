@@ -121,7 +121,7 @@ impl Config {
     /// New default config
     pub fn new() -> Config {
         Config {
-            lang: "french".to_string(),
+            lang: "french".to_owned(),
             threshold:1.9,
             global_threshold: None,
             max_distance:50,
@@ -151,18 +151,18 @@ impl Config {
         // Sets fields to default values if they have not been set
         if config.input_format.is_empty() {
             if config.input_filename.ends_with(".html") {
-                config.input_format = "html".to_string();
+                config.input_format = "html".to_owned();
             } else {
-                config.input_format = "text".to_string();
+                config.input_format = "text".to_owned();
             }
         }
         if config.output_format.is_empty() {
             if config.output_filename.ends_with(".html") {
-                config.output_format = "html".to_string();
+                config.output_format = "html".to_owned();
             } else if config.output_filename.ends_with(".md") {
-                config.output_format = "markdown".to_string();
+                config.output_format = "markdown".to_owned();
             } else {
-                config.output_format = "terminal".to_string();
+                config.output_format = "terminal".to_owned();
             }
         }
         config
@@ -176,7 +176,7 @@ impl Config {
             match result {
                 Ok(f) => {
                     self.output = Box::new(f);
-                    self.output_filename = option.to_string();
+                    self.output_filename = option.to_owned();
                 },
                 Err(e) => {
                     println!("Error opening file {}: {}", option, e.description());
@@ -189,7 +189,7 @@ impl Config {
             match result {
                 Ok(f) => {
                     self.input = Box::new(f);
-                    self.input_filename = option.to_string();
+                    self.input_filename = option.to_owned();
                 },
                 Err(e) => {
                     println!("Error opening file {}: {}", option, e.description());
@@ -198,7 +198,7 @@ impl Config {
             }
         } else if arg.starts_with(ARG_LANG) {
             let option = &arg[ARG_LANG.len()..];
-            self.lang = option.to_string();
+            self.lang = option.to_owned();
         } else if arg.starts_with(ARG_THRESHOLD) {
             let option = &arg[ARG_THRESHOLD.len()..];
             self.threshold = match option.parse() {
@@ -246,8 +246,8 @@ impl Config {
         } else if arg.starts_with(ARG_INPUT_FORMAT) {
             let option = &arg[ARG_INPUT_FORMAT.len()..];
             match option {
-                "html" => self.input_format = option.to_string(),
-                "text" => self.input_format = option.to_string(),
+                "html" => self.input_format = option.to_owned(),
+                "text" => self.input_format = option.to_owned(),
                 _ => {
                     println!("Wrong argument to {}: expected 'html' or 'text', received: {}", ARG_INPUT_FORMAT, option);
                     exit(0);
@@ -256,9 +256,9 @@ impl Config {
         } else if arg.starts_with(ARG_OUTPUT_FORMAT) {
             let option = &arg[ARG_OUTPUT_FORMAT.len()..];
             match option {
-                "html" => self.output_format = option.to_string(),
-                "terminal" => self.output_format = option.to_string(),
-                "markdown" => self.output_format = option.to_string(),
+                "html" => self.output_format = option.to_owned(),
+                "terminal" => self.output_format = option.to_owned(),
+                "markdown" => self.output_format = option.to_owned(),
                 _ => {
                     println!("Wrong argument to {}: expected 'html', 'terminal' or 'markdown', received: {}", ARG_OUTPUT_FORMAT, option);
                     exit(0);
@@ -276,10 +276,10 @@ impl Config {
             }
         } else if arg.starts_with(ARG_IGNORE) {
             let option = &arg[ARG_IGNORE.len()..];
-            self.ignored = option.to_string();
+            self.ignored = option.to_owned();
         } else if arg.starts_with(ARG_ADD_IGNORED) {
             let option = &arg[ARG_ADD_IGNORED.len()..];
-            self.add_ignored = option.to_string();
+            self.add_ignored = option.to_owned();
         } else if arg == ARG_USAGE {
             usage();
             exit(0);

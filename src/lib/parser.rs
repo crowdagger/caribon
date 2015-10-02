@@ -69,7 +69,7 @@ impl Parser {
     pub fn get_ignored_from_string(list: &str) -> Vec<String> {
         list.split(|c: char| !c.is_alphabetic())
             .filter(|s| !s.is_empty())
-            .map(|s| s.to_string())
+            .map(|s| s.to_owned())
             .collect()
     }    
     
@@ -227,7 +227,7 @@ impl Parser {
     /// * `list` – A comma or whitespace separated list of words that should be ignored.
     pub fn with_more_ignored(mut self, list: &str) -> Parser {
         list.split(|c: char| !c.is_alphabetic())
-            .fold((), |_, s| { self.ignored.push(s.to_string());  });
+            .fold((), |_, s| { self.ignored.push(s.to_owned());  });
         self
     }
 
@@ -717,7 +717,7 @@ Details: the following was not closed: {}",
         } else {
             // There is a head, so we must insert the scripts in the right place
             if let Some(i) = ast.begin_head  {
-                ast.words.insert(i+1, Word::Untracked(SCRIPTS.to_string()));
+                ast.words.insert(i+1, Word::Untracked(SCRIPTS.to_owned()));
             } else {
                 // If there is no head, generate the beginning of the document
                 res.push_str("<html><head>\n");
@@ -772,7 +772,7 @@ Details: the following was not closed: {}",
     fn stem(&mut self, s: &str) -> String {
         match self.stemmer {
             Some(ref mut stemmer) => stemmer.stem(s),
-            None => s.to_string(),
+            None => s.to_owned(),
         }
     }
     
@@ -783,11 +783,11 @@ Details: the following was not closed: {}",
         if let Some(d_max) = self.fuzzy {
             let length = pattern.len();
             if length < 2 { // Pattern is too short to do fuzzy matching
-                pattern.to_string()
+                pattern.to_owned()
             } else {
                 // If hashmap contains the exact pattern, no need to fuzzy search
                 if h.contains_key(pattern) {
-                    pattern.to_string()
+                    pattern.to_owned()
                 } else {
                     let mut min_distance = pattern.len() as i32;
                     let mut key = pattern;
@@ -814,14 +814,14 @@ Details: the following was not closed: {}",
                         }
                     }
                     if min_distance <= (d_max * pattern.len() as f32) as i32 {
-                        key.to_string()
+                        key.to_owned()
                     } else {
-                        pattern.to_string()
+                        pattern.to_owned()
                     }
                 }
             }
         } else {
-            pattern.to_string()
+            pattern.to_owned()
         }
     }
 }

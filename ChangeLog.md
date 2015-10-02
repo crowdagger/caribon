@@ -3,7 +3,9 @@ ChangeLog
 
 0.7.0 (???)
 -----------
-* in `ast_to_*`, use `string.push_str(...)` instead of `string = string + ...`
+* in `ast_to_*`, use `string.push_str(...)` instead of `string =
+string + ...`
+* replaced `to_string()` by `to_owned()` to convert `&str` to `String`
 * move to version 0.3 of stemmer library, requiring a bit more functions to be `&mut self`
 
 

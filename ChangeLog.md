@@ -4,11 +4,12 @@ ChangeLog
 0.7.0 (2015-11-12)
 ------------------
 * in `ast_to_*`, use `string.push_str(...)` instead of `string =
-string + ...`
+  string + ...`
 * replaced `to_string()` by `to_owned()` to convert `&str` to `String`
 * moved to version 0.3 of stemmer library, requiring a bit more
 functions to be `&mut self`
-* fixed `Cargo.toml` to no longer use `*` dependencies which broke everything
+* fixed `Cargo.toml` to no longer use `*` dependencies which broke
+  everything (sorry -_-)
 
 
 0.6.2 (2015-07-15)

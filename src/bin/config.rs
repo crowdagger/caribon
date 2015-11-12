@@ -62,24 +62,37 @@ Options:
   {}: displays this message
   {}: displays program version
   {}: lists the implemented languages
-  {}: in addition to detecting repetition, displays some statistics on the input text
+  {}: in addition to detecting repetition, displays some
+      statistics the input text
   {}[language]: sets the language of the text (default: french)
   {}[filename]: sets input file (default: stdin)
   {}[filename]: sets output file (default: stdout)
-  {}[string]: sets ignored word to those contained in the string separated by spaces or comma
-  \t(default: the builtin list that depends on the language)
-  {}[string]: adds words contained in the string to the list of ignored words (default: none)
-  {}[value]: sets max distance to be considered a repetition (in words) (default: 50)
-  {}[value]: sets threshold value for underlining local repetitions (default: 1.9)
-  {}[value|none]: activate global repetition detector and sets threshold value for underlining global repetitions
-  \t(this threshold corresponds to the minimal ratio of words in the text, e.g. a threshold of 0.01 means
-  \tthat a word must represent at least 1% of the total words in the text to be underlined) (default: not activated)
-  {}[text|html]: sets input format (default: text, depends on input file extension)
-  {}[terminal|html]|markdown]: sets output format (default: terminal, depends on output file extension)
-  {}[true|false]: if true, try to detect proper nouns and don't count them (default: false)
-  {}[value|none]: activate fuzzy string matching; value must be between 0.0 and 1.0 and corresponds to the maximal
-  \t'difference' between two words until they are no more considered identical (e.g. 0.25 means that two words
-  \t must have no more than 25% of difference) (default: not activated)",
+  {}[string]: sets ignored word to those contained in the string,
+      separated by spaces or comma (default: the builtin list 
+      that depends on the language)
+  {}[string]: adds words contained in the string to the list of 
+      ignored words (default: none)
+  {}[value]: sets max distance to be considered a repetition 
+      (in words) (default: 50)
+  {}[value]: sets threshold value for underlining local repetitions
+      (default: 1.9)
+  {}[value|none]: activate global repetition detector and sets 
+      threshold value for underlining global repetitions
+      (this threshold corresponds to the minimal ratio of words 
+      in the text, e.g. a threshold of 0.01 means that a word must
+      represent at least 1% of the total words in the text to be 
+      underlined) (default: not activated)
+  {}[text|html]: sets input format 
+      (default: text, depends on file extension)
+  {}[terminal|html]|markdown]: sets output format 
+      (default: terminal, depends on file extension)
+  {}[true|false]: if true, try to detect proper nouns and don't 
+      count them (default: false)
+  {}[value|none]: activate fuzzy string matching; value must be between 
+      0.0 and 1.0 and corresponds to the maximal 'difference' between 
+      two words until they are no more considered identical (e.g. 0.25
+      means that two words must have no more than 25% of difference) 
+      (default: not activated)",
              env!("CARGO_PKG_VERSION"),
              ARG_USAGE,
              ARG_VERSION,

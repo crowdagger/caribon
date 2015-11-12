@@ -35,9 +35,9 @@ fn try_parse() -> Result<(), Box<Error>> {
     let mut parser = try!(Parser::new(&config.lang));
 
     parser = parser.with_html(&config.input_format == "html")
-        .with_fuzzy(config.fuzzy)
-        .with_ignore_proper(config.ignore_proper)
-        .with_max_distance(config.max_distance);
+                   .with_fuzzy(config.fuzzy)
+                   .with_ignore_proper(config.ignore_proper)
+                   .with_max_distance(config.max_distance);
 
     if !config.ignored.is_empty() {
         parser = parser.with_ignored(&config.ignored);
@@ -45,10 +45,10 @@ fn try_parse() -> Result<(), Box<Error>> {
     if !config.add_ignored.is_empty() {
         parser = parser.with_more_ignored(&config.add_ignored);
     }
-        
+
     let mut s = String::new();
     try!(config.input.read_to_string(&mut s));
-    
+
     let mut ast = try!(parser.tokenize(&s));
     if config.print_stats {
         let (h, count) = parser.words_stats(&ast);
@@ -62,16 +62,17 @@ fn try_parse() -> Result<(), Box<Error>> {
         "html" => parser.ast_to_html(&mut ast, true),
         "terminal" => parser.ast_to_terminal(&ast),
         "markdown" => parser.ast_to_markdown(&ast),
-        _ => return Err(Box::new(caribon::Error::new("Wrong output format: must be 'html, 'terminal', or 'markdown'")))
+        _ => return Err(Box::new(caribon::Error::new("Wrong output format: must be 'html, \
+                                                      'terminal', or 'markdown'"))),
     };
     try!(config.output.write(&output.bytes().collect::<Vec<u8>>()));
     Ok(())
 }
-    
+
 
 fn main() {
-    match try_parse () {
-        Ok(_) => {},
-        Err(e) => println!("{}", e.description())
+    match try_parse() {
+        Ok(_) => {}
+        Err(e) => println!("{}", e.description()),
     }
 }

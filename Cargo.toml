@@ -18,9 +18,6 @@ name = "caribon"
 path = "src/bin/main.rs"
 doc = false
 
-[dependencies.stemmer]
-git = "https://github.com/lady-segfault/stemmer-rs.git"
-
-[dependencies.edit-distance]
-git = "https://github.com/lady-segfault/edit-distance.git"
-
+[dependencies]
+stemmer = "0.3"
+edit-distance = "1"

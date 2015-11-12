@@ -34,21 +34,21 @@ pub enum Word {
 
 impl Word {
     /// Sets the stemmed value of a word.
-    pub fn set_stemmed(&mut self, s:String) {
+    pub fn set_stemmed(&mut self, s: String) {
         match self {
             &mut Word::Tracked(_, ref mut stemmed, _, _) => {
                 *stemmed = s;
-            },
+            }
             _ => {}
         }
     }
-    
+
     /// Sets the repetition value of a word.
-    pub fn set_count(&mut self, x: f32)  {
+    pub fn set_count(&mut self, x: f32) {
         match self {
             &mut Word::Tracked(_, _, ref mut v, _) => {
                 *v = x;
-            },
+            }
             _ => {}
         }
     }
@@ -76,10 +76,10 @@ impl Ast {
     /// Creates a new, empty AST
     pub fn new() -> Ast {
         Ast {
-            words: vec!(),
+            words: vec![],
             begin_head: None,
             begin_body: None,
-            end_body: None
+            end_body: None,
         }
     }
 
@@ -90,7 +90,7 @@ impl Ast {
         if self.begin_head.is_some() {
             return;
         }
-        
+
         let i = self.words.len();
         self.begin_head = Some(i);
     }
@@ -98,15 +98,15 @@ impl Ast {
     /// Sets begin_body to current last position of words
     ///
     /// This should be called *before* inserting the corresponding element.
-    pub fn mark_begin_body(&mut self)  {
+    pub fn mark_begin_body(&mut self) {
         if self.begin_body.is_some() {
             return;
         }
-        
+
         let i = self.words.len();
         self.begin_body = Some(i);
     }
-    
+
     /// Sets end_body to current last position of words
     ///
     /// This should be called *before* inserting the corresponding element.

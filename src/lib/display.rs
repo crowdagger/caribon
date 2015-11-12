@@ -16,10 +16,10 @@
 // along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
 
 // Code to end shell colouring
-pub const SHELL_COLOUR_OFF:&'static str = "\x1B[0m";
+pub const SHELL_COLOUR_OFF: &'static str = "\x1B[0m";
 
 // Javascript function to print repetitions
-pub const SCRIPTS:&'static str = include_str!("html/scripts.js");
+pub const SCRIPTS: &'static str = include_str!("html/scripts.js");
 
 /// Get a shell colour from a string
 pub fn get_shell_colour(colour: &str) -> Option<&'static str> {
@@ -31,14 +31,14 @@ pub fn get_shell_colour(colour: &str) -> Option<&'static str> {
         "blue" => Some("\x1B[4;32m"),
         "purple" => Some("\x1B[4;35m"),
         "orange" => Some("\x1B[4;33m"),
-        _ => None
+        _ => None,
     }
 }
 
 /// Generate the style attribute according to x and threshold
 pub fn value_to_colour(x: f32, threshold: f32) -> &'static str {
     if x < threshold {
-        panic!("WTF");
+        panic!("value_to_colour called with x < threshold");
     } else if x < 1.5 * threshold {
         "green"
     } else if x < 2.0 * threshold {
@@ -47,7 +47,3 @@ pub fn value_to_colour(x: f32, threshold: f32) -> &'static str {
         "red"
     }
 }
-
-
-
-

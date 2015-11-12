@@ -22,7 +22,7 @@ use std::fmt;
 #[derive(Debug)]
 /// Caribon error type (just a String currently)
 pub struct Error {
-    pub content: String
+    pub content: String,
 }
 
 impl Error {

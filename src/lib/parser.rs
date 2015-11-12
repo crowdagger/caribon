@@ -24,9 +24,9 @@ use display::{get_shell_colour, value_to_colour, SHELL_COLOUR_OFF, SCRIPTS};
 
 type TokenizeResult<'a> = Result<(&'a [char], Word)>;
 
-const IGNORED_FR:&'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur leurs \
-de et un une t s à d l je tu";
-const IGNORED_EN:&'static str = "it s i of the a you we she he they them its their";
+const IGNORED_FR: &'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur \
+                                  leurs de et un une t s à d l je tu";
+const IGNORED_EN: &'static str = "it s i of the a you we she he they them its their";
 
 /// Parser which can load a string, detects repetition on it and outputs an HTML file.
 #[repr(C)]
@@ -71,17 +71,17 @@ impl Parser {
             .filter(|s| !s.is_empty())
             .map(|s| s.to_owned())
             .collect()
-    }    
-    
+    }
+
     /// Returns a vector containing the default ignored words for this language.
     pub fn get_ignored_from_lang(lang: &str) -> Vec<String> {
         match lang {
             "french" => Parser::get_ignored_from_string(IGNORED_FR),
             "english" => Parser::get_ignored_from_string(IGNORED_EN),
-            _ => vec!()
+            _ => vec![],
         }
     }
-    
+
     /// Returns `Ok(Parser)` if language is `ok`, Err(Error) else.
     ///
     /// # Arguments
@@ -116,17 +116,18 @@ impl Parser {
                 return Err(Error {
                     content: format!("Language {} is not implemented.\nSupported languages: {}",
                                      lang,
-                                     Parser::list_languages().join(", "))
+                                     Parser::list_languages().join(", ")),
                 });
             }
         }
         let ignored = Parser::get_ignored_from_lang(lang);
-        Ok(Parser{stemmer: stemmer,
-                  ignored: ignored,
-                  html: true,
-                  ignore_proper: false,
-                  max_distance: 50,
-                  fuzzy: None
+        Ok(Parser {
+            stemmer: stemmer,
+            ignored: ignored,
+            html: true,
+            ignore_proper: false,
+            max_distance: 50,
+            fuzzy: None,
         })
     }
 
@@ -145,7 +146,7 @@ impl Parser {
     ///
     /// ```rust
     /// let mut parser = caribon::Parser::new("english").unwrap()
-     ///                                             .with_fuzzy(Some(0.25));
+    ///                                             .with_fuzzy(Some(0.25));
     /// let mut ast = parser.tokenize("trust Rust").unwrap();
     /// parser.detect_local(&mut ast, 1.9);
     /// let result = parser.ast_to_markdown(&ast); // not the best output format, but easy to debug
@@ -187,7 +188,7 @@ impl Parser {
         self.max_distance = max_dist;
         self
     }
-   
+
     /// Sets HTML detection in input (default true).
     ///
     /// You should set it to `false` if a text is text-formatted, and to
@@ -206,7 +207,7 @@ impl Parser {
         self.ignore_proper = proper;
         self
     }
-    
+
     /// Sets the ignored list with a list of words contained in the argument string.
     ///
     /// This method *replaces* the default list of ignored words. If you want to *add*
@@ -227,18 +228,21 @@ impl Parser {
     /// * `list` – A comma or whitespace separated list of words that should be ignored.
     pub fn with_more_ignored(mut self, list: &str) -> Parser {
         list.split(|c: char| !c.is_alphabetic())
-            .fold((), |_, s| { self.ignored.push(s.to_owned());  });
+            .fold((), |_, s| {
+                self.ignored.push(s.to_owned());
+            });
         self
     }
 
     /// When we know it is the beginning of an escape character (e.g. &nbsp;)
-    fn tokenize_escape<'b>(&self, c:&'b [char]) -> TokenizeResult<'b> {
+    fn tokenize_escape<'b>(&self, c: &'b [char]) -> TokenizeResult<'b> {
         let mut res = String::new();
-        let mut chars:&[char] = c;
+        let mut chars: &[char] = c;
 
         loop {
             if chars.is_empty() {
-                return Err(Error::new("Error reading HTML: ill-formed escape code. Maybe this is not an HTML file?"));
+                return Err(Error::new("Error reading HTML: ill-formed escape code. Maybe this \
+                                       is not an HTML file?"));
             }
             let c = chars[0];
             res.push(c);
@@ -248,37 +252,43 @@ impl Parser {
             }
         }
     }
-    
-    fn tokenize_html<'b>(&self, c:&'b [char], ast: &mut Ast, in_body: &mut bool) -> TokenizeResult<'b> {
+
+    fn tokenize_html<'b>(&self,
+                         c: &'b [char],
+                         ast: &mut Ast,
+                         in_body: &mut bool)
+                         -> TokenizeResult<'b> {
         let mut res = String::new();
-        let mut chars:&[char] = c;
+        let mut chars: &[char] = c;
         let mut brackets = 1;
         let mut was_tag_found = false;
-        
+
         res.push(chars[0]);
         chars = &chars[1..];
 
         // Inner function to determine if a char is part of a possible tag name
-        fn is_tag(c:char) -> bool {
+        fn is_tag(c: char) -> bool {
             c == '[' || c == ']' || c == '/' || c.is_alphabetic()
         }
 
         loop {
             if chars.is_empty() {
                 return Err(Error {
-                    content: format!("Error reading HTML: unclosed tag. Maybe this is not an HTML file?
+                    content: format!("Error reading HTML: unclosed tag. Maybe this is not an HTML \
+                                      file?
 Details: the following was not closed: {}",
-                                     res)});
+                                     res),
+                });
             }
             let c = chars[0];
             res.push(c);
             if !was_tag_found && is_tag(c) {
                 was_tag_found = true;
-                
-                let tag:String = chars.iter()
-                    .take_while(|c:&&char| is_tag(**c))
-                    .map(|c| c.to_lowercase().collect::<String>())
-                    .fold(String::new(), |acc, x| acc + &x);
+
+                let tag: String = chars.iter()
+                                       .take_while(|c: &&char| is_tag(**c))
+                                       .map(|c| c.to_lowercase().collect::<String>())
+                                       .fold(String::new(), |acc, x| acc + &x);
                 match &*tag {
                     "head" => {
                         ast.mark_begin_head();
@@ -287,14 +297,14 @@ Details: the following was not closed: {}",
                     "body" => {
                         ast.mark_begin_body();
                         *in_body = true;
-                    },
+                    }
                     "/body" => {
                         ast.mark_end_body();
                         *in_body = false;
                     }
                     "html" => {
                         *in_body = false;
-                    },
+                    }
                     "[cdata[" => {
                         // Special loop for CDATA
                         chars = &chars[1..];
@@ -313,7 +323,7 @@ Details: the following was not closed: {}",
                         }
                         continue;
                     }
-                    _ => ()
+                    _ => (),
                 }
             }
             chars = &chars[1..];
@@ -329,17 +339,17 @@ Details: the following was not closed: {}",
         }
         Ok((chars, Word::Untracked(res)))
     }
-    
-    fn tokenize_whitespace<'b>(&self, c:&'b [char], is_begin: &mut bool) -> TokenizeResult<'b> {
+
+    fn tokenize_whitespace<'b>(&self, c: &'b [char], is_begin: &mut bool) -> TokenizeResult<'b> {
         let mut res = String::new();
-        let mut chars:&[char] = c;
+        let mut chars: &[char] = c;
 
         loop {
             if chars.is_empty() {
                 break;
             }
             let c = chars[0];
-            if  ((c == '<' || c == '&') && self.html) || c.is_alphabetic() {
+            if ((c == '<' || c == '&') && self.html) || c.is_alphabetic() {
                 break;
             }
             chars = &chars[1..];
@@ -353,16 +363,15 @@ Details: the following was not closed: {}",
     }
 
     /// Return true if `s` is a proper noun, false else
-    fn is_proper_noun(&self, s:&str, is_begin: bool) -> bool {
+    fn is_proper_noun(&self, s: &str, is_begin: bool) -> bool {
         if self.ignore_proper {
             if !is_begin {
                 let o = s.chars().next();
                 match o {
                     None => false,
-                    Some(c) => c.is_uppercase()
+                    Some(c) => c.is_uppercase(),
                 }
-            }
-            else {
+            } else {
                 // Technically a proper noun could be at the beginning of a sentence :s
                 false
             }
@@ -371,10 +380,14 @@ Details: the following was not closed: {}",
         }
     }
 
-    fn tokenize_word<'b>(&mut self, c: &'b [char], is_begin:&mut bool, in_body: bool) -> TokenizeResult<'b> {
+    fn tokenize_word<'b>(&mut self,
+                         c: &'b [char],
+                         is_begin: &mut bool,
+                         in_body: bool)
+                         -> TokenizeResult<'b> {
         let mut res = String::new();
-        let mut chars:&[char] = c;
-        
+        let mut chars: &[char] = c;
+
         loop {
             if chars.is_empty() {
                 break;
@@ -386,10 +399,10 @@ Details: the following was not closed: {}",
             res.push(c);
             chars = &chars[1..];
         }
-        
-        let lower_s:Vec<String> = res.chars()
-            .map(|c| c.to_lowercase().collect::<String>())
-            .collect();
+
+        let lower_s: Vec<String> = res.chars()
+                                      .map(|c| c.to_lowercase().collect::<String>())
+                                      .collect();
         let lower_s = lower_s.concat();
         let word = if !in_body {
             // We are not in body, so words are all untracked
@@ -397,10 +410,7 @@ Details: the following was not closed: {}",
         } else if self.ignored.contains(&lower_s) || self.is_proper_noun(&res, *is_begin) {
             Word::Ignored(res)
         } else {
-            Word::Tracked(res,
-                          self.stem(&lower_s),
-                          0.0,
-                          None)
+            Word::Tracked(res, self.stem(&lower_s), 0.0, None)
         };
 
         *is_begin = false;
@@ -416,12 +426,12 @@ Details: the following was not closed: {}",
     ///
     /// * `s` – The string to tokenize.
     pub fn tokenize(&mut self, s: &str) -> Result<Ast> {
-        let v_chars:Vec<char> = s.chars().collect();
-        let mut chars:&[char] = &v_chars;
+        let v_chars: Vec<char> = s.chars().collect();
+        let mut chars: &[char] = &v_chars;
         let mut ast = Ast::new();
         let mut is_sentence_beginning = true;
         let mut in_body = true;
-        
+
 
         while !chars.is_empty() {
             let c = chars[0];
@@ -463,40 +473,40 @@ Details: the following was not closed: {}",
     /// let result = parser.ast_to_markdown(&ast); // not the most useful output format, but the easiest to debug
     /// assert_eq!(&result, "Testing whether this repetition detector **works** or does not **work**");
     /// ```
-    pub fn detect_local(&self, ast:&mut Ast, threshold: f32)  {
-        let mut h:HashMap<String, (u32, Vec<usize>)> = HashMap::new(); 
-        let mut pos:u32 = 1;
-        let mut pos_to_i:Vec<usize> = vec!(0);
+    pub fn detect_local(&self, ast: &mut Ast, threshold: f32) {
+        let mut h: HashMap<String, (u32, Vec<usize>)> = HashMap::new();
+        let mut pos: u32 = 1;
+        let mut pos_to_i: Vec<usize> = vec![0];
         let mut vec = ast.get_body_mut();
 
-        fn try_remove (pos: u32,
-                       h: &mut HashMap<String, (u32, Vec<usize>)>,
-                       vec: &[Word],
-                       pos_to_i: &Vec<usize>,
-                       max_distance: u32) {
+        fn try_remove(pos: u32,
+                      h: &mut HashMap<String, (u32, Vec<usize>)>,
+                      vec: &[Word],
+                      pos_to_i: &Vec<usize>,
+                      max_distance: u32) {
             if pos > max_distance + 1 {
                 let pos_limit = pos - max_distance;
                 let i = pos_to_i[pos_limit as usize];
                 let stemmed = match vec[i] {
                     Word::Untracked(_) => panic!("Should not happen"),
                     Word::Ignored(_) => return,
-                    Word::Tracked(_, ref stemmed, _, _) => stemmed
+                    Word::Tracked(_, ref stemmed, _, _) => stemmed,
                 };
-                if let Some(&(old_pos, _)) =  h.get(stemmed) {
+                if let Some(&(old_pos, _)) = h.get(stemmed) {
                     if old_pos == pos_limit + 1 {
                         h.remove(stemmed);
                     }
                 }
             }
         }
-        for i in 0 .. vec.len() {
+        for i in 0..vec.len() {
             let elem = match vec[i] {
                 Word::Untracked(_) => None,
                 Word::Ignored(_) => {
                     pos += 1;
                     pos_to_i.push(i);
                     None
-                },
+                }
                 Word::Tracked(_, ref stemmed, _, _) => {
                     pos += 1;
                     pos_to_i.push(i);
@@ -512,8 +522,8 @@ Details: the following was not closed: {}",
                 // Update old stemmed to the fuzzy matched one
                 vec[i].set_stemmed(stemmed.clone());
                 let (p_pos, mut subvec) = match e {
-                    None => (0, vec!()),
-                    Some(y) => y
+                    None => (0, vec![]),
+                    Some(y) => y,
                 };
                 if p_pos != 0 && pos - p_pos < self.max_distance {
                     subvec.push(i);
@@ -523,7 +533,7 @@ Details: the following was not closed: {}",
                     }
                     h.insert(stemmed, (pos, subvec));
                 } else {
-                    subvec = vec!(i);
+                    subvec = vec![i];
                     h.insert(stemmed, (pos, subvec));
                 }
             }
@@ -543,20 +553,22 @@ Details: the following was not closed: {}",
     /// * the first element is a hashmap between stemmed strings and the number of occurences of this word
     /// * the second oelement is the total number of (valid) words in the list (non counting whitespace, HTML tags...)
     pub fn words_stats(&self, ast: &Ast) -> (HashMap<String, f32>, u32) {
-        let mut h:HashMap<String, f32> = HashMap::new();
-        let mut count:u32 = 0;
-        let words:&[Word] = ast.get_body();
+        let mut h: HashMap<String, f32> = HashMap::new();
+        let mut count: u32 = 0;
+        let words: &[Word] = ast.get_body();
 
-        // we fill the map and count 
+        // we fill the map and count
         for word in words {
             match word {
                 &Word::Untracked(_) => {}
-                &Word::Ignored(_) => {count += 1;},
+                &Word::Ignored(_) => {
+                    count += 1;
+                }
                 &Word::Tracked(_, ref stemmed, _, _) => {
                     count += 1;
                     let x = match h.get(stemmed) {
                         None => 0.0,
-                        Some(y) => *y
+                        Some(y) => *y,
                     } + 1.0;
                     h.insert(stemmed.clone(), x);
                 }
@@ -565,7 +577,7 @@ Details: the following was not closed: {}",
 
         (h, count)
     }
-    
+
     /// Detect the global number of repetitions.
     ///
     /// For each word, repetition value is set to the total number of occurences of this word in whole text,
@@ -575,7 +587,7 @@ Details: the following was not closed: {}",
     ///
     /// * `vec` – A vector of `Word`.
     /// * `threshold` – A threshold to highlight repetitions (e.g. 0.01)
-    pub fn detect_global(&self, ast: &mut Ast, threshold: f32)  {
+    pub fn detect_global(&self, ast: &mut Ast, threshold: f32) {
         let (h, count) = self.words_stats(&ast);
         let mut vec = ast.get_body_mut();
 
@@ -613,8 +625,9 @@ Details: the following was not closed: {}",
     /// # Returns
     ///
     /// A vector of highlight
-    fn highlight<F>(&self, words: &mut [Word], threshold: f32, f:F) 
-    where F: Fn(f32, f32) -> &'static str {
+    fn highlight<F>(&self, words: &mut [Word], threshold: f32, f: F)
+        where F: Fn(f32, f32) -> &'static str
+    {
         let mut res = words;
         for i in 0..res.len() {
             let word: &mut Word = &mut res[i];
@@ -627,7 +640,7 @@ Details: the following was not closed: {}",
                         }
                     }
                     *v = 0.0;
-                },
+                }
                 _ => {}
             }
         }
@@ -652,7 +665,7 @@ Details: the following was not closed: {}",
                     if let Some(colour) = option {
                         match get_shell_colour(colour) {
                             None => res = res + s,
-                            Some(shell_colour) => res = res + shell_colour + s + SHELL_COLOUR_OFF
+                            Some(shell_colour) => res = res + shell_colour + s + SHELL_COLOUR_OFF,
                         }
                     } else {
                         res.push_str(s);
@@ -686,8 +699,7 @@ Details: the following was not closed: {}",
                         res.push_str("**");
                         res.push_str(s);
                         res.push_str("**");
-                    }
-                    else {
+                    } else {
                         res.push_str(s);
                     }
                 }
@@ -695,7 +707,7 @@ Details: the following was not closed: {}",
         }
         res
     }
-    
+
 
     /// Display the Ast to HTML, higlighting the repetitions.
     ///
@@ -708,7 +720,7 @@ Details: the following was not closed: {}",
     /// * `standalone` –  If true, generate a standalone HTML file, else just an HTML fragment
     pub fn ast_to_html(&self, ast: &mut Ast, standalone: bool) -> String {
         let mut res = String::new();
-        let words:&[Word];
+        let words: &[Word];
 
         // If standalone, only use words located between <body> and </body>
         if !standalone {
@@ -716,8 +728,8 @@ Details: the following was not closed: {}",
             words = ast.get_body();
         } else {
             // There is a head, so we must insert the scripts in the right place
-            if let Some(i) = ast.begin_head  {
-                ast.words.insert(i+1, Word::Untracked(SCRIPTS.to_owned()));
+            if let Some(i) = ast.begin_head {
+                ast.words.insert(i + 1, Word::Untracked(SCRIPTS.to_owned()));
             } else {
                 // If there is no head, generate the beginning of the document
                 res.push_str("<html><head>\n");
@@ -736,15 +748,15 @@ Details: the following was not closed: {}",
                 &Word::Untracked(ref s) => res = res + s,
                 &Word::Ignored(ref s) => res = res + s,
                 &Word::Tracked(ref s, ref stemmed, _, option) => {
-                    let this = format!("<span class = \"{}\" \
-                                        onmouseover = 'on(\"{}\")' \
-                                        onmouseout = 'off(\"{}\")' \
-                                        {}>{}</span>",
+                    let this = format!("<span class = \"{}\" onmouseover = 'on(\"{}\")' \
+                                        onmouseout = 'off(\"{}\")' {}>{}</span>",
                                        stemmed,
                                        stemmed,
                                        stemmed,
                                        if let Some(colour) = option {
-                                           format!("style = \"text-decoration: underline; color: {};\"", colour)
+                                           format!("style = \"text-decoration: underline; color: \
+                                                    {};\"",
+                                                   colour)
                                        } else {
                                            String::new()
                                        },
@@ -753,8 +765,8 @@ Details: the following was not closed: {}",
                 }
             }
         }
-        
-        
+
+
         if !self.html {
             // If input is in text, add <br /> for newlines
             res = res.replace("\n", "<br/>\n");
@@ -775,14 +787,15 @@ Details: the following was not closed: {}",
             None => s.to_owned(),
         }
     }
-    
+
 
     /// Search a string in a hashmap with fuzzy string matching
     /// Returns the matching string, or `None`
-    fn fuzzy_get<T>(&self, h: &HashMap<String,T>, pattern:&str) -> String {
+    fn fuzzy_get<T>(&self, h: &HashMap<String, T>, pattern: &str) -> String {
         if let Some(d_max) = self.fuzzy {
             let length = pattern.len();
-            if length < 2 { // Pattern is too short to do fuzzy matching
+            if length < 2 {
+                // Pattern is too short to do fuzzy matching
                 pattern.to_owned()
             } else {
                 // If hashmap contains the exact pattern, no need to fuzzy search
@@ -792,18 +805,18 @@ Details: the following was not closed: {}",
                     let mut min_distance = pattern.len() as i32;
                     let mut key = pattern;
                     for s in h.keys()
-                        .filter(|s| {
-                            // string is too small
-                            if s.len() < 2 { 
-                                return false;
-                            }
-                            if (s.len() as f32 - length as f32).abs() > (d_max  * pattern.len() as f32) {
-                                // Lengths don't allow a matching distance
-                                return false;
-                            }
-                            return true;
-                        })
-                    {
+                              .filter(|s| {
+                                  // string is too small
+                                  if s.len() < 2 {
+                                      return false;
+                                  }
+                                  if (s.len() as f32 - length as f32).abs() >
+                                     (d_max * pattern.len() as f32) {
+                                      // Lengths don't allow a matching distance
+                                      return false;
+                                  }
+                                  return true;
+                              }) {
                         let dist = edit_distance(s, pattern);
                         if dist < min_distance {
                             min_distance = dist;
@@ -825,4 +838,3 @@ Details: the following was not closed: {}",
         }
     }
 }
-

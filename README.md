@@ -45,21 +45,17 @@ or by directly executing the binary (in `target/debug` or
 Installing
 ==========
 
-The basic `Makefile` provides an `install` target, so
+If you have the latest version of `Cargo`, you can use:
 
-`# make install`
+`$ cargo install caribon`
 
-(as root) should install `caribon` (in `/usr/bin/`) (it is possible to
-change that by modifing the first `Makefile` line to `INSTALL_DIR= some/install/directory`).
+(for the latest version on [crates.io](http://crates.io)), or
 
-Similarly,
+`$ cargo install --git https://github.com/lady-segfault/caribon`
 
-`# sudo make uninstall` should uninstall `caribon`.
+(for the latest version on GitHub)
 
-WARNING: the install procedure hasn't been really tested and is a bit
-YOLO at this time. But it should then allow you to run Caribon with:
-
-`$ caribon`
+which will download, build and install Caribon.
 
 Cargo run
 =========

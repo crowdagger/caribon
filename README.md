@@ -289,9 +289,9 @@ Caribon library is also available on
 [Crates.io](https://crates.io/crates/caribon), allowing you to easily
 use it in any Cargo project: just add
 
-`caribon = "*"`
+`caribon = "0.7"`
 
-(or `caribon = "0.6"`) in the dependencies section of your
+in the dependencies section of your
 `Cargo.toml` file.
 
 Caribon-server

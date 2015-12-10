@@ -1,12 +1,12 @@
 [package]
 name = "caribon"
-version = "0.7.0"
+version = "0.7.1"
 authors = ["Elisabeth Henry <liz.henry@ouvaton.org>"]
 readme = "README.md"
-documentation = "http://lady-segfault.github.io/caribon/"
+documentation = "http://lise-henry.github.io/rust/caribon/"
 license = "LGPL-2.1+"
-homepage = "https://github.com/lady-segfault/caribon"
-repository = "https://github.com/lady-segfault/caribon"
+homepage = "https://github.com/lise-henry/caribon"
+repository = "https://github.com/lise-henry/caribon"
 description = "A repetition detector program and library"
 
 [lib]

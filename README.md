@@ -30,7 +30,7 @@ Build
 
 You'll need Rust and Cargo, see their [install instructions](http://www.rust-lang.org/install.html). Then
 
-`$ make`
+`$ cargo build`
 
 should do the job, though you can also run `cargo build --release`
 directly. You can then run caribon either with:
@@ -45,15 +45,15 @@ or by directly executing the binary (in `target/debug` or
 Installing
 ==========
 
-If you have the latest version of `Cargo`, you can use:
+If you have a recent version of `Cargo`, you can use:
 
 `$ cargo install caribon`
 
-(for the latest version on [crates.io](http://crates.io)), or
+(for the latest version on [crates.io](http://crates.io), or
 
 `$ cargo install --git https://github.com/lady-segfault/caribon`
 
-(for the latest version on GitHub)
+for the latest version on GitHub)
 
 which will download, build and install Caribon.
 
@@ -78,7 +78,7 @@ Examples
 ========
 
 Here is an
-[example](https://lady-segfault.github.io/caribon-examples/example_readme.html)
+[example](https://lise-henry.github.io/rust/caribon-examples/example_readme.html)
 of Caribon using the HTML output of a (previous) version of this 
 README, obtained with the following command:
 
@@ -91,12 +91,12 @@ quite high (words only needs to be 50% similar to be considered the
 same, matching e.g. `just` and `rust`). For real life usage, a lower value
 would be recommended.)
 
-Here is another [example](https://lady-segfault.github.io/caribon-examples/screenshot.png), displaying repetitions in
+Here is another [example](https://lise-henry.github.io/rust/caribon-examples/screenshot.png), displaying repetitions in
 `README.md` to the terminal, using the following command:
 
 `$ caribon --language=english --input=README.md --fuzzy=0.5 | more`
 
-![example](https://lady-segfault.github.io/caribon-examples/screenshot.png)
+![example](https://lise-henry.github.io/rust/caribon-examples/screenshot.png)
 
 While outputting to the terminal might be useful for small files, HTML
 outputs gives a more useful result, as higlighting a word will show
@@ -280,7 +280,7 @@ Library
 =======
 
 It is possible to use Caribon as a Rust library. The documentation is
-available [here](http://lady-segfault.github.io/caribon/index.html); in order to
+available [here](http://lise-henry.github.io/rust/caribon/index.html); in order to
 be certain to have the documentation version corresponding to the code
 you downloaded, you can also generate it with
 `cargo doc`.
@@ -298,7 +298,7 @@ Caribon-server
 ==============
 
 If you are not a big fan of command-line interface, you can have a
-look at [Caribon-server](https://github.com/lady-segfault/caribon-server) that
+look at [Caribon-server](https://github.com/lise-henry/caribon-server) that
 runs Caribon as a web service (using
 [Iron framework](https://github.com/iron/iron)). See [here for an
 instance running it](http://vps184889.ovh.net/caribon/).

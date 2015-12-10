@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+0.7.1 (2015-12-10)
+------------------
+* fixed documentation, homepage and repository links because of change
+  of username
+
 0.7.0 (2015-11-12)
 ------------------
 * in `ast_to_*`, use `string.push_str(...)` instead of `string =

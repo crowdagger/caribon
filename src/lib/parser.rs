@@ -815,7 +815,7 @@ Details: the following was not closed: {}",
                                       // Lengths don't allow a matching distance
                                       return false;
                                   }
-                                  return true;
+                                  true
                               }) {
                         let dist = edit_distance(s, pattern);
                         if dist < min_distance {

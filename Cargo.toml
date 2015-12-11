@@ -1,6 +1,6 @@
 [package]
 name = "caribon"
-version = "0.7.1"
+version = "0.7.2"
 authors = ["Elisabeth Henry <liz.henry@ouvaton.org>"]
 readme = "README.md"
 documentation = "http://lise-henry.github.io/rust/caribon/"

@@ -1,6 +1,10 @@
 ChangeLog
 =========
 
+0.7.2 (unreleased)
+------------------
+* runned `clippy` on repository and fixed some unesthetic stuff
+
 0.7.1 (2015-12-10)
 ------------------
 * fixed documentation, homepage and repository links because of change

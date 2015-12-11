@@ -3,6 +3,8 @@ Caribon
 
 A repetition detector written in Rust.
 
+[![Build Status](https://travis-ci.org/lise-henry/caribon.svg?branch=master)](https://travis-ci.org/lise-henry/caribon)
+
 Demo server
 ===========
 

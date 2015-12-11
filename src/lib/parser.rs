@@ -559,12 +559,12 @@ Details: the following was not closed: {}",
 
         // we fill the map and count
         for word in words {
-            match word {
-                &Word::Untracked(_) => {}
-                &Word::Ignored(_) => {
+            match *word {
+                Word::Untracked(_) => {}
+                Word::Ignored(_) => {
                     count += 1;
                 }
-                &Word::Tracked(_, ref stemmed, _, _) => {
+                Word::Tracked(_, ref stemmed, _, _) => {
                     count += 1;
                     let x = match h.get(stemmed) {
                         None => 0.0,
@@ -631,17 +631,12 @@ Details: the following was not closed: {}",
         let mut res = words;
         for i in 0..res.len() {
             let word: &mut Word = &mut res[i];
-            match word {
-                &mut Word::Tracked(_, _, ref mut v, ref mut option) => {
-                    if option.is_none() {
-                        // No colour is attributed, so see if we attribute one
-                        if *v >= threshold {
-                            *option = Some(f(*v, threshold));
-                        }
-                    }
-                    *v = 0.0;
+            if let Word::Tracked(_, _, ref mut v, ref mut option) = *word {
+                if option.is_none() && *v >= threshold {
+                    // No colour is attributed, so see if we attribute one
+                    *option = Some(f(*v, threshold));
                 }
-                _ => {}
+                *v = 0.0; //resets value to zero so it doesn't cause problem if another algorithm is used after
             }
         }
     }
@@ -658,10 +653,10 @@ Details: the following was not closed: {}",
         let words = &ast.words;
 
         for word in words {
-            match word {
-                &Word::Untracked(ref s) => res = res + s,
-                &Word::Ignored(ref s) => res = res + s,
-                &Word::Tracked(ref s, _, _, option) => {
+            match *word {
+                Word::Untracked(ref s) => res = res + s,
+                Word::Ignored(ref s) => res = res + s,
+                Word::Tracked(ref s, _, _, option) => {
                     if let Some(colour) = option {
                         match get_shell_colour(colour) {
                             None => res = res + s,
@@ -744,10 +739,10 @@ Details: the following was not closed: {}",
         }
 
         for word in words {
-            match word {
-                &Word::Untracked(ref s) => res = res + s,
-                &Word::Ignored(ref s) => res = res + s,
-                &Word::Tracked(ref s, ref stemmed, _, option) => {
+            match *word {
+                Word::Untracked(ref s) => res = res + s,
+                Word::Ignored(ref s) => res = res + s,
+                Word::Tracked(ref s, ref stemmed, _, option) => {
                     let this = format!("<span class = \"{}\" onmouseover = 'on(\"{}\")' \
                                         onmouseout = 'off(\"{}\")' {}>{}</span>",
                                        stemmed,

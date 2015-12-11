@@ -482,7 +482,7 @@ Details: the following was not closed: {}",
         fn try_remove(pos: u32,
                       h: &mut HashMap<String, (u32, Vec<usize>)>,
                       vec: &[Word],
-                      pos_to_i: &Vec<usize>,
+                      pos_to_i: &[usize],
                       max_distance: u32) {
             if pos > max_distance + 1 {
                 let pos_limit = pos - max_distance;

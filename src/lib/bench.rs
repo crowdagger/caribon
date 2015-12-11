@@ -27,7 +27,7 @@ Well, alright, let's say it is. ";
 static N_REPET:u32 = 100;
 
 fn get_input() -> String {
-    let mut s = TEST.to_string();
+    let mut s = TEST.to_owned();
     for _ in 1..N_REPET {
         s.push_str(TEST);
     }

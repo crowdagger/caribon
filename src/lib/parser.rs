@@ -686,10 +686,10 @@ Details: the following was not closed: {}",
         let words = &ast.words;
 
         for word in words {
-            match word {
-                &Word::Untracked(ref s) => res = res + s,
-                &Word::Ignored(ref s) => res = res + s,
-                &Word::Tracked(ref s, _, _, highlight) => {
+            match *word {
+                Word::Untracked(ref s) => res = res + s,
+                Word::Ignored(ref s) => res = res + s,
+                Word::Tracked(ref s, _, _, highlight) => {
                     if let Some(_) = highlight {
                         res.push_str("**");
                         res.push_str(s);

@@ -127,7 +127,7 @@ impl Ast {
                 }
             }
         }
-        return &self.words;
+        &self.words
     }
 
     /// Get only the words contained between <body> and </body>, mutable version
@@ -141,6 +141,6 @@ impl Ast {
                 }
             }
         }
-        return &mut self.words;
+        return &mut self.words
     }
 }

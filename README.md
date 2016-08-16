@@ -17,10 +17,10 @@ Downloading
 
 Either use `git` to get the latest version:
 
-`$ git clone https://github.com/lady-segfault/caribon.git`
+`$ git clone https://github.com/lise-henry/caribon.git`
 
 or just download one of the stable(ish)
-[releases](https://github.com/lady-segfault/caribon/releases).
+[releases](https://github.com/lise-henry/caribon/releases).
 
 (If you only plan to use Caribon as a library for your rust program,
 you don't need to worry too much about downloading and building, just
@@ -53,7 +53,7 @@ If you have a recent version of `Cargo`, you can use:
 
 (for the latest version on [crates.io](http://crates.io), or
 
-`$ cargo install --git https://github.com/lady-segfault/caribon`
+`$ cargo install --git https://github.com/lise-henry/caribon`
 
 for the latest version on GitHub)
 

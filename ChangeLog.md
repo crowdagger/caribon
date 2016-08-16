@@ -1,8 +1,9 @@
 ChangeLog
 =========
 
-0.7.2 (unreleased)
+0.7.2 (2016-08-17)
 ------------------
+* fix a formatting bug when printing HTML from a text input
 * runned `clippy` on repository and fixed some unesthetic stuff
 
 0.7.1 (2015-12-10)

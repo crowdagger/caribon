@@ -740,8 +740,15 @@ Details: the following was not closed: {}",
 
         for word in words {
             match *word {
-                Word::Untracked(ref s) => res = res + s,
-                Word::Ignored(ref s) => res = res + s,
+                Word::Untracked(ref s) | Word::Ignored(ref s) => {
+                            if !self.html {
+                                // If input is in text, add <br /> for newlines
+                                let new_str = s.replace("\n", "<br/>\n");
+                                res.push_str(&new_str);
+                            } else {
+                                res.push_str(s);
+                            }
+                },
                 Word::Tracked(ref s, ref stemmed, _, option) => {
                     let this = format!("<span class = \"{}\" onmouseover = 'on(\"{}\")' \
                                         onmouseout = 'off(\"{}\")' {}>{}</span>",
@@ -761,11 +768,6 @@ Details: the following was not closed: {}",
             }
         }
 
-
-        if !self.html {
-            // If input is in text, add <br /> for newlines
-            res = res.replace("\n", "<br/>\n");
-        }
         if standalone && ast.begin_body.is_none() && ast.end_body.is_none() {
             // We need to add </body> at the end
             res.push_str("</body></html>");

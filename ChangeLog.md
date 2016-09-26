@@ -1,6 +1,11 @@
 ChangeLog
 =========
 
+unreleased
+----------
+* add `ast_to_ispell` method to parser to allow Caribon to be runned
+  pretending to be ispell
+
 0.7.2 (2016-08-17)
 ------------------
 * fix a formatting bug when printing HTML from a text input

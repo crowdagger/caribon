@@ -21,7 +21,9 @@ use config::Config;
 use caribon::Parser;
 
 use std::error::Error;
+use std::io;
 use std::io::Read;
+use std::io::BufRead;
 use std::collections::HashMap;
 
 fn print_stats(h: &HashMap<String, f32>, n_words: u32) {
@@ -45,28 +47,40 @@ fn try_parse() -> Result<(), Box<Error>> {
     if !config.add_ignored.is_empty() {
         parser = parser.with_more_ignored(&config.add_ignored);
     }
-
-    let mut s = String::new();
-    try!(config.input.read_to_string(&mut s));
-
-    let mut ast = try!(parser.tokenize(&s));
-    if config.print_stats {
+    if !config.ispell {
+        let mut s = String::new();
+        try!(config.input.read_to_string(&mut s));
+        
+        let mut ast = try!(parser.tokenize(&s));
+        if config.print_stats {
         let (h, count) = parser.words_stats(&ast);
-        print_stats(&h, count);
+            print_stats(&h, count);
+        }
+        parser.detect_local(&mut ast, config.threshold);
+        if let Some(threshold) = config.global_threshold {
+            parser.detect_global(&mut ast, threshold);
+        }
+        let output = match &*config.output_format {
+            "html" => parser.ast_to_html(&mut ast, true),
+            "terminal" => parser.ast_to_terminal(&ast),
+            "markdown" => parser.ast_to_markdown(&ast),
+            _ => return Err(Box::new(caribon::Error::new("Wrong output format: must be 'html, \
+                                                          'terminal', or 'markdown'"))),
+        };
+        try!(config.output.write(&output.bytes().collect::<Vec<u8>>()));
+        Ok(())
+    } else {
+        println!("@(#) International Ispell Version 3.1.20 (but really Caribon {})", env!("CARGO_PKG_VERSION"));
+
+        let stdin = io::stdin();
+        for line in stdin.lock().lines() {
+            let mut ast = try!(parser.tokenize(&try!(line)));
+            parser.detect_local(&mut ast, config.threshold);
+            println!("{}", parser.ast_to_ispell(&ast, config.ispell_list));
+        }
+        
+        Ok(())
     }
-    parser.detect_local(&mut ast, config.threshold);
-    if let Some(threshold) = config.global_threshold {
-        parser.detect_global(&mut ast, threshold);
-    }
-    let output = match &*config.output_format {
-        "html" => parser.ast_to_html(&mut ast, true),
-        "terminal" => parser.ast_to_terminal(&ast),
-        "markdown" => parser.ast_to_markdown(&ast),
-        _ => return Err(Box::new(caribon::Error::new("Wrong output format: must be 'html, \
-                                                      'terminal', or 'markdown'"))),
-    };
-    try!(config.output.write(&output.bytes().collect::<Vec<u8>>()));
-    Ok(())
 }
 
 

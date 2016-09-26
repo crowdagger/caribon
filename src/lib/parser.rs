@@ -671,6 +671,45 @@ Details: the following was not closed: {}",
         res
     }
 
+    /// Display repetitions in an ispell-compatible manner
+    ///
+    /// This is used if you want to run caribon instead of a text editor, making it pretend to be ispell
+    ///
+    /// Will print as errors words whose repetition value is above threshold
+    ///
+    /// # Arguments
+    ///
+    /// * ast: the ast that must be printed
+    /// * list: only display error (`--list` option)
+    pub fn ast_to_ispell(&self, ast: &Ast, list: bool) -> String {
+        let mut res = String::new();
+        let words = &ast.words;
+        let mut pos = 0;
+
+        for word in words {
+            match *word {
+                Word::Untracked(ref s) => pos += s.chars().count(),
+                Word::Ignored(ref s) => {
+                    pos += s.chars().count();
+                    if !list {
+                        res.push_str("*\n");
+                    }
+                },
+                Word::Tracked(ref s, _, _, highlight) => {
+                    if highlight.is_some() {
+                        res.push_str(&format!("# {} {}\n", s, pos));
+                    } else {
+                        if !list {
+                            res.push_str("*\n");
+                        }
+                    }
+                    pos += s.chars().count();
+                }
+            }
+        }
+        res
+    }
+
 
     /// Display the Ast to markdown, emphasizing the repetitions.
     ///

@@ -25,6 +25,7 @@ use std::io::Write;
 use caribon::Parser;
 
 const ARG_LANG:&'static str = "--language=";
+const ARG_LANG_SHORT:&'static str = "-d";
 const ARG_THRESHOLD:&'static str = "--threshold=";
 const ARG_MAX_DISTANCE:&'static str = "--max-distance=";
 const ARG_GLOBAL_THRESHOLD:&'static str = "--global-threshold=";
@@ -40,6 +41,8 @@ const ARG_IGNORE:&'static str = "--ignore=";
 const ARG_ADD_IGNORED:&'static str = "--add-ignored=";
 const ARG_FUZZY:&'static str = "--fuzzy=";
 const ARG_STATS:&'static str = "--print-stats";
+const ARG_ISPELL:&'static str = "-a";
+const ARG_LIST:&'static str = "-l";
 
 pub fn list_languages() {
     println!("Supported languages:");
@@ -64,7 +67,7 @@ Options:
   {}: lists the implemented languages
   {}: in addition to detecting repetition, displays some
       statistics the input text
-  {}[language]: sets the language of the text (default: french)
+  {}[language] (or {} language): sets the language of the text (default: french)
   {}[filename]: sets input file (default: stdin)
   {}[filename]: sets output file (default: stdout)
   {}[string]: sets ignored word to those contained in the string,
@@ -92,13 +95,15 @@ Options:
       0.0 and 1.0 and corresponds to the maximal 'difference' between 
       two words until they are no more considered identical (e.g. 0.25
       means that two words must have no more than 25% of difference) 
-      (default: not activated)",
+      (default: not activated)
+  {}: try to run Caribon with ispell compatibility mode",
              env!("CARGO_PKG_VERSION"),
              ARG_USAGE,
              ARG_VERSION,
              ARG_LIST_LANGUAGES,
              ARG_STATS,
              ARG_LANG,
+             ARG_LANG_SHORT,
              ARG_INPUT,
              ARG_OUTPUT,
              ARG_IGNORE,
@@ -109,7 +114,9 @@ Options:
              ARG_INPUT_FORMAT,
              ARG_OUTPUT_FORMAT,
              ARG_IGNORE_PROPER,
-             ARG_FUZZY);
+             ARG_FUZZY,
+             ARG_ISPELL
+    );
 }
 
 pub struct Config {
@@ -128,6 +135,8 @@ pub struct Config {
     pub add_ignored: String,
     pub fuzzy: Option<f32>,
     pub print_stats: bool,
+    pub ispell: bool,
+    pub ispell_list: bool,
 }
 
 impl Config {
@@ -149,6 +158,8 @@ impl Config {
             add_ignored: String::new(),
             fuzzy: None,
             print_stats: false,
+            ispell: false,
+            ispell_list: false
         }
     }
 
@@ -158,8 +169,14 @@ impl Config {
         let mut iter = env::args();
         iter.next();
         // Sets fields from args
+        let mut previous_was_lang = false;
         for argument in iter {
-            config.parse_arg(&argument);
+            if previous_was_lang {
+                config.lang = argument.to_owned();
+                previous_was_lang = false;
+            } else {
+                previous_was_lang = config.parse_arg(&argument);
+            }
         }
         // Sets fields to default values if they have not been set
         if config.input_format.is_empty() {
@@ -182,8 +199,13 @@ impl Config {
     }
     
     /// Parse a single argument
-    pub fn parse_arg(&mut self, arg:&str) {
-        if arg.starts_with(ARG_OUTPUT) {
+    ///
+    /// If true, next argument should be language content
+    /// (yes this is hacky)
+    pub fn parse_arg(&mut self, arg:&str) -> bool {
+        if arg == ARG_LANG_SHORT {
+            return true;
+        } else if arg.starts_with(ARG_OUTPUT) {
             let option = &arg[ARG_OUTPUT.len()..];
             let result = File::create(option);
             match result {
@@ -304,9 +326,14 @@ impl Config {
             exit(0);
         } else if arg == ARG_STATS {
             self.print_stats = true;
-        } else {
+        } else if arg == ARG_ISPELL {
+            self.ispell = true;
+        } else if arg == ARG_LIST {
+            self.ispell_list = true;
+        }else {
             println!("Unrecognized argument: {}. See {} for help", arg, ARG_USAGE);
             exit(0);
         }
+        return false;
     }
 }

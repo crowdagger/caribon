@@ -42,13 +42,20 @@ const ARG_ADD_IGNORED:&'static str = "--add-ignored=";
 const ARG_FUZZY:&'static str = "--fuzzy=";
 const ARG_STATS:&'static str = "--print-stats";
 const ARG_ISPELL:&'static str = "-a";
+const ARG_ISPELL_VERSION:&'static str = "-v";
+const ARG_ISPELL_VERSION_VARIANT:&'static str = "-vv";
 const ARG_LIST:&'static str = "-l";
+const ARG_ISPELL_IGNORE:&'static [&'static str] = &["-m", "-B"];
 
 pub fn list_languages() {
     println!("Supported languages:");
     for l in Parser::list_languages() {
         println!("- '{}'", l);
     }
+}
+
+pub fn disguise_as_ispell() {
+    println!("@(#) International Ispell Version 3.1.20 (but really Caribon {})", env!("CARGO_PKG_VERSION"));
 }
 
 fn version() {
@@ -330,7 +337,12 @@ impl Config {
             self.ispell = true;
         } else if arg == ARG_LIST {
             self.ispell_list = true;
-        }else {
+        } else if arg == ARG_ISPELL_VERSION || arg == ARG_ISPELL_VERSION_VARIANT {
+            disguise_as_ispell();
+            exit(0);
+        } else if ARG_ISPELL_IGNORE.contains(&arg) {
+            // do nothing
+        } else {
             println!("Unrecognized argument: {}. See {} for help", arg, ARG_USAGE);
             exit(0);
         }

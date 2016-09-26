@@ -70,7 +70,7 @@ fn try_parse() -> Result<(), Box<Error>> {
         try!(config.output.write(&output.bytes().collect::<Vec<u8>>()));
         Ok(())
     } else {
-        println!("@(#) International Ispell Version 3.1.20 (but really Caribon {})", env!("CARGO_PKG_VERSION"));
+        config::disguise_as_ispell();
 
         let stdin = io::stdin();
         for line in stdin.lock().lines() {

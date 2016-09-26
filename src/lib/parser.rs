@@ -697,7 +697,11 @@ Details: the following was not closed: {}",
                 },
                 Word::Tracked(ref s, _, _, highlight) => {
                     if highlight.is_some() {
-                        res.push_str(&format!("# {} {}\n", s, pos));
+                        if !list {
+                            res.push_str(&format!("# {} {}\n", s, pos));
+                        } else {
+                            res.push_str(&format!("{}\n", s));
+                        }
                     } else {
                         if !list {
                             res.push_str("*\n");

@@ -43,6 +43,15 @@ pub struct Parser {
     max_distance: u32,
     /// Triggers fuzzy string matching
     fuzzy: Option<f32>,
+
+    /// current pos in words
+    pos: u32,
+    /// Hashmap of repetitions
+    hash: HashMap<String, (u32, Vec<usize>)>,
+    /// Mapping between non-ignored and ignored words
+    pos_to_i: Vec<usize>,
+    /// number of words that have been processed before
+    offset: usize,
 }
 
 impl Parser {
@@ -128,6 +137,10 @@ impl Parser {
             ignore_proper: false,
             max_distance: 50,
             fuzzy: None,
+            pos: 1,
+            hash: HashMap::new(),
+            pos_to_i: vec!(0),
+            offset: 0,
         })
     }
 
@@ -473,12 +486,10 @@ Details: the following was not closed: {}",
     /// let result = parser.ast_to_markdown(&ast); // not the most useful output format, but the easiest to debug
     /// assert_eq!(&result, "Testing whether this repetition detector **works** or does not **work**");
     /// ```
-    pub fn detect_local(&self, ast: &mut Ast, threshold: f32) {
-        let mut h: HashMap<String, (u32, Vec<usize>)> = HashMap::new();
-        let mut pos: u32 = 1;
-        let mut pos_to_i: Vec<usize> = vec![0];
+    pub fn detect_local(&mut self, ast: &mut Ast, threshold: f32) {
         let mut vec = ast.get_body_mut();
 
+        // must only be called if offset = 0
         fn try_remove(pos: u32,
                       h: &mut HashMap<String, (u32, Vec<usize>)>,
                       vec: &[Word],
@@ -503,20 +514,20 @@ Details: the following was not closed: {}",
             let elem = match vec[i] {
                 Word::Untracked(_) => None,
                 Word::Ignored(_) => {
-                    pos += 1;
-                    pos_to_i.push(i);
+                    self.pos += 1;
+                    self.pos_to_i.push(i + self.offset);
                     None
                 }
                 Word::Tracked(_, ref stemmed, _, _) => {
-                    pos += 1;
-                    pos_to_i.push(i);
-                    let s = self.fuzzy_get(&h, stemmed);
-                    Some((h.remove(&s), s))
+                    self.pos += 1;
+                    self.pos_to_i.push(i + self.offset);
+                    let s = self.fuzzy_get(&self.hash, stemmed);
+                    Some((self.hash.remove(&s), s))
                 }
             };
             // Try to remove elements on a map
-            if self.fuzzy.is_some() {
-                try_remove(pos, &mut h, vec, &pos_to_i, self.max_distance);
+            if self.fuzzy.is_some() && self.offset == 0 {
+                try_remove(self.pos, &mut self.hash, vec, &self.pos_to_i, self.max_distance);
             }
             if let Some((e, stemmed)) = elem {
                 // Update old stemmed to the fuzzy matched one
@@ -525,19 +536,23 @@ Details: the following was not closed: {}",
                     None => (0, vec![]),
                     Some(y) => y,
                 };
-                if p_pos != 0 && pos - p_pos < self.max_distance {
-                    subvec.push(i);
+                if p_pos != 0 && self.pos - p_pos < self.max_distance {
+                    subvec.push(i + self.offset);
                     let v = subvec.len() as f32;
                     for x in &subvec {
-                        vec[*x].set_count(v);
+                        if *x >= self.offset {
+                            vec[*x - self.offset].set_count(v);
+                        } 
                     }
-                    h.insert(stemmed, (pos, subvec));
+                    self.hash.insert(stemmed, (self.pos, subvec));
                 } else {
-                    subvec = vec![i];
-                    h.insert(stemmed, (pos, subvec));
+                    subvec = vec![i + self.offset];
+                    self.hash.insert(stemmed, (self.pos, subvec));
                 }
             }
         }
+        self.offset += vec.len();
+        
         self.highlight(vec, threshold, value_to_colour)
     }
 

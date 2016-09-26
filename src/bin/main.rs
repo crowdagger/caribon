@@ -76,7 +76,10 @@ fn try_parse() -> Result<(), Box<Error>> {
         for line in stdin.lock().lines() {
             let mut ast = try!(parser.tokenize(&try!(line)));
             parser.detect_local(&mut ast, config.threshold);
-            println!("{}", parser.ast_to_ispell(&ast, config.ispell_list));
+            print!("{}", parser.ast_to_ispell(&ast, config.ispell_list));
+            if !config.ispell_list {
+                println!("");
+            }
         }
         
         Ok(())

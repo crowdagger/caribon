@@ -23,8 +23,10 @@ use caribon::Parser;
 use std::error::Error;
 use std::io;
 use std::io::Read;
+use std::io::Write;
 use std::io::BufRead;
 use std::collections::HashMap;
+use std::fs::File;
 
 fn print_stats(h: &HashMap<String, f32>, n_words: u32) {
     let different_words = h.len();
@@ -73,13 +75,31 @@ fn try_parse() -> Result<(), Box<Error>> {
         config::disguise_as_ispell();
 
         let stdin = io::stdin();
+        let mut i = 0;
         for line in stdin.lock().lines() {
-            let mut ast = try!(parser.tokenize(&try!(line)));
+            i += 1;
+            let mut line = try!(line);
+            let first = if let Some(c) = line.chars().next() {
+                c
+            } else {
+                continue;
+            };
+            match first {
+                '!' => config.ispell_list = true, //terse mode
+                '%' => config.ispell_list = false, //exit terse mode
+                '*' | '@' | '#' | '~' | '+' | '-' => continue,
+                '^' => line = (&line[1..]).to_owned(),
+                _ => (),
+            }
+            let mut ast = try!(parser.tokenize(&line));
             parser.detect_local(&mut ast, config.threshold);
-            print!("{}", parser.ast_to_ispell(&ast, config.ispell_list));
+            let res = parser.ast_to_ispell(&ast, config.ispell_list);
+            print!("{}", res);
             if !config.ispell_list {
                 println!("");
             }
+            let mut f = File::create(&format!("/tmp/caribon{}.log", i)).unwrap();
+            f.write_all(&format!("input: {}\n***\noutput: {}\n", &line, res).as_bytes()).unwrap();
         }
         
         Ok(())

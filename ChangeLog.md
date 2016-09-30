@@ -1,6 +1,12 @@
 ChangeLog
 =========
 
+0.7.3 (2016-09-30)
+------------------
+* use only the first two words to detect the ignored list to use, so
+  it works if the user uses a unicode language code
+* add some words to french ignored list
+
 0.7.2 (2016-08-17)
 ------------------
 * fix a formatting bug when printing HTML from a text input

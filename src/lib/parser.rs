@@ -84,10 +84,13 @@ impl Parser {
 
     /// Returns a vector containing the default ignored words for this language.
     pub fn get_ignored_from_lang(lang: &str) -> Vec<String> {
-        match lang {
-            "french" => Parser::get_ignored_from_string(IGNORED_FR),
-            "english" => Parser::get_ignored_from_string(IGNORED_EN),
-            _ => vec![],
+        if lang.starts_with("fr") {
+            Parser::get_ignored_from_string(IGNORED_FR)
+        } else if lang.starts_with("en") {
+            Parser::get_ignored_from_string(IGNORED_EN)
+            
+        } else {
+            vec![]
         }
     }
 

@@ -4,7 +4,14 @@ ChangeLog
 unreleased
 ----------
 * add `ast_to_ispell` method to parser to allow Caribon to be runned
-  pretending to be ispell
+pretending to be ispell
+
+0.7.3 (2016-09-30)
+------------------
+* use only the first two words to detect the ignored list to use, so
+  it works if the user uses a unicode language code
+* add some words to french ignored list
+
 
 0.7.2 (2016-08-17)
 ------------------

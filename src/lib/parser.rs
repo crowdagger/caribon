@@ -1,4 +1,4 @@
-// Copyright (C) 2015 Élisabeth HENRY.
+// Copyright (C) 2015, 2016 Élisabeth HENRY.
 //
 // This file is part of Caribon.
 //
@@ -24,8 +24,8 @@ use display::{get_shell_colour, value_to_colour, SHELL_COLOUR_OFF, SCRIPTS};
 
 type TokenizeResult<'a> = Result<(&'a [char], Word)>;
 
-const IGNORED_FR: &'static str = "la le les pas ne nos des ils elles il elle se on nous vous leur \
-                                  leurs de et un une t s à d l je tu";
+const IGNORED_FR: &'static str = "la le les pas ne nos des de du ils elles il elle se on nous vous leur \
+                                  leurs et un une t s à d l je tu en";
 const IGNORED_EN: &'static str = "it s i of the a you we she he they them its their";
 
 /// Parser which can load a string, detects repetition on it and outputs an HTML file.

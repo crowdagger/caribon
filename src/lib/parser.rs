@@ -16,7 +16,8 @@
 // along with Caribon.  If not, see <http://www.gnu.org/licenses/>.
 
 use super::stemmer::Stemmer;
-use super::edit_distance::edit_distance;
+use super::strsim::levenshtein;
+
 use word::{Word, Ast};
 use error::{Error, Result};
 use std::collections::HashMap;
@@ -876,7 +877,7 @@ Details: the following was not closed: {}",
                                   }
                                   true
                               }) {
-                        let dist = edit_distance(s, pattern);
+                        let dist = levenshtein(s, pattern) as i32;
                         if dist < min_distance {
                             min_distance = dist;
                             key = s;

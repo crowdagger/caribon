@@ -6,6 +6,11 @@ unreleased
 * add `ast_to_ispell` method to parser to allow Caribon to be runned
 pretending to be ispell
 
+0.7.4 (2016-10-26)
+----------------------
+* use `strsim` instead of `edit_distance` crate; benchmark shows that
+  it increases the performances for fuzzy matching.
+
 0.7.3 (2016-09-30)
 ------------------
 * use only the first two words to detect the ignored list to use, so

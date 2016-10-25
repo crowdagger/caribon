@@ -20,4 +20,4 @@ doc = false
 
 [dependencies]
 stemmer = "0.3"
-edit-distance = "1"
+strsim = "0.5"

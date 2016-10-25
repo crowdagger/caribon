@@ -107,7 +107,7 @@
 //mod bench;
 
 extern crate stemmer;
-extern crate edit_distance;
+extern crate strsim;
 
 mod error;
 mod word;

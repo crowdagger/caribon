@@ -699,10 +699,11 @@ Details: the following was not closed: {}",
     ///
     /// * ast: the ast that must be printed
     /// * list: only display error (`--list` option)
-    pub fn ast_to_ispell(&self, ast: &Ast, list: bool) -> String {
+    /// * offset: the offset to beginning of the line
+    pub fn ast_to_ispell(&self, ast: &Ast, list: bool, offset: usize) -> String {
         let mut res = String::new();
         let words = &ast.words;
-        let mut pos = 0;
+        let mut pos = offset;
 
         for word in words {
             match *word {

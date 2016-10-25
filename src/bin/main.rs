@@ -84,22 +84,26 @@ fn try_parse() -> Result<(), Box<Error>> {
             } else {
                 continue;
             };
+            let mut offset = 0;
             match first {
                 '!' => config.ispell_list = true, //terse mode
                 '%' => config.ispell_list = false, //exit terse mode
                 '*' | '@' | '#' | '~' | '+' | '-' => continue,
-                '^' => line = (&line[1..]).to_owned(),
+                '^' => {
+                    offset = 1;
+                    line = (&line[1..]).to_owned();
+                },
                 _ => (),
             }
             let mut ast = try!(parser.tokenize(&line));
             parser.detect_local(&mut ast, config.threshold);
-            let res = parser.ast_to_ispell(&ast, config.ispell_list);
+            let res = parser.ast_to_ispell(&ast, config.ispell_list, offset);
             print!("{}", res);
             if !config.ispell_list {
                 println!("");
             }
-            let mut f = File::create(&format!("/tmp/caribon{}.log", i)).unwrap();
-            f.write_all(&format!("input: {}\n***\noutput: {}\n", &line, res).as_bytes()).unwrap();
+            // let mut f = File::create(&format!("/tmp/caribon{}.log", i)).unwrap();
+            // f.write_all(&format!("input: {}\n***\noutput: {}\n", &line, res).as_bytes()).unwrap();
         }
         
         Ok(())

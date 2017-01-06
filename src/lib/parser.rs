@@ -30,6 +30,7 @@ const IGNORED_FR: &'static str = "la le les pas ne nos des de du ils elles il el
 const IGNORED_EN: &'static str = "it s i of the a you we she he they them its their";
 
 /// A detected repetition
+#[derive(Debug)]
 pub struct Repetition {
     /// The beginning (in characters) of the repetition
     pub offset: usize,

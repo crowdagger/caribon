@@ -3,47 +3,48 @@ ChangeLog
 
 unreleased
 ----------
-* add `ast_to_ispell` method to parser to allow Caribon to be runned
-pretending to be ispell
+* Add `ast_to_ispell` method to parser to allow Caribon to be runned
+pretending to be ispell.
+* Add `ast_to_repetitions` method to parser to make Caribon more usable as a library.
 
 0.7.4 (2016-10-26)
 ----------------------
-* use `strsim` instead of `edit_distance` crate; benchmark shows that
+* Use `strsim` instead of `edit_distance` crate; benchmark shows that
   it increases the performances for fuzzy matching.
 
 0.7.3 (2016-09-30)
 ------------------
-* use only the first two words to detect the ignored list to use, so
+* Use only the first two words to detect the ignored list to use, so
   it works if the user uses a unicode language code
-* add some words to french ignored list
+* Add some words to french ignored list
 
 
 0.7.2 (2016-08-17)
 ------------------
-* fix a formatting bug when printing HTML from a text input
-* runned `clippy` on repository and fixed some unesthetic stuff
+* Fix a formatting bug when printing HTML from a text input
+* Runned `clippy` on repository and fixed some unesthetic stuff
 
 0.7.1 (2015-12-10)
 ------------------
-* fixed documentation, homepage and repository links because of change
+* Fixed documentation, homepage and repository links because of change
   of username
 
 0.7.0 (2015-11-12)
 ------------------
-* in `ast_to_*`, use `string.push_str(...)` instead of `string =
+* In `ast_to_*`, use `string.push_str(...)` instead of `string =
   string + ...`
-* replaced `to_string()` by `to_owned()` to convert `&str` to `String`
-* moved to version 0.3 of stemmer library, requiring a bit more
+* Replaced `to_string()` by `to_owned()` to convert `&str` to `String`
+* Moved to version 0.3 of stemmer library, requiring a bit more
 functions to be `&mut self`
-* fixed `Cargo.toml` to no longer use `*` dependencies which broke
+* Fixed `Cargo.toml` to no longer use `*` dependencies which broke
   everything (sorry -_-)
 
 
 0.6.2 (2015-07-15)
 ------------------
-* moved library files and binary files into separate directories
-* changed license to GNU Lesser General Public License
-* binary: added `--print-stats` option (a bit limited at the moment)
+* Moved library files and binary files into separate directories
+* Changed license to GNU Lesser General Public License
+* Binary: added `--print-stats` option (a bit limited at the moment)
 
 0.6.1 (2015-07-13)
 ------------------

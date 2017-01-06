@@ -26,7 +26,6 @@ use std::io::Read;
 use std::io::Write;
 use std::io::BufRead;
 use std::collections::HashMap;
-use std::fs::File;
 
 fn print_stats(h: &HashMap<String, f32>, n_words: u32) {
     let different_words = h.len();
@@ -75,9 +74,7 @@ fn try_parse() -> Result<(), Box<Error>> {
         config::disguise_as_ispell();
 
         let stdin = io::stdin();
-        let mut i = 0;
         for line in stdin.lock().lines() {
-            i += 1;
             let mut line = try!(line);
             let first = if let Some(c) = line.chars().next() {
                 c

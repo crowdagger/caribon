@@ -103,8 +103,8 @@
 //!
 
 // Uncomment this if you use nightly and want to run benchmarks
-#![feature(test)]
-mod bench;
+// #![feature(test)]
+// mod bench;
 
 extern crate stemmer;
 extern crate strsim;
@@ -120,3 +120,4 @@ pub use error::Result;
 pub use word::Word;
 pub use word::Ast;
 pub use parser::Parser;
+pub use parser::Repetition;

@@ -29,6 +29,18 @@ const IGNORED_FR: &'static str = "la le les pas ne nos des de du ils elles il el
                                   leurs et un une t s à d l je tu en";
 const IGNORED_EN: &'static str = "it s i of the a you we she he they them its their";
 
+/// A detected repetition
+pub struct Repetition {
+    /// The beginning (in characters) of the repetition
+    pub offset: usize,
+    /// The length (in characters) of the repetition
+    pub length: usize,
+    /// The "severity" of the repetition
+    pub value: f32,
+    /// How the repetition should be displayed
+    pub colour: &'static str,
+}
+
 /// Parser which can load a string, detects repetition on it and outputs an HTML file.
 #[repr(C)]
 pub struct Parser {
@@ -687,6 +699,34 @@ Details: the following was not closed: {}",
                 }
             }
         }
+        res
+    }
+
+    /// Returns a list of repetitions found in the AST.
+    pub fn ast_to_repetitions(&self, ast: &Ast) -> Vec<Repetition> {
+        let mut res = vec![];
+        let words = &ast.words;
+        let mut pos = 0;
+
+        for word in words {
+            match *word {
+                Word::Untracked(ref s) => pos += s.chars().count(),
+                Word::Ignored(ref s) => pos += s.chars().count(),
+                Word::Tracked(ref s, _, v, highlight) => {
+                    let len = s.chars().count();
+                    if let Some(colour) = highlight {
+                        res.push(Repetition {
+                            offset: pos,
+                            length: len,
+                            value: v,
+                            colour: colour
+                        });
+                    }
+                    pos += len;
+                }
+            }
+        }
+        
         res
     }
 

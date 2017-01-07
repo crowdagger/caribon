@@ -1,8 +1,8 @@
 ChangeLog
 =========
 
-unreleased
-----------
+0.8.0 (2017-01-07)
+----------------------
 * Add `ast_to_ispell` method to parser to allow Caribon to be runned
 pretending to be ispell.
 * Add `ast_to_repetitions` method to parser to make Caribon more usable as a library.

@@ -1,6 +1,10 @@
 ChangeLog
 =========
 
+0.8.1 (2017-03-04)
+----------------------
+* Update `strsim` dependency to 0.6.0
+
 0.8.0 (2017-01-07)
 ----------------------
 * Add `ast_to_ispell` method to parser to allow Caribon to be runned

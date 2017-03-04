@@ -1,6 +1,6 @@
 [package]
 name = "caribon"
-version = "0.8.0"
+version = "0.8.1"
 authors = ["Elisabeth Henry <liz.henry@ouvaton.org>"]
 readme = "README.md"
 license = "LGPL-2.1+"

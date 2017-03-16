@@ -7,6 +7,7 @@ license = "LGPL-2.1+"
 documentation = "https://docs.rs/caribon/"
 repository = "https://github.com/lise-henry/caribon"
 description = "A repetition detector program and library"
+categories = ["text-processing", "command-line-utilities"]
 
 [lib]
 name = "caribon"
